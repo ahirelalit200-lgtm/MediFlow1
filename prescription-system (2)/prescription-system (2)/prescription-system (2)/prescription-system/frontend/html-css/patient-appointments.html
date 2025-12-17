@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book Appointment - Patient Portal</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/patient-theme.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Appointments Page Specific Styles */
+    .appointment-form {
+      background: var(--card-bg);
+      padding: 2.5rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 2rem;
+      border: 1px solid var(--border-color);
+    }
+
+    .form-group {
+      margin-bottom: 2rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.75rem;
+      color: var(--text-main);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 1rem 1.25rem;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      font-size: 16px;
+      background: var(--bg-color);
+      color: var(--text-main);
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      background: var(--card-bg);
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .urgency-options {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.75rem;
+    }
+
+    .urgency-option {
+      flex: 1;
+      text-align: center;
+    }
+
+    .urgency-option input[type="radio"] {
+      display: none;
+    }
+
+    .urgency-option label {
+      display: block;
+      padding: 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+      background: var(--bg-color);
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    .urgency-option input[type="radio"]:checked+label {
+      border-color: var(--primary-color);
+      background: var(--primary-color);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+
+    .submit-btn {
+      width: 100%;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 1.25rem 2rem;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .submit-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .info-card {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2.5rem;
+    }
+
+    [data-theme="dark"] .info-card {
+      background: #1e3a8a;
+      border-color: #1e40af;
+    }
+
+    .info-card h3 {
+      color: #1e40af;
+      margin-bottom: 1.25rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    [data-theme="dark"] .info-card h3 {
+      color: #bfdbfe;
+    }
+
+    .info-card ul {
+      margin: 0;
+      padding-left: 1.5rem;
+    }
+
+    .info-card li {
+      margin-bottom: 0.75rem;
+      color: #374151;
+    }
+
+    [data-theme="dark"] .info-card li {
+      color: #dbeafe;
+    }
+
+    .doctors-section {
+      background: var(--card-bg);
+      padding: 2.5rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 2.5rem;
+      border: 1px solid var(--border-color);
+    }
+
+    .doctors-section h3 {
+      color: var(--text-main);
+      margin-bottom: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .doctors-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+
+    .doctor-card {
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: var(--bg-color);
+    }
+
+    .doctor-card:hover {
+      border-color: var(--primary-color);
+      transform: translateY(-4px);
+    }
+
+    .doctor-card.selected {
+      border-color: var(--primary-color);
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .doctor-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: var(--text-main);
+    }
+
+    .doctor-card.selected .doctor-name {
+      color: white;
+    }
+
+    .filters-section {
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .filters-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
+      gap: 1rem;
+      align-items: end;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 1200px) {
+      .filters-row {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .filters-row {
+        grid-template-columns: 1fr;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .filter-group label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+    }
+
+    .filter-group input,
+    .filter-group select {
+      padding: 0.875rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 14px;
+      background: var(--card-bg);
+      color: var(--text-main);
+    }
+
+    .clear-filters-btn {
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 0.875rem 1.25rem;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .results-count {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 1rem;
+      padding: 0.75rem;
+      background: var(--bg-color);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .appointment-history-section {
+      background: var(--card-bg);
+      padding: 2.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 2.5rem;
+    }
+
+    .appointment-history-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1.5rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 1rem;
+      background: var(--bg-color);
+    }
+
+    .appointment-history-item .status-text {
+      color: var(--text-main);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="assets/care.png" alt="Logo" height="32" />
+      <span>MediFlow</span>
+    </div>
+
+    <nav class="nav-links">
+      <a href="patient-dashboard.html" class="nav-item">
+        <span class="nav-icon">📊</span>
+        Dashboard
+      </a>
+      <a href="patient-prescriptions.html" class="nav-item">
+        <span class="nav-icon">💊</span>
+        Prescriptions
+      </a>
+      <a href="patient-appointments.html" class="nav-item active">
+        <span class="nav-icon">📅</span>
+        Appointments
+      </a>
+      <a href="patient-xrays.html" class="nav-item">
+        <span class="nav-icon">🩻</span>
+        X-Ray Reports
+      </a>
+      <a href="patient-profile.html" class="nav-item">
+        <span class="nav-icon">👤</span>
+        Profile
+      </a>
+    </nav>
+
+    <div class="user-profile-mini">
+      <div class="avatar-placeholder">P</div>
+      <div style="flex:1; overflow:hidden;">
+        <div style="font-weight:600; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+          id="sidebar-patient-name">Patient</div>
+        <div style="font-size:0.75rem; color:var(--text-muted); cursor:pointer;" onclick="patientLogout()">Sign Out
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <header class="header-bar">
+      <div class="welcome-text">
+        <h1>Book Appointment</h1>
+        <p>Welcome, <span id="patient-name">Patient</span>. Schedule your next consultation.</p>
+      </div>
+
+      <div class="header-actions">
+        <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark Mode">
+          <span class="theme-icon" id="theme-icon">🌙</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Available Doctors -->
+    <div class="doctors-section">
+      <h3>Available Doctors</h3>
+      <p style="color:var(--text-muted); margin-bottom:2rem;">Select a doctor from our platform to book your appointment
+      </p>
+
+      <!-- Filters Section -->
+      <div class="filters-section">
+        <div class="filters-row">
+          <div class="filter-group">
+            <label for="search-doctor"> Search Doctor</label>
+            <input type="text" id="search-doctor" placeholder="Search by doctor name..." />
+          </div>
+          <div class="filter-group">
+            <label for="filter-state"> Filter by State</label>
+            <select id="filter-state">
+              <option value="">All States</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="filter-city"> Filter by City</label>
+            <select id="filter-city">
+              <option value="">All Cities</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="filter-area"> Filter by Area</label>
+            <select id="filter-area">
+              <option value="">All Areas</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="filter-degree">Filter by Degree</label>
+            <select id="filter-degree">
+              <option value="">All Degrees</option>
+              <option value="MBBS">MBBS</option>
+              <option value="BDS">BDS</option>
+              <option value="MD">MD</option>
+              <option value="MS">MS</option>
+              <option value="MDS">MDS</option>
+              <option value="BAMS">BAMS</option>
+              <option value="BHMS">BHMS</option>
+              <option value="BUMS">BUMS</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <button type="button" id="clear-filters" class="clear-filters-btn">Clear Filters</button>
+          </div>
+        </div>
+        <div class="results-count">
+          <span id="doctors-count">Loading...</span>
+        </div>
+      </div>
+
+      <div id="doctors-list" class="doctors-grid">
+        <div class="loading-message">Loading doctors...</div>
+      </div>
+    </div>
+
+    <!-- Info Card -->
+    <div class="info-card">
+      <h3> How It Works</h3>
+      <ul>
+        <li>Select a doctor from the list above or enter doctor details manually</li>
+        <li>Fill out the appointment request form below</li>
+        <li>Our staff will review your request within 24 hours</li>
+        <li>You'll receive a confirmation call or email with the final appointment time</li>
+        <li>For urgent medical needs, please call our emergency line directly</li>
+      </ul>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div id="message-container"></div>
+
+    <!-- Appointment Form -->
+    <form class="appointment-form" id="appointment-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="doctor-name">Preferred Doctor *</label>
+          <input type="text" id="doctor-name" placeholder="Enter doctor's name (e.g., Dr. Smith)" required />
+        </div>
+        <div class="form-group">
+          <label for="doctor-mobile">Doctor's Mobile Number *</label>
+          <input type="tel" id="doctor-mobile" placeholder="Enter doctor's mobile number" required />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="preferred-date">Preferred Date *</label>
+          <input type="date" id="preferred-date" required min="" />
+        </div>
+        <div class="form-group">
+          <label for="preferred-time">Preferred Time</label>
+          <select id="preferred-time">
+            <option value="">Select preferred time</option>
+            <option value="09:00">9:00 AM</option>
+            <option value="10:00">10:00 AM</option>
+            <option value="11:00">11:00 AM</option>
+            <option value="12:00">12:00 PM</option>
+            <option value="14:00">2:00 PM</option>
+            <option value="15:00">3:00 PM</option>
+            <option value="16:00">4:00 PM</option>
+            <option value="17:00">5:00 PM</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="reason">Reason for Visit *</label>
+        <textarea id="reason" placeholder="Please describe your symptoms or reason for the appointment..."
+          required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Urgency Level *</label>
+        <div class="urgency-options">
+          <div class="urgency-option urgency-normal">
+            <input type="radio" id="normal" name="urgency" value="normal" checked />
+            <label for="normal">Normal</label>
+          </div>
+          <div class="urgency-option urgency-urgent">
+            <input type="radio" id="urgent" name="urgency" value="urgent" />
+            <label for="urgent">Urgent</label>
+          </div>
+          <div class="urgency-option urgency-emergency">
+            <input type="radio" id="emergency" name="urgency" value="emergency" />
+            <label for="emergency">Emergency</label>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submit-btn">
+        Submit Appointment Request
+      </button>
+    </form>
+
+    <!-- Appointment Tips -->
+    <div class="appointment-tips">
+      <h3> Appointment Tips</h3>
+      <ul>
+        <li>Book appointments at least 24 hours in advance for better availability</li>
+        <li>Bring your insurance card and a list of current medications</li>
+        <li>Arrive 15 minutes early for check-in procedures</li>
+        <li>For emergency situations, please call 911 or visit the nearest emergency room</li>
+        <li>You can reschedule or cancel appointments by calling our office</li>
+      </ul>
+    </div>
+    </div>
+
+    <script>
+      // Theme management functions
+      function initializeTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        let theme = 'light';
+        if (savedTheme) {
+          theme = savedTheme;
+        } else if (prefersDark) {
+          theme = 'dark';
+        }
+
+        setTheme(theme);
+        updateThemeIcon(theme);
+      }
+
+      function setTheme(theme) {
+        if (theme === 'dark') {
+          document.body.setAttribute('data-theme', 'dark');
+        } else {
+          document.body.removeAttribute('data-theme');
+        }
+        localStorage.setItem('theme', theme);
+      }
+
+      function toggleTheme() {
+        const currentTheme = document.body.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        setTheme(newTheme);
+        updateThemeIcon(newTheme);
+      }
+
+      function updateThemeIcon(theme) {
+        const icon = document.getElementById('theme-icon');
+        if (icon) {
+          icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+      }
+
+      // Initialize theme on page load
+      initializeTheme();
+    </script>
+    <script src="js/config.js"></script>
+    <script src="js/patient-appointments.js"></script>
+</body>
+
+</html>

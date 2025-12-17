@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test AI X-ray Analysis</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: linear-gradient(to right, #f7fbff, #e5f3ff);
+    }
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #1a1a1a;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      color: #6b7280;
+      margin-bottom: 30px;
+    }
+    .upload-area {
+      border: 3px dashed #29a9f8;
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      margin-bottom: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .upload-area:hover {
+      background: #f0f9ff;
+      border-color: #7b61ff;
+    }
+    .upload-area.dragover {
+      background: #e0f2fe;
+      border-color: #0ea5e9;
+    }
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 16px;
+      transition: transform 0.2s;
+    }
+    button:hover {
+      transform: translateY(-2px);
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    #preview {
+      margin: 20px 0;
+      text-align: center;
+    }
+    #preview img {
+      max-width: 300px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    #results {
+      margin-top: 30px;
+      padding: 20px;
+      border-radius: 12px;
+      display: none;
+    }
+    #results.success {
+      background: #f0fdf4;
+      border: 2px solid #22c55e;
+    }
+    #results.error {
+      background: #fef2f2;
+      border: 2px solid #ef4444;
+    }
+    .finding {
+      background: white;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border-left: 4px solid #667eea;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 10px;
+    }
+    .badge.high { background: #fee2e2; color: #991b1b; }
+    .badge.moderate { background: #fef3c7; color: #92400e; }
+    .badge.low { background: #dcfce7; color: #166534; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🤖 AI X-ray Analysis Test</h1>
+    <p class="subtitle">Upload a dental X-ray to test the AI analysis system</p>
+
+    <div class="upload-area" id="uploadArea">
+      <p style="font-size: 48px; margin: 0;">📷</p>
+      <p style="margin: 10px 0; font-weight: 600;">Click to upload or drag & drop</p>
+      <p style="color: #6b7280; font-size: 14px;">Dental X-ray image (PNG, JPG, JPEG)</p>
+      <input type="file" id="fileInput" accept="image/*" style="display: none;">
+    </div>
+
+    <div id="preview"></div>
+
+    <button id="analyzeBtn" onclick="analyzeXray()" disabled>
+      🤖 Analyze X-ray with AI
+    </button>
+
+    <div id="results"></div>
+  </div>
+
+  <script>
+    let uploadedImage = null;
+
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const preview = document.getElementById('preview');
+    const results = document.getElementById('results');
+
+    // Click to upload
+    uploadArea.addEventListener('click', () => fileInput.click());
+
+    // File selection
+    fileInput.addEventListener('change', handleFile);
+
+    // Drag and drop
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        handleFile({ target: { files: [file] } });
+      }
+    });
+
+    function handleFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        uploadedImage = event.target.result;
+        preview.innerHTML = `
+          <img src="${uploadedImage}" alt="X-ray preview">
+          <p style="color: #22c55e; margin-top: 10px;">✓ Image loaded successfully</p>
+        `;
+        analyzeBtn.disabled = false;
+        results.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function analyzeXray() {
+      if (!uploadedImage) {
+        alert('Please upload an image first');
+        return;
+      }
+
+      analyzeBtn.disabled = true;
+      analyzeBtn.textContent = '⏳ Analyzing...';
+      results.style.display = 'block';
+      results.className = '';
+      results.innerHTML = `
+        <div style="text-align: center; padding: 20px;">
+          <div style="font-size: 48px;">🔄</div>
+          <p style="font-weight: 600; margin-top: 10px;">AI is analyzing your X-ray...</p>
+          <p style="color: #6b7280; font-size: 14px;">This may take a few seconds</p>
+        </div>
+      `;
+
+      try {
+        const response = await fetch('http://localhost:5000/api/xray-analysis/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            imageDataUrl: uploadedImage,
+            xrayType: 'panoramic'
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          displayResults(result);
+        } else {
+          throw new Error(result.error || 'Analysis failed');
+        }
+      } catch (error) {
+        results.className = 'error';
+        results.innerHTML = `
+          <h3 style="color: #991b1b; margin: 0 0 10px 0;">❌ Analysis Failed</h3>
+          <p style="color: #6b7280;">${error.message}</p>
+          <p style="color: #6b7280; font-size: 14px; margin-top: 10px;">
+            Make sure the server is running on http://localhost:5000
+          </p>
+        `;
+      } finally {
+        analyzeBtn.disabled = false;
+        analyzeBtn.textContent = '🤖 Analyze X-ray with AI';
+      }
+    }
+
+    function displayResults(result) {
+      results.className = 'success';
+      
+      let html = `
+        <h3 style="color: #15803d; margin: 0 0 15px 0;">✅ AI Analysis Complete</h3>
+        
+        <div style="margin-bottom: 20px;">
+          <strong>Severity:</strong>
+          <span class="badge ${result.severity}">${result.severity.toUpperCase()}</span>
+          <br>
+          <strong>Confidence:</strong> ${(result.confidence * 100).toFixed(0)}%
+          <br>
+          <strong>X-ray Type:</strong> ${result.xrayType}
+        </div>
+
+        <h4 style="color: #15803d; margin: 20px 0 10px 0;">🔍 Findings:</h4>
+      `;
+
+      result.findings.forEach(finding => {
+        html += `
+          <div class="finding">
+            <strong>${finding.type}</strong>
+            <span class="badge ${finding.severity}">${finding.severity}</span>
+            <br>
+            <small style="color: #6b7280;">📍 ${finding.location}</small>
+            <br>
+            <small style="color: #6b7280;">💬 ${finding.description}</small>
+            <br>
+            <small style="color: #6b7280;">🎯 Confidence: ${(finding.confidence * 100).toFixed(0)}%</small>
+          </div>
+        `;
+      });
+
+      html += `
+        <h4 style="color: #15803d; margin: 20px 0 10px 0;">💡 Recommendations:</h4>
+        <ul style="margin: 0; padding-left: 20px;">
+      `;
+
+      result.recommendations.forEach(rec => {
+        html += `<li style="margin: 5px 0; color: #374151;">${rec}</li>`;
+      });
+
+      html += `
+        </ul>
+        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #bbf7d0; font-size: 12px; color: #6b7280;">
+          <em>⚠️ Note: This is an AI-assisted analysis. Please verify findings with professional examination.</em>
+        </div>
+      `;
+
+      results.innerHTML = html;
+    }
+  </script>
+</body>
+</html>
