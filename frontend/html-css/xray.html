@@ -1,0 +1,281 @@
+<!-- <script>
+  if (!localStorage.getItem("loggedIn")) {
+    window.location.href = "signup.html";
+  }
+</script> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>X-Ray Upload & Analysis</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/chatbot.css" />
+  <script src="js/config.js"></script>
+  <style>
+    /* Keep the same overall theme as other pages */
+    .container {
+      max-width: 980px;
+      margin: 30px auto;
+      background: #ffffff;
+      padding: 0;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: #f7fbff;
+      border-bottom: 1px solid #eaeaea;
+    }
+
+    .page-title {
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: #1976d2;
+    }
+
+    .content {
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 20px;
+    }
+
+    /* Form card */
+    .card {
+      background: #fff;
+      border: 1px solid #e5e5e5;
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .card-title {
+      font-weight: 700;
+      margin: 0 0 12px;
+    }
+
+    #xray-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 14px;
+    }
+
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-row.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    input[type="text"],
+    input[type="file"] {
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      background: #fff;
+    }
+
+    .submit-row {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .btn-primary {
+      background: #00bfff;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #009acd;
+    }
+
+    /* Preview side */
+    #xray-preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .preview-box {
+      width: 100%;
+      min-height: 240px;
+      border: 1px dashed #b3ecff;
+      background: #f0f8ff;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+    }
+
+    .preview-box img {
+      max-width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    }
+
+    .hint {
+      font-size: 12px;
+      color: #666;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 900px) {
+      .content {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="navbar">
+    <div class="logo">
+      <img src="assets/care.png" alt="Logo" height="40" />
+      <span>Medi<strong>Flow</strong></span>
+    </div>
+    <nav>
+      <ul>
+        <li onclick="location.href='index.html'">Home</li>
+        <li onclick="navigateTo('history')">History</li>
+        <li onclick="navigateTo('appointments')">Appointments</li>
+        <li onclick="navigateTo('analytics')">Analytics</li>
+        <li onclick="navigateTo('medicine')">Add Medicine</li>
+      </ul>
+    </nav>
+
+    <div class="header-right" id="auth-buttons"></div>
+  </header>
+
+  <section class="container" aria-label="Upload X-ray">
+    <div class="page-header">
+      <div class="page-title">Upload X-Ray</div>
+      <div></div>
+    </div>
+
+    <div class="content">
+      <div class="card" aria-labelledby="form-title">
+        <h3 class="card-title" id="form-title">Patient & X-ray Details</h3>
+        <form id="xray-form">
+          <div class="form-row">
+            <label for="patientName">Patient Name</label>
+            <input type="text" id="patientName" placeholder="e.g. John Doe" required />
+          </div>
+          <div class="form-row">
+            <label for="patientMobile">Mobile Number</label>
+            <input type="text" id="patientMobile" placeholder="e.g. 9876543210" required />
+          </div>
+          <div class="form-row full">
+            <label for="xrayImage">Select X-ray Image</label>
+            <input type="file" id="xrayImage" accept="image/*" required />
+            <div class="hint">Accepted formats: PNG, JPG, JPEG. Max size depends on browser storage limits.</div>
+          </div>
+          <div class="submit-row">
+            <button type="submit" class="btn btn-primary">Save X-ray</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card" aria-labelledby="preview-title">
+        <h3 class="card-title" id="preview-title">Preview</h3>
+        <div id="xray-preview" class="preview">
+          <div class="preview-box">No image selected</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    function renderAuthButtons() {
+      const div = document.getElementById("auth-buttons");
+      if (!div) return;
+      const displayName = (JSON.parse(localStorage.getItem("doctorProfile") || "null")?.fullName) || localStorage.getItem("doctorName");
+      const email = localStorage.getItem("email");
+      if (displayName || email) {
+        div.innerHTML = ``;
+      } else {
+        div.innerHTML = `<button class="book-btn" onclick=\"location.href='signup.html'\">Login</button>`;
+      }
+    }
+
+    function navigateTo(page) {
+      if (page === "signup") { window.location.href = "signup.html"; }
+      else if (page === "profile") { window.location.href = "profile.html"; }
+      else if (page === "prescription") { window.location.href = "prescription.html"; }
+      else if (page === "history") { window.location.href = "history.html"; }
+      else if (page === "appointments") { window.location.href = "doctor-appointments.html"; }
+      else if (page === "analytics") { window.location.href = "analytics.html"; }
+      else if (page === "xray") { window.location.href = "xray.html"; }
+      else if (page === "medicine") { window.location.href = "medicine.html"; }
+    }
+
+    function logout() {
+      try { localStorage.setItem("global_logout", String(Date.now())); } catch (e) { }
+      localStorage.removeItem("email");
+      localStorage.removeItem("token");
+      localStorage.removeItem("loggedIn");
+      localStorage.removeItem("doctorName");
+      localStorage.removeItem("doctorProfile");
+      renderAuthButtons();
+      window.location.href = "index.html";
+    }
+
+    renderAuthButtons();
+
+    // Cross-tab logout listener
+    window.addEventListener("storage", function (e) {
+      if (e && e.key === "global_logout") {
+        const hasAuth = localStorage.getItem("email") || localStorage.getItem("token");
+        if (hasAuth) {
+          localStorage.removeItem("email");
+          localStorage.removeItem("token");
+          localStorage.removeItem("loggedIn");
+          localStorage.removeItem("doctorName");
+          localStorage.removeItem("doctorProfile");
+        }
+        renderAuthButtons();
+        window.location.href = "index.html";
+      }
+    });
+  </script>
+
+  <!-- history utils to save into local per-user history so history.html can read it -->
+  <script src="js/history-utils.js"></script>
+  <script src="js/xray.js"></script>
+  <script src="js/chatbot.js"></script>
+  <script src="js/doctor-theme.js"></script>
+</body>
+
+</html>

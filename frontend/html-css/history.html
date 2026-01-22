@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prescription History</title>
+  <!-- keep existing stylesheet untouched -->
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/chatbot.css" />
+  <script src="js/config.js"></script>
+
+  <!-- keep the same inline CSS rules from your original file so behavior/print stays identical -->
+  <style>
+    /* Existing theme + print rules preserved exactly */
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h2 { text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #000; padding: 8px; text-align: center; }
+    th { background: #f0f0f0; }
+
+    /* Theme styles (unchanged) */
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9f9f9; margin: 0; padding: 0; }
+    h2 { text-align: center; margin-bottom: 20px; }
+    .container { max-width: 1000px; margin: 30px auto; background: #ffffff; padding: 0; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); border-radius: 12px; overflow: hidden; }
+    label { font-weight: 600; margin-top: 15px; display: block; }
+    input, select, textarea { width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
+    button { padding: 8px 16px; border: none; border-radius: 8px; background-color: #00bfff; color: white; font-weight: 700; margin-top: 0; cursor: pointer; }
+    button:hover { background-color: #009acd; }
+
+    .actions-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 0; padding: 12px; background: #f7fbff; border-bottom: 1px solid #eaeaea; position: sticky; top: 0; z-index: 5; }
+
+    .toolbar { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px; }
+    .toolbar-title { font-weight: 800; font-size: 1.25rem; }
+
+    .search-panel { display: none; margin: 0 auto; max-width: 760px; background: #f0f8ff; border: 1px dashed #00bfff; border-radius: 8px; padding: 16px; }
+    .search-grid { display: grid; grid-template-columns: 1fr 1fr auto auto; gap: 10px; }
+
+    .cards { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 16px; }
+    .patient-card { border: 1px solid #e5e5e5; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 14px; background: #fff; transition: box-shadow 0.2s ease, transform 0.05s ease; }
+    .patient-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.10); }
+    .patient-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+    .patient-name { font-size: 1.05rem; font-weight: 700; }
+    .patient-meta { font-size: 0.9rem; opacity: 0.8; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #e6f7ff; border: 1px solid #b3ecff; font-size: 0.8rem; margin-left: 8px; }
+    .expand-icon { font-size: 1.2rem; transform: rotate(0deg); transition: transform 0.2s ease; }
+    .expanded .expand-icon { transform: rotate(90deg); }
+    .patient-details { margin-top: 12px; display: none; }
+    .expanded .patient-details { display: block; }
+
+    .empty-state { text-align: center; padding: 32px; border: 1px dashed #ccc; border-radius: 8px; background: #fafafa; margin: 16px; }
+
+    /* Delete panel (kept) */
+    .delete-note { margin-top: 8px; font-size: 12px; color: #555; }
+
+    /* Modal (kept) */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; align-items: center; justify-content: center; z-index: 1000; }
+    .modal { width: min(720px, 92vw); background: #fff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 16px; border-bottom: 1px solid #eee; background: #f7fbff; }
+    .modal-title { font-weight: 700; }
+    .modal-body { padding: 16px; max-height: 70vh; overflow: auto; }
+    .close-btn { background: #ff4d4d; color: #fff; border: none; padding: 6px 10px; border-radius: 8px; cursor: pointer; }
+    .print-btn { background: #16a34a; color: #fff; border: none; padding: 6px 10px; border-radius: 8px; cursor: pointer; }
+
+    /* Print (kept) */
+    #printable { display: none; }
+    .rx-header { display:flex; align-items:center; justify-content:space-between; gap:12px; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; }
+    .rx-clinic { font-size: 18px; font-weight: 700; }
+    .rx-meta { font-size: 12px; opacity: 0.9; }
+    .rx-section-title { font-weight: 700; margin: 10px 0 6px; }
+    .rx-table { width:100%; border-collapse: collapse; }
+    .rx-table th, .rx-table td { border:1px solid #000; padding:6px; text-align:left; }
+
+    /* Ensure print fits standard paper cleanly */
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      html, body { margin: 0; padding: 0; font-size: 13px; }
+      .navbar, .actions-row, .search-panel, .cards, .modal-body > *:not(#printable), .modal-header .close-btn, .modal-header .modal-title { display: none !important; }
+      .modal { box-shadow: none; width: 100%; }
+      .modal-backdrop { position: static; background: transparent; }
+      #printable { display: block !important; }
+      table { border-collapse: collapse; width: 100%; }
+      th, td { border: 1px solid #000; text-align: left; }
+
+      /* Avoid awkward page breaks */
+      .rx-header, .rx-section-title { break-inside: avoid; }
+      .rx-table { break-inside: auto; }
+      .rx-table tr, .rx-table td, .rx-table th { break-inside: avoid; }
+      img { max-width: 100% !important; height: auto !important; }
+      .rx-xray { break-inside: avoid; page-break-inside: avoid; page-break-before: always; margin-bottom: 6mm; }
+      /* Make printed X-ray smaller */
+      .rx-xray-img { max-width: 35% !important; display: block; margin: 0 auto; }
+
+      /* Fixed footer on every printed page */
+      .print-footer {
+        position: fixed;
+        left: 0; right: 0; bottom: 0;
+        border-top: 1px solid #9ca3af;
+        padding: 6px 8px;
+        font-size: 11px;
+        color: #444;
+        background: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 9999;
+    }
+    }
+  </style>
+
+<body>
+  <!-- Navbar (ids/classes preserved so external CSS/JS continues to work) -->
+  <header class="navbar" role="navigation" aria-label="Primary">
+    <div class="logo" style="display:flex; align-items:center; gap:10px;">
+      <img src="assets/care.png" alt="Logo" height="40" />
+      <span>Medi<strong>Flow</strong></span>
+    </div>
+    <nav>
+       <ul>
+        <li onclick="location.href='index.html'">Home</li>
+       
+        <li onclick="navigateTo('appointments')">Appointments</li>
+        <li onclick="navigateTo('analytics')">Analytics</li>
+        <li onclick="navigateTo('xray')">X-Ray</li>
+        <li onclick="navigateTo('medicine')">Add Medicine</li>
+      </ul>
+    </nav>
+    <div class="header-right" id="auth-buttons">
+      <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark Mode">
+        <span class="theme-icon" id="theme-icon">🌙</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Top toolbar: title on the left, actions on the right -->
+    <div class="actions-row">
+      <div class="toolbar" style="width:100%; max-width:1000px; margin:0 auto;">
+        <div class="toolbar-title">Prescription History</div>
+        <div style="display:flex; gap:10px;">
+          <button id="toggleSearchBtn" aria-expanded="false" title="Show search">Search</button>
+          <button id="toggleDeleteBtn" aria-expanded="false" style="background:#ef4444;" title="Toggle delete mode">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search panel (same ids) -->
+    <section id="searchPanel" class="search-panel" aria-hidden="true" aria-label="Search prescriptions">
+      <div class="search-grid">
+        <input type="text" id="searchName" placeholder="Patient name" />
+        <input type="text" id="searchMobile" placeholder="Mobile number" />
+        <button id="searchBtn">Search</button>
+        <button id="resetBtn" type="button">Reset</button>
+      </div>
+    </section>
+
+    <!-- Delete panel (hidden until toggled, ids preserved) -->
+    <section id="deletePanel" class="search-panel" aria-hidden="true" style="display:none;" aria-label="Delete mode">
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <div style="font-weight:600;">Delete Mode</div>
+        <button id="deleteAllBtn" type="button" style="background:#b91c1c;">Delete All History</button>
+        <button id="deleteSelectedBtn" type="button" style="background:#dc2626;">Delete Selected</button>
+        <label style="display:flex; align-items:center; gap:6px; margin-left:auto;">
+          <input type="checkbox" id="selectAllCheckbox" /> Select All
+        </label>
+      </div>
+      <div class="delete-note">Note: Deletions affect your local history only.</div>
+    </section>
+
+    <!-- Cards container (id preserved) -->
+    <section id="cards" class="cards" aria-live="polite" aria-busy="false">
+      <div class="empty-state">No records found</div>
+    </section>
+  </main>
+
+  <!-- Details Modal (ids preserved) -->
+  <div id="detailBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Prescription Details</div>
+        <div style="display:flex; gap:8px;">
+          <button class="print-btn" id="detailPrint">Print</button>
+          <button class="close-btn" id="detailClose">Close</button>
+        </div>
+      </div>
+      <div class="modal-body" id="detailBody"></div>
+    </div>
+  </div>
+
+  <!-- keep the same utility + logic scripts so functionality remains unchanged -->
+  <script src="js/history-utils.js"></script>
+  <script>
+    // Theme management functions
+    function initializeTheme() {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+      let theme = 'light';
+      if (savedTheme) {
+        theme = savedTheme;
+      } else if (prefersDark) {
+        theme = 'dark';
+      }
+
+      setTheme(theme);
+      updateThemeIcon(theme);
+    }
+
+    function setTheme(theme) {
+      if (theme === 'dark') {
+        document.body.setAttribute('data-theme', 'dark');
+      } else {
+        document.body.removeAttribute('data-theme');
+      }
+      localStorage.setItem('theme', theme);
+    }
+
+    function toggleTheme() {
+      const currentTheme = document.body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      setTheme(newTheme);
+      updateThemeIcon(newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const icon = document.getElementById('theme-icon');
+      if (icon) {
+        icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+      }
+    }
+
+    // Initialize theme on page load
+    initializeTheme();
+
+    /* === Original JS kept as-is to ensure identical functionality === */
+    let __currentRecordForPrint = null; // holds normalized record for printing
+    let __deleteMode = false; // whether selection checkboxes are visible
+    let __lastNormalizedList = []; // cache of last normalized records rendered
+
+    function navigateTo(page) {
+      if (page === "signup") { window.location.href = "signup.html"; }
+      else if (page === "profile") { window.location.href = "profile.html"; }
+      else if (page === "prescription") { window.location.href = "prescription.html"; }
+      else if (page === "history") { window.location.href = "history.html"; }
+      else if (page === "xray") { window.location.href = "xray.html"; }
+      else if (page === "medicine") { window.location.href = "medicine.html"; }
+      else if (page === "appointments") { window.location.href = "doctor-appointments.html"; }
+      else if (page === "analytics") { window.location.href = "analytics.html"; }
+    }
+
+    function renderAuthButtons() {
+      const authDiv = document.getElementById("auth-buttons");
+      if (!authDiv) return;
+      const displayName = (JSON.parse(localStorage.getItem("doctorProfile") || "null")?.fullName) || localStorage.getItem("doctorName");
+      const email = localStorage.getItem("email");
+      if (displayName || email) {
+        authDiv.innerHTML = ``;
+      } else {
+        authDiv.innerHTML = `<button class="book-btn" onclick="navigateTo('signup')">Login</button>`;
+      }
+    }
+
+    function logout() {
+      try { localStorage.setItem("global_logout", String(Date.now())); } catch (e) {}
+      localStorage.removeItem("email");
+      localStorage.removeItem("token");
+      localStorage.removeItem("loggedIn");
+      localStorage.removeItem("doctorName");
+      localStorage.removeItem("doctorProfile");
+      renderAuthButtons();
+      alert("You have logged out ");
+      window.location.href = "index.html";
+    }
+
+    renderAuthButtons();
+
+    window.addEventListener("storage", function(e) {
+      if (e && e.key === "global_logout") {
+        const hasAuth = localStorage.getItem("email") || localStorage.getItem("token");
+        if (hasAuth) {
+          localStorage.removeItem("email");
+          localStorage.removeItem("token");
+          localStorage.removeItem("loggedIn");
+          localStorage.removeItem("doctorName");
+          localStorage.removeItem("doctorProfile");
+        }
+        renderAuthButtons();
+        window.location.href = "index.html";
+      }
+    });
+
+    // ------------------ helpers ------------------
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function normalizeItem(p) {
+      const medArr = p.medicines || p.prescription?.medicines || p.meds || [];
+      const patientName = p.patientName || p.patient || p.prescription?.patientName || "—";
+      const mobile = p.mobile || p.mobileNumber || p.prescription?.mobile || "-";
+      const doctor = p.doctor || p.prescription?.doctor || p.doctorName || "-";
+      const dateVal = p.date || p.createdAt || p.timestamp || p.prescription?.date || "";
+      const notes = p.notes || p.prescription?.notes || "";
+      const xray = p.xray || p.prescription?.xray || null; // include x-ray if present
+      const id = p.id || p._id || p.prescription?.id || null; // local entries have id
+
+      let date = null;
+      try {
+        if (p.timestamp && !isNaN(Number(p.timestamp))) date = new Date(Number(p.timestamp));
+        else if (dateVal) date = new Date(dateVal);
+      } catch (_e) {}
+
+      const meds = Array.isArray(medArr) ? medArr.map(m => {
+        if (m && typeof m === 'object') return { name: m.name || m.medicine || "", dosage: m.dosage || "", duration: m.duration || "", measure: m.measure || "", instruction: m.instruction || "" };
+        return { name: String(m), dosage: "", duration: "", measure: "", instruction: "" };
+      }) : [];
+
+      return { id, patientName, mobile, doctor, notes, medicines: meds, date, xray, raw: p };
+    }
+
+    function groupByPatient(items) {
+      const groups = new Map();
+      items.forEach(it => {
+        const nameKey = (it.patientName || "").trim().toLowerCase() || "—";
+        const mobileKey = (it.mobile || "").trim().toLowerCase() || "-";
+        const key = nameKey + "||" + mobileKey;
+        if (!groups.has(key)) {
+          groups.set(key, { patientName: it.patientName || "—", mobile: it.mobile || "-", records: [] });
+        }
+        groups.get(key).records.push(it);
+      });
+      for (const g of groups.values()) {
+        g.records.sort((a,b) => (b.date?.getTime() || 0) - (a.date?.getTime() || 0));
+        g.lastDate = g.records[0]?.date || null;
+      }
+      return Array.from(groups.values()).sort((a,b) => (b.lastDate?.getTime() || 0) - (a.lastDate?.getTime() || 0));
+    }
+
+    function formatDate(d) {
+      if (!d || isNaN(d)) return "-";
+      try { return d.toLocaleString(); } catch { return "-"; }
+    }
+
+    function renderCards(list) {
+      const cards = document.getElementById("cards");
+      cards.innerHTML = "";
+      __lastNormalizedList = Array.isArray(list) ? list : [];
+      if (!Array.isArray(list) || list.length === 0) {
+        cards.innerHTML = `<div class="empty-state">No records found</div>`;
+        return;
+      }
+
+      const grouped = groupByPatient(list);
+      grouped.forEach(group => {
+        const count = group.records.length;
+        const last = group.lastDate ? formatDate(group.lastDate) : "-";
+
+        const card = document.createElement("div");
+        card.className = "patient-card";
+        card.innerHTML = `
+          <div class="patient-header" role="button" tabindex="0" aria-expanded="false">
+            <div>
+              <div class="patient-name">${escapeHtml(group.patientName)}</div>
+              <div class="patient-meta">Mobile: ${escapeHtml(group.mobile)}
+                <span class="badge">${count} record${count>1?'s':''}</span>
+                <span class="badge">Last: ${escapeHtml(last)}</span>
+                ${group.records.some(r => r.xray) ? '<span class="badge">Has X-ray</span>' : ''}
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              ${__deleteMode ? '<label class="patient-select" title="Select all records for this patient" style="display:flex; align-items:center; gap:6px; cursor:pointer; user-select:none;"><input type="checkbox" class="patient-select-all" /> Select</label>' : ''}
+              <div class="expand-icon">▶</div>
+            </div>
+          </div>
+          <div class="patient-details" aria-hidden="true">
+            <table>
+              <thead>
+                <tr>
+                  ${__deleteMode ? '<th><input type="checkbox" class="group-select-all" title="Select all in group"/></th>' : ''}
+                  <th>#</th>
+                  <th>Medicines</th>
+                  <th>Doctor</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${group.records.map((r, idx) => `
+                  <tr data-idx="${idx}" ${r.id ? `data-id="${String(r.id)}"` : ''} style="cursor:pointer;">
+                    ${__deleteMode ? `<td><input type="checkbox" class="rec-select" ${r.id ? '' : 'disabled title="Only local entries can be deleted"'} /></td>` : ''}
+                    <td>${idx+1}</td>
+                    <td>${escapeHtml((r.medicines || []).map(m => m.name || m).join(", ") || "-")}${r.xray ? ' 🖼️' : ''}</td>
+                    <td>${escapeHtml(r.doctor || "-")}</td>
+                    <td>${escapeHtml(formatDate(r.date))}</td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        const header = card.querySelector(".patient-header");
+        header.addEventListener("click", () => {
+          const isExpanded = card.classList.toggle("expanded");
+          header.setAttribute("aria-expanded", String(isExpanded));
+          card.querySelector(".patient-details").setAttribute("aria-hidden", String(!isExpanded));
+        });
+        header.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); header.click(); }
+        });
+
+        document.getElementById("cards").appendChild(card);
+
+        const rows = card.querySelectorAll("tbody tr[data-idx]");
+        rows.forEach(row => {
+          row.addEventListener("click", (e) => {
+            const tgt = e && e.target;
+            if (__deleteMode && tgt && tgt instanceof Element && tgt.closest('input[type="checkbox"]')) return;
+            const i = Number(row.getAttribute("data-idx"));
+            const record = group.records[i];
+            if (record) showDetails(record);
+          });
+        });
+
+        if (__deleteMode) {
+          const patientSelect = card.querySelector('.patient-select-all');
+          if (patientSelect) {
+            patientSelect.addEventListener('change', (e) => {
+              const target = e && e.target;
+              const checked = target && typeof target.checked === 'boolean' ? target.checked : false;
+              card.querySelectorAll('input.rec-select:not(:disabled)').forEach((cb) => { if (cb instanceof HTMLInputElement) cb.checked = checked; });
+              const groupSelect = card.querySelector('.group-select-all');
+              if (groupSelect && groupSelect instanceof HTMLInputElement) groupSelect.checked = checked;
+              syncSelectAllMaster();
+            });
+          }
+        }
+
+        if (__deleteMode) {
+          const groupSelect = card.querySelector('.group-select-all');
+          if (groupSelect) {
+            groupSelect.addEventListener('change', (e) => {
+              const target = e && e.target;
+              const checked = target && typeof target.checked === 'boolean' ? target.checked : false;
+              card.querySelectorAll('input.rec-select:not(:disabled)').forEach((cb) => { if (cb instanceof HTMLInputElement) cb.checked = checked; });
+              const patientSelect = card.querySelector('.patient-select-all');
+              if (patientSelect && patientSelect instanceof HTMLInputElement) patientSelect.checked = checked;
+              syncSelectAllMaster();
+            });
+          }
+        }
+      });
+    }
+
+    function buildPrintableHTML(rec) {
+      const clinicName = (JSON.parse(localStorage.getItem("doctorProfile") || "null")?.clinicName) || "MediFlow Clinic";
+      const doctorName = rec.doctor || (JSON.parse(localStorage.getItem("doctorProfile") || "null")?.fullName) || "-";
+      const regNo = (JSON.parse(localStorage.getItem("doctorProfile") || "null")?.registrationNumber) || "";
+      const address = (JSON.parse(localStorage.getItem("doctorProfile") || "null")?.address) || "";
+      const phone = (JSON.parse(localStorage.getItem("doctorProfile") || "null")?.phone) || "";
+
+      const medsRows = (rec.medicines || []).map(m => `
+        <tr>
+          <td>${escapeHtml(m.name || "-")}</td>
+          <td>${escapeHtml(m.dosage || "-")}</td>
+          <td>${escapeHtml(m.duration || "-")}</td>
+          <td>${escapeHtml(m.measure || "-")}</td>
+          <td>${escapeHtml(m.instruction || "-")}</td>
+        </tr>
+      `).join("");
+
+      return `
+        <div id="printable">
+          <div class="rx-header">
+            <div>
+              <div class="rx-clinic">${escapeHtml(clinicName)}</div>
+              <div class="rx-meta">Dr. ${escapeHtml(doctorName)} ${regNo ? "• Reg: " + escapeHtml(regNo) : ""}</div>
+              <div class="rx-meta">${escapeHtml(address)} ${phone ? "• " + escapeHtml(phone) : ""}</div>
+            </div>
+            <div style="font-size:24px; font-weight:800;">℞</div>
+          </div>
+
+          <div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:8px;">
+            <div><strong>Patient:</strong> ${escapeHtml(rec.patientName || "—")}</div>
+            <div><strong>Mobile:</strong> ${escapeHtml(rec.mobile || "-")}</div>
+            <div><strong>Date:</strong> ${escapeHtml(rec.date ? formatDate(rec.date) : "-")}</div>
+          </div>
+
+          ${rec.notes ? `<div class="rx-section-title">Notes</div><div>${escapeHtml(rec.notes)}</div>` : ""}
+
+          ${rec.xray && rec.xray.dataUrl ? `
+          <section class="rx-xray">
+            <div class="rx-section-title">X-ray</div>
+            <div style="margin: 8px 0 12px;">
+              <img class="rx-xray-img" src="${rec.xray.dataUrl}" alt="X-ray" style="border:1px solid #000; border-radius:6px;"/>
+            </div>
+          </section>
+          ` : ''}
+
+          <div class="rx-section-title">Medicines</div>
+          <table class="rx-table">
+            <thead>
+              <tr>
+                <th>Medicine</th>
+                <th>Dosage</th>
+                <th>Duration</th>
+                <th>Measure</th>
+                <th>Instruction</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${medsRows || `<tr><td colspan="5" style="text-align:center;">No medicines</td></tr>`}
+            </tbody>
+          </table>
+
+          <div style="display:flex; justify-content:space-between; margin-top:24px;">
+            <div><em>This is a digitally generated prescription.</em></div>
+            <div style="text-align:right;">
+              <div style="height:50px;"></div>
+              <strong>Signature</strong>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function showDetails(record) {
+      const raw = record && record.raw ? record.raw : record;
+      const body = document.getElementById("detailBody");
+      __currentRecordForPrint = record; // save for Print button
+
+      const patientName = record.patientName || raw.patient || raw.patientName || "—";
+      const mobile = record.mobile || raw.mobileNumber || raw.mobile || "-";
+      const doctor = record.doctor || raw.doctor || raw.doctorName || "-";
+      const dateStr = record.date ? formatDate(record.date) : (raw.date ? formatDate(new Date(raw.date)) : "-");
+      const notes = record.notes || raw.notes || (raw.prescription && raw.prescription.notes) || "";
+      const xray = record.xray || raw.xray || (raw.prescription && raw.prescription.xray) || null;
+
+      const meds = (Array.isArray(record.medicines) && record.medicines.length)
+        ? record.medicines
+        : ((raw.prescription && Array.isArray(raw.prescription.medicines)) ? raw.prescription.medicines : (raw.medicines || []))
+            .map(m => ({ name: m.name || m.medicine || "-", dosage: m.dosage || "-", duration: m.duration || "-", measure: m.measure || "-", instruction: m.instruction || "-" }));
+
+      const medsRows = meds.map(m => `
+        <tr>
+          <td>${escapeHtml(m.name || "-")}</td>
+          <td>${escapeHtml(m.dosage || "-")}</td>
+          <td>${escapeHtml(m.duration || "-")}</td>
+          <td>${escapeHtml(m.measure || "-")}</td>
+          <td>${escapeHtml(m.instruction || "-")}</td>
+        </tr>
+      `).join("");
+
+      body.innerHTML = `
+        <div style="display:flex; gap:24px; flex-wrap:wrap;">
+          <div style="flex:1 1 260px;">
+            <p><strong>Patient:</strong> ${escapeHtml(patientName)}</p>
+            <p><strong>Mobile:</strong> ${escapeHtml(mobile)}</p>
+            <p><strong>Doctor:</strong> ${escapeHtml(doctor)}</p>
+            <p><strong>Date:</strong> ${escapeHtml(dateStr)}</p>
+            ${notes ? `<p><strong>Notes:</strong> ${escapeHtml(notes)}</p>` : ""}
+          </div>
+          ${xray && xray.dataUrl ? `<div style="flex:1 1 260px;">
+            <p><strong>X-ray:</strong> ${escapeHtml(xray.name || '')}</p>
+            <img src="${xray.dataUrl}" alt="X-ray image" style="max-width:280px; border-radius:6px; border:1px solid #ddd;"/>
+          </div>` : ''}
+        </div>
+
+        <h4 style="margin:10px 0;">Medicines</h4>
+        <table style="width:100%; border-collapse:collapse;" border="1" cellspacing="0" cellpadding="6">
+          <thead>
+            <tr style="background:#f7f7f7;">
+              <th>Medicine</th>
+              <th>Dosage</th>
+              <th>Duration</th>
+              <th>Measure</th>
+              <th>Instruction</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${medsRows || `<tr><td colspan="5" style="text-align:center;">No medicines</td></tr>`}
+          </tbody>
+        </table>
+
+        ${buildPrintableHTML({ ...record, notes, medicines: meds })}
+      `;
+
+      const backdrop = document.getElementById("detailBackdrop");
+      backdrop.style.display = "flex";
+      backdrop.setAttribute("aria-hidden", "false");
+    }
+
+    // ------------------ fetchHistory: tries server then local fallback ------------------
+    async function fetchHistory() {
+      const nameFilter = (document.getElementById("searchName")?.value || "").toLowerCase().trim();
+      const mobileFilter = (document.getElementById("searchMobile")?.value || "").toLowerCase().trim();
+
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          const params = new URLSearchParams();
+          if (nameFilter) params.append("name", nameFilter);
+          if (mobileFilter) params.append("mobile", mobileFilter);
+          const url = "http://localhost:5000/api/prescriptions/history" + (params.toString() ? `?${params.toString()}` : "");
+          const res = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
+          if (res.ok) {
+            const json = await res.json().catch(() => null);
+            let items = [];
+            if (Array.isArray(json)) items = json;
+            else if (Array.isArray(json.items)) items = json.items;
+            else if (Array.isArray(json.data)) items = json.data;
+            else if (Array.isArray(json.history)) items = json.history;
+            else if (Array.isArray(json.results)) items = json.results;
+
+            const normalized = items.map(normalizeItem).filter(it => {
+              const pName = (it.patientName || "").toLowerCase();
+              const pMobile = (it.mobile || "").toLowerCase();
+              if (nameFilter && !pName.includes(nameFilter)) return false;
+              if (mobileFilter && !pMobile.includes(mobileFilter)) return false;
+              return true;
+            });
+            renderCards(normalized);
+            return;
+          } else {
+            console.warn("Server history fetch returned", res.status, "falling back to localStorage");
+          }
+        } catch (err) {
+          console.warn("Server history fetch failed, falling back to localStorage:", err);
+        }
+      }
+
+      if (window.historyUtils && typeof window.historyUtils.getHistoryForCurrentUser === "function") {
+        try {
+          const all = window.historyUtils.getHistoryForCurrentUser() || [];
+          const normalized = all.map(normalizeItem).filter(it => {
+            const pName = (it.patientName || "").toLowerCase();
+            const pMobile = (it.mobile || "").toLowerCase();
+            if (nameFilter && !pName.includes(nameFilter)) return false;
+            if (mobileFilter && !pMobile.includes(mobileFilter)) return false;
+            return true;
+          });
+          renderCards(normalized);
+          return;
+        } catch (err) {
+          console.warn("Local history read failed:", err);
+        }
+      }
+
+      renderCards([]);
+    }
+
+    function resetSearch() {
+      document.getElementById("searchName").value = "";
+      document.getElementById("searchMobile").value = "";
+      fetchHistory();
+    }
+
+    // ------------------ UI bindings ------------------
+    const toggleBtn = document.getElementById("toggleSearchBtn");
+    const searchPanel = document.getElementById("searchPanel");
+    toggleBtn.addEventListener("click", () => {
+      const currentlyOpen = searchPanel.style.display === "block";
+      searchPanel.style.display = currentlyOpen ? "none" : "block";
+      toggleBtn.setAttribute("aria-expanded", String(!currentlyOpen));
+      searchPanel.setAttribute("aria-hidden", String(currentlyOpen));
+    });
+
+    document.getElementById("searchBtn").addEventListener("click", (e) => { e.preventDefault(); fetchHistory(); });
+    document.getElementById("resetBtn").addEventListener("click", (e) => { e.preventDefault(); resetSearch(); });
+
+    // Initial load
+    window.onload = fetchHistory;
+
+    // Modal close
+    document.getElementById("detailClose").addEventListener("click", () => {
+      const backdrop = document.getElementById("detailBackdrop");
+      backdrop.style.display = "none";
+      backdrop.setAttribute("aria-hidden", "true");
+      __currentRecordForPrint = null;
+    });
+
+    document.getElementById("detailBackdrop").addEventListener("click", (e) => {
+      if (e.target && e.target.id === "detailBackdrop") {
+        document.getElementById("detailClose").click();
+      }
+    });
+
+    // Print handler
+    document.getElementById("detailPrint").addEventListener("click", () => {
+      if (!__currentRecordForPrint) return;
+      const body = document.getElementById("detailBody");
+      const existing = body.querySelector("#printable");
+      if (existing) existing.remove();
+      body.insertAdjacentHTML("beforeend", buildPrintableHTML(__currentRecordForPrint));
+      window.print();
+    });
+
+    // ------------------ Delete mode bindings ------------------
+    const deletePanel = document.getElementById('deletePanel');
+    const toggleDeleteBtn = document.getElementById('toggleDeleteBtn');
+    const deleteAllBtn = document.getElementById('deleteAllBtn');
+    const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+
+    function setDeleteMode(on) {
+      __deleteMode = !!on;
+      deletePanel.style.display = __deleteMode ? 'block' : 'none';
+      toggleDeleteBtn.setAttribute('aria-expanded', String(__deleteMode));
+      renderCards(__lastNormalizedList);
+      if (selectAllCheckbox) selectAllCheckbox.checked = false;
+    }
+
+    toggleDeleteBtn.addEventListener('click', () => { setDeleteMode(!__deleteMode); });
+
+    function getLocalHistoryKey() {
+      try {
+        if (!window.historyUtils) return null;
+        const email = window.historyUtils.currentUserEmail();
+        if (!email) return null;
+        return window.historyUtils.emailKey(email);
+      } catch { return null; }
+    }
+
+    function syncSelectAllMaster() {
+      if (!__deleteMode) return;
+      const all = Array.from(document.querySelectorAll('input.rec-select:not(:disabled)')).filter(el => el instanceof HTMLInputElement);
+      if (!all.length) { if (selectAllCheckbox) selectAllCheckbox.checked = false; return; }
+      const allChecked = all.every(cb => cb.checked);
+      if (selectAllCheckbox) selectAllCheckbox.checked = allChecked;
+    }
+
+    if (selectAllCheckbox) {
+      selectAllCheckbox.addEventListener('change', (e) => {
+        const target = e && e.target;
+        const checked = target && typeof target.checked === 'boolean' ? target.checked : false;
+        document.querySelectorAll('input.rec-select:not(:disabled)').forEach((cb) => { if (cb instanceof HTMLInputElement) cb.checked = checked; });
+      });
+    }
+
+    if (deleteAllBtn) {
+      deleteAllBtn.addEventListener('click', () => {
+        if (!confirm('Delete ALL history for this user? This cannot be undone.')) return;
+        try {
+          if (window.historyUtils && typeof window.historyUtils.clearHistoryForCurrentUser === 'function') {
+            window.historyUtils.clearHistoryForCurrentUser();
+          } else {
+            const key = getLocalHistoryKey();
+            if (key) localStorage.removeItem(key);
+          }
+        } catch {}
+        fetchHistory();
+      });
+    }
+
+    if (deleteSelectedBtn) {
+      deleteSelectedBtn.addEventListener('click', () => {
+        const selectedRows = Array.from(document.querySelectorAll('tbody tr[data-idx] input.rec-select:checked'))
+          .map(cb => { const el = cb instanceof Element ? cb.closest('tr') : null; return el && el.matches('tr') ? el : null; })
+          .filter(Boolean);
+        if (!selectedRows.length) { alert('No records selected.'); return; }
+        if (!confirm(`Delete ${selectedRows.length} selected record(s) from local history?`)) return;
+        const ids = selectedRows.map(tr => tr.getAttribute('data-id')).filter(Boolean);
+        if (!ids.length) { alert('Selected items are not deletable (no local id).'); return; }
+        try {
+          const key = getLocalHistoryKey();
+          if (!key) return;
+          const list = JSON.parse(localStorage.getItem(key) || '[]');
+          if (!Array.isArray(list)) return;
+          const filtered = list.filter(item => !ids.includes(String(item.id)));
+          localStorage.setItem(key, JSON.stringify(filtered));
+        } catch {}
+        fetchHistory();
+      });
+    }
+  </script>
+  <script src="js/chatbot.js"></script>
+</body>
+</html>

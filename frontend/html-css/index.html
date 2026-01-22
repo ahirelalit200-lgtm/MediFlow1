@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doctor Dashboard - MediFlow</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/chatbot.css" />
+  <link rel="icon" href="assets/care.png" type="image/png">
+  <script src="js/config.js"></script>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="logo">
+      <img src="assets/care.png" alt="Logo" height="40" />
+      <span>Medi<strong>Flow</strong></span>
+    </div>
+    <nav>
+      <ul>
+        <li onclick="navigateTo('history')">History</li>
+        <li onclick="navigateTo('appointments')">Appointments</li>
+        <li onclick="navigateTo('analytics')">Analytics</li>
+        <li onclick="navigateTo('xray')">X-Ray</li>
+        <li onclick="navigateTo('medicine')">Add Medicine</li>
+      </ul>
+    </nav>
+    <div class="header-right" id="auth-buttons">
+      <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark Mode">
+        <span class="theme-icon" id="theme-icon">🌙</span>
+      </button>
+      <!-- Will be filled by JS -->
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-text">
+      <h1>Welcome, <span class="doctor-title">DR.</span> <span class="highlight doctor-name-display"
+          id="doctor-name">Doctor</span></h1>
+      <p>Manage your patients, write digital prescriptions, generate X-rays, and keep your clinic paperless and
+        efficient.</p>
+      <button class="learn-btn" onclick="navigateTo('prescription')">Create Prescription</button>
+    </div>
+    <div class="hero-stats-card">
+      <h3 class="stats-title">📊 Today's Overview</h3>
+      <div class="quick-stat">
+        <span class="stat-icon">📋</span>
+        <div>
+          <h4 id="total-prescriptions">0</h4>
+          <p>Total Prescriptions</p>
+        </div>
+      </div>
+      <div class="quick-stat">
+        <span class="stat-icon">📅</span>
+        <div>
+          <h4 id="total-appointments">0</h4>
+          <p>Upcoming Appointments</p>
+        </div>
+      </div>
+      <div class="quick-stat">
+        <span class="stat-icon">🩺</span>
+        <div>
+          <h4 id="total-patients">0</h4>
+          <p>Total Patients</p>
+        </div>
+      </div>
+      <button class="quick-action-btn" onclick="navigateTo('analytics')">
+        View Full Analytics →
+      </button>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <h2>What You Can Do</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📝</div>
+        <h3>Write Prescriptions</h3>
+        <p>Generate digital, printable, and shareable prescriptions in seconds.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💊</div>
+        <h3>Manage Medicines</h3>
+        <p>Add and update frequently prescribed medicines with dosage info.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <h3>View History</h3>
+        <p>Track all previous prescriptions with date-range filters and export options.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>X-Ray AI Tool</h3>
+        <p>Upload and convert patient X-rays into explainable AI-generated reports.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Actions Section -->
+  <section class="quick-actions">
+    <div class="quick-actions-container">
+      <h2>Quick Actions</h2>
+      <div class="actions-grid">
+        <button class="action-btn" onclick="navigateTo('prescription')">
+          <span class="action-icon">📝</span>
+          <span>New Prescription</span>
+        </button>
+        <button class="action-btn" onclick="navigateTo('appointments')">
+          <span class="action-icon">📅</span>
+          <span>View Appointments</span>
+        </button>
+        <button class="action-btn" onclick="navigateTo('xray')">
+          <span class="action-icon">🔬</span>
+          <span>Upload X-Ray</span>
+        </button>
+        <button class="action-btn" onclick="navigateTo('history')">
+          <span class="action-icon">📋</span>
+          <span>Patient History</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <div class="footer-logo">
+          <img src="assets/care.png" alt="Logo" height="35" />
+          <span>Medi<strong>Flow</strong></span>
+        </div>
+        <p class="footer-desc">Modern healthcare management system for efficient clinic operations.</p>
+      </div>
+      <div class="footer-section">
+        <h4>Quick Links</h4>
+        <ul class="footer-links">
+          <li><a href="#" onclick="navigateTo('prescription')">Create Prescription</a></li>
+          <li><a href="#" onclick="navigateTo('appointments')">Appointments</a></li>
+          <li><a href="#" onclick="navigateTo('analytics')">Analytics</a></li>
+          <li><a href="#" onclick="navigateTo('xray')">X-Ray Analysis</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Support</h4>
+        <ul class="footer-links">
+          <li><a href="#" onclick="navigateTo('profile')">My Profile</a></li>
+          <li><a href="#" onclick="navigateTo('medicine')">Medicine Library</a></li>
+          <li><a href="#" onclick="navigateTo('history')">Patient History</a></li>
+          <li><a href="#" onclick="navigateTo('patient-portal')">Patient Portal</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Contact</h4>
+        <p class="footer-contact">📧 support@mediflow.com</p>
+        <p class="footer-contact">📞 +91 1234567890</p>
+        <p class="footer-contact">🏥 Healthcare Solutions</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 MediFlow. All rights reserved. | Designed for modern healthcare professionals</p>
+    </div>
+  </footer>
+
+  <script>
+    // Theme management functions
+    function initializeTheme() {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+      let theme = 'light';
+      if (savedTheme) {
+        theme = savedTheme;
+      } else if (prefersDark) {
+        theme = 'dark';
+      }
+
+      setTheme(theme);
+      updateThemeIcon(theme);
+    }
+
+    function setTheme(theme) {
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+      localStorage.setItem('theme', theme);
+    }
+
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      setTheme(newTheme);
+      updateThemeIcon(newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const icon = document.getElementById('theme-icon');
+      if (icon) {
+        icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+      }
+    }
+
+    // Initialize theme on page load
+    initializeTheme();
+
+    function navigateTo(page) {
+      if (page === "signup") {
+        window.location.href = "signup.html";
+      } else if (page === "profile") {
+        window.location.href = "profile.html";
+      } else if (page === "prescription") {
+        window.location.href = "prescription.html";
+      } else if (page === "history") {
+        window.location.href = "history.html";
+      } else if (page === "analytics") {
+        window.location.href = "analytics.html";
+      } else if (page === "xray") {
+        window.location.href = "xray.html";
+      } else if (page === "appointments") {
+        window.location.href = "doctor-appointments.html";
+      } else if (page === "medicine") {
+        window.location.href = "medicine.html";
+      } else if (page === "patient-portal") {
+        window.location.href = "patient-auth.html";
+      }
+    }
+
+    function logout() {
+      try { localStorage.setItem("global_logout", String(Date.now())); } catch (e) { }
+      localStorage.removeItem("email");
+      localStorage.removeItem("token");
+      localStorage.removeItem("loggedIn");
+      localStorage.removeItem("doctorName");
+      localStorage.removeItem("doctorProfile");
+      alert("You have logged out ");
+      window.location.href = "maindashboard.html";
+    }
+
+    async function loadProfile() {
+      const email = localStorage.getItem("email");
+      const token = localStorage.getItem("token");
+
+      if (!email && !token) {
+        return; // Not logged in, keep as "Doctor"
+      }
+
+      let profileData = null;
+
+      // 1. Try from localStorage (your old flow)
+      profileData = JSON.parse(localStorage.getItem("doctorProfile"));
+      if (!profileData && email) {
+        const profiles = JSON.parse(localStorage.getItem("doctorProfiles")) || {};
+        profileData = profiles[email];
+      }
+
+      // 2. If not in localStorage, try from backend (new logic)
+      if (!profileData && token) {
+        // Try plural endpoint first, then singular — supports either backend mounting.
+        const endpoints = [
+          "http://localhost:5000/api/doctors/me",  // plural (preferred)
+          "http://localhost:5000/api/doctor/me"    // singular (fallback)
+        ];
+
+        for (let ep of endpoints) {
+          try {
+            const res = await fetch(ep, {
+              headers: { "Authorization": "Bearer " + token }
+            });
+
+            if (!res.ok) {
+              // if 404 or other, try next endpoint
+              console.warn(`Profile fetch ${ep} returned status ${res.status}`);
+              continue;
+            }
+
+            // attempt to parse JSON
+            const json = await res.json();
+            // some controllers return { doctor: {...} } — normalize
+            profileData = json && json.doctor ? json.doctor : json;
+
+            // cache it
+            if (profileData && typeof profileData === "object") {
+              localStorage.setItem("doctorProfile", JSON.stringify(profileData));
+            }
+
+            break; // stop trying endpoints
+          } catch (err) {
+            console.warn("Error fetching profile from", ep, err);
+            // try next endpoint
+          }
+        }
+      }
+
+      // 2b. If still not found but we have an email, try email-based endpoint
+      if (!profileData && email) {
+        try {
+          const res = await fetch("http://localhost:5000/api/doctors/profile/" + encodeURIComponent(email));
+          if (res.ok) {
+            const json = await res.json().catch(() => null);
+            if (json && (json.doctor || json.data?.doctor)) {
+              profileData = json.doctor || json.data?.doctor;
+              localStorage.setItem("doctorProfile", JSON.stringify(profileData));
+            }
+          }
+        } catch (err) {
+          console.warn("Email-based profile fetch failed", err);
+        }
+      }
+
+      // Update welcome message with doctor's name if profile was found
+      if (profileData) {
+        const displayName = profileData.fullName || profileData.name || "Doctor";
+        document.getElementById("doctor-name").innerText = displayName;
+
+        // Cache the name for future use
+        localStorage.setItem("doctorName", displayName);
+      }
+    }
+
+    // Load profile on page load
+    loadProfile();
+
+    // Fetch and display dashboard stats
+    function getAuthHeaders() {
+      const token = localStorage.getItem('token');
+      if (!token) return {};
+      return { "Authorization": "Bearer " + token };
+    }
+
+    let __isLoadingDashboardStats = false;
+    async function loadDashboardStats() {
+      if (__isLoadingDashboardStats) return;
+      __isLoadingDashboardStats = true;
+      try {
+        // Fetch prescriptions count
+        const prescriptionsRes = await fetch('http://localhost:5000/api/prescriptions', { headers: getAuthHeaders() });
+        if (prescriptionsRes.ok) {
+          const prescriptionsData = await prescriptionsRes.json();
+          console.log('Prescriptions API response:', prescriptionsData);
+          const count = prescriptionsData.count || prescriptionsData.prescriptions?.length || prescriptionsData.length || 0;
+          console.log('Prescriptions count calculated:', count);
+          document.getElementById('total-prescriptions').textContent = count;
+        } else {
+          console.warn('Prescriptions API failed:', prescriptionsRes.status);
+        }
+
+        // Fetch appointments count
+        const appointmentsRes = await fetch('http://localhost:5000/api/appointments/requests', { headers: getAuthHeaders() });
+        if (appointmentsRes.ok) {
+          const appointmentsData = await appointmentsRes.json();
+          console.log('Appointments API response:', appointmentsData);
+          const appointments = Array.isArray(appointmentsData) ? appointmentsData : [];
+          console.log('Appointments array:', appointments);
+          // Count upcoming appointments only (status: pending or scheduled)
+          const now = new Date();
+          const upcoming = appointments.filter(apt => {
+            const aptDate = new Date(apt.date || apt.dateTime || apt.appointmentDate || apt.createdAt);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const isStatusOk = (apt.status === 'pending' || apt.status === 'scheduled');
+            const isDateOk = (aptDate >= today);
+
+            console.log(`Checking appointment: ID=${apt._id || '?'}, Status=${apt.status}, Date=${aptDate.toDateString()}, StatusOK=${isStatusOk}, DateOK=${isDateOk}`);
+
+            return isStatusOk && isDateOk;
+          });
+          console.log('Upcoming appointments:', upcoming.length);
+          document.getElementById('total-appointments').textContent = upcoming.length;
+        } else {
+          console.warn('Appointments API failed:', appointmentsRes.status);
+        }
+
+        // Fetch patients count
+        // Try multiple endpoints for patients count
+        let patientsCount = 0;
+
+        // Try analytics endpoint first
+        try {
+          const analyticsRes = await fetch('http://localhost:5000/api/analytics/recent-patients', { headers: getAuthHeaders() });
+          if (analyticsRes.ok) {
+            const analyticsData = await analyticsRes.json();
+            console.log('Analytics patients API response:', analyticsData);
+            patientsCount = analyticsData.recentPatients?.length || analyticsData.patients?.length || analyticsData.length || 0;
+          }
+        } catch (e) {
+          console.log('Analytics endpoint failed, trying patient/all');
+        }
+
+        // Fallback to patient/all if analytics didn't work
+        if (patientsCount === 0) {
+          const patientsRes = await fetch('http://localhost:5000/api/patient/all', { headers: getAuthHeaders() });
+          if (patientsRes.ok) {
+            const patientsData = await patientsRes.json();
+            console.log('Patients API response:', patientsData);
+            patientsCount = patientsData.count || patientsData.patients?.length || patientsData.data?.length || patientsData.length || 0;
+          } else {
+            console.warn('Patients API failed:', patientsRes.status);
+          }
+        }
+
+        console.log('Final patients count calculated:', patientsCount);
+        document.getElementById('total-patients').textContent = patientsCount;
+      } catch (error) {
+        console.error('Could not load dashboard stats:', error);
+        // Keep default values (0) if fetch fails
+      } finally {
+        __isLoadingDashboardStats = false;
+      }
+    }
+
+    // Load stats on page load + keep them updated in real time
+    loadDashboardStats();
+
+    (function startRealtimeDashboardStats() {
+      const REFRESH_MS = 15000;
+
+      // Periodic refresh
+      setInterval(() => {
+        loadDashboardStats();
+      }, REFRESH_MS);
+
+      // Refresh when user returns to the tab
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+          loadDashboardStats();
+        }
+      });
+    })();
+
+    // Replace login button with profile + logout if logged in
+    const authDiv = document.getElementById("auth-buttons");
+
+    // Prefer doctorProfile.fullName, then doctorName, then fallback to generic
+    let displayName = null;
+    try {
+      const profileRaw = localStorage.getItem("doctorProfile");
+      if (profileRaw) {
+        const prof = JSON.parse(profileRaw);
+        displayName = prof && (prof.fullName || prof.name) ? (prof.fullName || prof.name) : null;
+      }
+    } catch (e) {
+      // ignore parse errors
+    }
+    // fallback to doctorName stored previously or generic
+    if (!displayName) displayName = localStorage.getItem("doctorName") || null;
+    const email = localStorage.getItem("email");
+
+    if (authDiv) {
+      if (displayName || email) {
+        // Logged in
+        authDiv.innerHTML = `
+          <button class="book-btn" onclick="navigateTo('profile')">Profile</button>
+        `;
+        // Update welcome message with cached name if available
+        if (displayName) {
+          document.getElementById("doctor-name").innerText = displayName;
+        }
+      } else {
+        // Not logged in
+        authDiv.innerHTML = `
+          <button class="book-btn" onclick="navigateTo('signup')">Login</button>
+        `;
+      }
+    }
+  </script>
+  <script>
+    // Cross-tab logout listener
+    window.addEventListener("storage", function (e) {
+      if (e && e.key === "global_logout") {
+        const hasAuth = localStorage.getItem("email") || localStorage.getItem("token");
+        if (hasAuth) {
+          localStorage.removeItem("email");
+          localStorage.removeItem("token");
+          localStorage.removeItem("loggedIn");
+          localStorage.removeItem("doctorName");
+          localStorage.removeItem("doctorProfile");
+          window.location.href = "index.html";
+        }
+      }
+    });
+  </script>
+  <script src="js/chatbot.js"></script>
+</body>
+
+</html>

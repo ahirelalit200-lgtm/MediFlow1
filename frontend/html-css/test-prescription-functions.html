@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prescription Functions Test</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      max-width: 900px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f7fbff;
+    }
+    .test-container {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    h1 { color: #1a1a1a; margin-bottom: 30px; }
+    .test-section {
+      margin: 20px 0;
+      padding: 20px;
+      border-left: 4px solid #29a9f8;
+      background: #f0f9ff;
+      border-radius: 8px;
+    }
+    .test-section h3 {
+      margin: 0 0 15px 0;
+      color: #0369a1;
+    }
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 5px;
+      transition: transform 0.2s;
+    }
+    button:hover {
+      transform: translateY(-2px);
+    }
+    .result {
+      margin-top: 15px;
+      padding: 15px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+    }
+    .success {
+      background: #f0fdf4;
+      border: 2px solid #22c55e;
+      color: #166534;
+    }
+    .error {
+      background: #fef2f2;
+      border: 2px solid #ef4444;
+      color: #991b1b;
+    }
+    .info {
+      background: #eff6ff;
+      border: 2px solid #3b82f6;
+      color: #1e40af;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1> Prescription.html Function Tests</h1>
+    <p style="color: #6b7280; margin-bottom: 30px;">
+      Test all critical functions before using the prescription system
+    </p>
+
+    <!-- Test 1: Server Connection -->
+    <div class="test-section">
+      <h3>1. Server Connection Test</h3>
+      <button onclick="testServerConnection()">Test Server</button>
+      <div id="serverResult"></div>
+    </div>
+
+    <!-- Test 2: AI Analysis API -->
+    <div class="test-section">
+      <h3>2. AI X-ray Analysis API Test</h3>
+      <button onclick="testAIAnalysis()">Test AI Analysis</button>
+      <div id="aiResult"></div>
+    </div>
+
+    <!-- Test 3: Medicine Fetch -->
+    <div class="test-section">
+      <h3>3. Medicine Fetch Test</h3>
+      <input type="text" id="medicineCode" placeholder="Enter medicine code (e.g., M001)" 
+             style="padding: 10px; border: 2px solid #e5e7eb; border-radius: 8px; width: 200px;">
+      <button onclick="testMedicineFetch()">Fetch Medicine</button>
+      <div id="medicineResult"></div>
+    </div>
+
+    <!-- Test 4: Email Configuration -->
+    <div class="test-section">
+      <h3>4. Email Configuration Check</h3>
+      <button onclick="testEmailConfig()">Check Email Config</button>
+      <div id="emailResult"></div>
+    </div>
+
+    <!-- Test 5: Database Connection -->
+    <div class="test-section">
+      <h3>5. Database Connection Test</h3>
+      <button onclick="testDatabase()">Test Database</button>
+      <div id="dbResult"></div>
+    </div>
+
+    <!-- Test 6: Image Compression -->
+    <div class="test-section">
+      <h3>6. Image Compression Test</h3>
+      <input type="file" id="testImage" accept="image/*" 
+             style="padding: 10px; border: 2px solid #e5e7eb; border-radius: 8px;">
+      <button onclick="testImageCompression()">Test Compression</button>
+      <div id="compressionResult"></div>
+    </div>
+
+    <!-- Overall Status -->
+    <div class="test-section" style="border-left-color: #7b61ff; background: #faf5ff; margin-top: 40px;">
+      <h3> Overall System Status</h3>
+      <div id="overallStatus" class="result info">
+        Click "Run All Tests" to check all systems
+      </div>
+      <button onclick="runAllTests()" style="background: linear-gradient(135deg, #7b61ff 0%, #29a9f8 100%);">
+         Run All Tests
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Test 1: Server Connection
+    async function testServerConnection() {
+      const resultDiv = document.getElementById('serverResult');
+      resultDiv.innerHTML = '<div class="result info">Testing server connection...</div>';
+      
+      try {
+        const response = await fetch('http://localhost:5000/');
+        const text = await response.text();
+        
+        if (response.ok) {
+          resultDiv.innerHTML = `<div class="result success"> Server is running!<br>Response: ${text}</div>`;
+          return true;
+        } else {
+          throw new Error(`Server returned status ${response.status}`);
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `<div class="result error"> Server connection failed<br>Error: ${error.message}<br><br>Make sure to run: npm run dev</div>`;
+        return false;
+      }
+    }
+
+    // Test 2: AI Analysis
+    async function testAIAnalysis() {
+      const resultDiv = document.getElementById('aiResult');
+      resultDiv.innerHTML = '<div class="result info">Testing AI analysis API...</div>';
+      
+      // Sample 1x1 pixel image
+      const sampleImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+      
+      try {
+        const response = await fetch('http://localhost:5000/api/xray-analysis/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            imageDataUrl: sampleImage,
+            xrayType: 'panoramic'
+          })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          resultDiv.innerHTML = `
+            <div class="result success">
+              AI Analysis API working!<br>
+              Severity: ${result.severity}<br>
+              Confidence: ${(result.confidence * 100).toFixed(0)}%<br>
+              Findings: ${result.findings.length}
+            </div>
+          `;
+          return true;
+        } else {
+          throw new Error(result.error || 'Analysis failed');
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `<div class="result error"> AI Analysis failed<br>Error: ${error.message}</div>`;
+        return false;
+      }
+    }
+
+    // Test 3: Medicine Fetch
+    async function testMedicineFetch() {
+      const resultDiv = document.getElementById('medicineResult');
+      const code = document.getElementById('medicineCode').value.trim();
+      
+      if (!code) {
+        resultDiv.innerHTML = '<div class="result error"> Please enter a medicine code</div>';
+        return false;
+      }
+      
+      resultDiv.innerHTML = '<div class="result info">Fetching medicine...</div>';
+      
+      try {
+        const response = await fetch(`http://localhost:5000/api/medicines/${code}`);
+        
+        if (response.ok) {
+          const medicine = await response.json();
+          resultDiv.innerHTML = `
+            <div class="result success">
+              Medicine found!<br>
+              Name: ${medicine.name || 'N/A'}<br>
+              Code: ${medicine.code || code}
+            </div>
+          `;
+          return true;
+        } else if (response.status === 404) {
+          resultDiv.innerHTML = `<div class="result error"> Medicine code "${code}" not found in database</div>`;
+          return false;
+        } else {
+          throw new Error(`HTTP ${response.status}`);
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `<div class="result error"> Medicine fetch failed<br>Error: ${error.message}</div>`;
+        return false;
+      }
+    }
+
+    // Test 4: Email Config
+    async function testEmailConfig() {
+      const resultDiv = document.getElementById('emailResult');
+      resultDiv.innerHTML = '<div class="result info">Checking email configuration...</div>';
+      
+      // Check if SMTP is configured by trying to send a test request
+      try {
+        const response = await fetch('http://localhost:5000/api/prescriptions/email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: 'test@example.com',
+            subject: 'Test',
+            html: '<p>Test</p>'
+          })
+        });
+
+        const result = await response.json();
+        
+        if (response.ok || response.status === 500) {
+          // Even 500 means endpoint exists
+          resultDiv.innerHTML = `
+            <div class="result ${response.ok ? 'success' : 'error'}">
+              ${response.ok ? '' : ''} Email endpoint is ${response.ok ? 'working' : 'configured but may need SMTP setup'}<br>
+              ${result.message || result.error || 'Check .env for SMTP settings'}
+            </div>
+          `;
+          return response.ok;
+        } else {
+          throw new Error(`HTTP ${response.status}`);
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `<div class="result error"> Email configuration check failed<br>Error: ${error.message}</div>`;
+        return false;
+      }
+    }
+
+    // Test 5: Database
+    async function testDatabase() {
+      const resultDiv = document.getElementById('dbResult');
+      resultDiv.innerHTML = '<div class="result info">Testing database connection...</div>';
+      
+      try {
+        const response = await fetch('http://localhost:5000/api/prescriptions/history');
+        
+        if (response.ok) {
+          const data = await response.json();
+          resultDiv.innerHTML = `
+            <div class="result success">
+              Database connected!<br>
+              Prescriptions in DB: ${Array.isArray(data) ? data.length : 'Unknown'}
+            </div>
+          `;
+          return true;
+        } else {
+          throw new Error(`HTTP ${response.status}`);
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `<div class="result error">Database connection failed<br>Error: ${error.message}</div>`;
+        return false;
+      }
+    }
+
+    // Test 6: Image Compression
+    async function testImageCompression() {
+      const resultDiv = document.getElementById('compressionResult');
+      const fileInput = document.getElementById('testImage');
+      const file = fileInput.files[0];
+      
+      if (!file) {
+        resultDiv.innerHTML = '<div class="result error">Please select an image file</div>';
+        return false;
+      }
+      
+      resultDiv.innerHTML = '<div class="result info">Compressing image...</div>';
+      
+      try {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const maxDim = 1000;
+            let { width, height } = img;
+            const scale = Math.min(1, maxDim / Math.max(width, height));
+            canvas.width = Math.round(width * scale);
+            canvas.height = Math.round(height * scale);
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            
+            const compressed = canvas.toDataURL('image/jpeg', 0.6);
+            const originalSize = (file.size / 1024 / 1024).toFixed(2);
+            const compressedSize = (compressed.length * 0.75 / 1024 / 1024).toFixed(2);
+            
+            resultDiv.innerHTML = `
+              <div class="result success">
+                 Compression successful!<br>
+                Original: ${originalSize} MB<br>
+                Compressed: ${compressedSize} MB<br>
+                Reduction: ${((1 - compressedSize/originalSize) * 100).toFixed(1)}%
+              </div>
+            `;
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+        return true;
+      } catch (error) {
+        resultDiv.innerHTML = `<div class="result error"> Compression failed<br>Error: ${error.message}</div>`;
+        return false;
+      }
+    }
+
+    // Run All Tests
+    async function runAllTests() {
+      const statusDiv = document.getElementById('overallStatus');
+      statusDiv.innerHTML = '<div class="result info">Running all tests...</div>';
+      
+      const results = {
+        server: await testServerConnection(),
+        ai: await testAIAnalysis(),
+        email: await testEmailConfig(),
+        database: await testDatabase()
+      };
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const passed = Object.values(results).filter(r => r).length;
+      const total = Object.keys(results).length;
+      const allPassed = passed === total;
+      
+      statusDiv.innerHTML = `
+        <div class="result ${allPassed ? 'success' : 'error'}">
+          <h4 style="margin: 0 0 10px 0;">${allPassed ? ' All Systems Operational!' : '⚠️ Some Tests Failed'}</h4>
+          Tests Passed: ${passed}/${total}<br><br>
+          Server: ${results.server ? '' : ''}<br>
+          AI Analysis: ${results.ai ? '' : ''}<br>
+          Email Config: ${results.email ? '' : ''}<br>
+          Database: ${results.database ? '' : ''}<br><br>
+          ${allPassed ? 
+            '<strong>Prescription system is ready to use!</strong>' : 
+            '<strong>Fix failed tests before using the system</strong>'}
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

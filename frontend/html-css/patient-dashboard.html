@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patient Portal - Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/patient-theme.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Specific styles for Dashboard can go here if needed, 
+       but most are now in patient-theme.css */
+
+    /* Features / Quick Actions specific */
+    .quick-actions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+    }
+
+    .action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background-color: var(--bg-color);
+      border: 1px dashed var(--border-color);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      gap: 10px;
+    }
+
+    .action-btn:hover {
+      background-color: #e0f2fe;
+      border-color: var(--primary-color);
+      transform: translateY(-2px);
+    }
+
+    .action-icon {
+      font-size: 1.5rem;
+      color: var(--primary-color);
+    }
+
+    .action-text {
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    /* Activity List specific */
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .activity-item {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-dot {
+      width: 10px;
+      height: 10px;
+      background-color: var(--primary-color);
+      border-radius: 50%;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    .activity-content h4 {
+      margin: 0 0 4px 0;
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    .activity-content p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .activity-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="assets/care.png" alt="Logo" height="32" />
+      <span>MediFlow</span>
+    </div>
+
+    <nav class="nav-links">
+      <a href="patient-dashboard.html" class="nav-item active">
+        <span class="nav-icon">📊</span>
+        Dashboard
+      </a>
+      <a href="patient-prescriptions.html" class="nav-item">
+        <span class="nav-icon">💊</span>
+        Prescriptions
+      </a>
+      <a href="patient-appointments.html" class="nav-item">
+        <span class="nav-icon">📅</span>
+        Appointments
+      </a>
+      <a href="patient-xrays.html" class="nav-item">
+        <span class="nav-icon">🩻</span>
+        X-Ray Reports
+      </a>
+      <a href="patient-profile.html" class="nav-item">
+        <span class="nav-icon">👤</span>
+        Profile
+      </a>
+    </nav>
+
+    <div class="user-profile-mini">
+      <div class="avatar-placeholder">P</div>
+      <div style="flex:1; overflow:hidden;">
+        <div style="font-weight:600; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+          id="sidebar-patient-name">Patient</div>
+        <div style="font-size:0.75rem; color:var(--text-muted); cursor:pointer;" onclick="patientLogout()">Sign Out
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Top Header -->
+    <header class="header-bar">
+      <div class="welcome-text">
+        <h1>Overview</h1>
+        <p>Welcome back, <span id="patient-name">Patient</span> 👋</p>
+      </div>
+
+      <div class="header-actions">
+        <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark Mode">
+          <span class="theme-icon" id="theme-icon">🌙</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Stats Row -->
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon">💊</div>
+        </div>
+        <div class="stat-value" id="total-prescriptions">-</div>
+        <div class="stat-label">Total Prescriptions</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon">🩻</div>
+        </div>
+        <div class="stat-value" id="total-xrays">-</div>
+        <div class="stat-label">X-Ray Reports</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon">⏱️</div>
+        </div>
+        <div class="stat-value" id="last-visit">-</div>
+        <div class="stat-label">Days Since Last Visit</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-icon">👨‍⚕️</div>
+        </div>
+        <div class="stat-value" id="last-doctor"
+          style="font-size:1.25rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">-</div>
+        <div class="stat-label">Last Consulted Doctor</div>
+      </div>
+    </div>
+
+    <!-- Dashboard Widgets -->
+    <div class="dashboard-layout">
+
+      <!-- Recent Activity Widget -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Recent Activity</h3>
+          <a href="#" style="font-size:0.875rem; text-decoration:none; color:var(--primary-color);">View All</a>
+        </div>
+        <div class="activity-list" id="recent-activity-list">
+          <div class="loading">Loading activity...</div>
+        </div>
+      </div>
+
+      <!-- Quick Actions Widget -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Quick Actions</h3>
+        </div>
+        <div class="quick-actions-grid">
+          <div class="action-btn" onclick="navigateTo('appointments')">
+            <span class="action-icon">📅</span>
+            <span class="action-text">Book Appt</span>
+          </div>
+          <div class="action-btn" onclick="navigateTo('prescriptions')">
+            <span class="action-icon">💊</span>
+            <span class="action-text">Refill Meds</span>
+          </div>
+          <div class="action-btn" onclick="navigateTo('xrays')">
+            <span class="action-icon">📂</span>
+            <span class="action-text">My Reports</span>
+          </div>
+          <div class="action-btn" onclick="navigateTo('profile')">
+            <span class="action-icon">⚙️</span>
+            <span class="action-text">Settings</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    // Theme logic preservation
+    function initializeTheme() {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      let theme = savedTheme || (prefersDark ? 'dark' : 'light');
+      setTheme(theme);
+    }
+
+    function setTheme(theme) {
+      if (theme === 'dark') document.body.setAttribute('data-theme', 'dark');
+      else document.body.removeAttribute('data-theme');
+      localStorage.setItem('theme', theme);
+      updateThemeIcon(theme);
+    }
+
+    function toggleTheme() {
+      const current = document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      setTheme(current === 'dark' ? 'light' : 'dark');
+    }
+
+    function updateThemeIcon(theme) {
+      const icon = document.getElementById('theme-icon');
+      if (icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    function navigateTo(page) {
+      const map = {
+        'prescriptions': 'patient-prescriptions.html',
+        'xrays': 'patient-xrays.html',
+        'appointments': 'patient-appointments.html',
+        'profile': 'patient-profile.html'
+      };
+      if (map[page]) window.location.href = map[page];
+    }
+
+    initializeTheme();
+
+    // Extra JS helper to sync sidebar name if main script loads it late
+    // (The main script patient-dashboard.js populates #patient-name, we monitor it to update sidebar)
+    const observer = new MutationObserver((mutations) => {
+      const mainName = document.getElementById('patient-name').innerText;
+      const sideName = document.getElementById('sidebar-patient-name');
+      if (mainName && mainName !== 'Patient' && sideName) {
+        sideName.innerText = mainName;
+      }
+    });
+    observer.observe(document.getElementById('patient-name'), { childList: true, subtree: true, characterData: true });
+
+  </script>
+
+  <!-- Original Logic Script -->
+  <script src="js/config.js"></script>
+  <script src="js/patient-dashboard.js"></script>
+</body>
+
+</html>

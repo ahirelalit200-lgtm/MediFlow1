@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Prescription</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/chatbot.css" />
+  <script src="js/config.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 30px auto;
+      background: #ffffff;
+      padding: 40px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border-radius: 15px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .section-header {
+      grid-column: 1 / -1;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #29a9f8;
+      color: #1a1a1a;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    label {
+      font-weight: 600;
+      margin-top: 15px;
+      display: block;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: #00bfff;
+      color: white;
+      font-weight: bold;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #009acd;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+
+    .editable-cell[contenteditable="true"]:empty:before {
+      content: attr(data-placeholder);
+      color: #9ca3af;
+      pointer-events: none;
+    }
+
+    th {
+      background-color: #f0f4f8;
+    }
+
+    #code-list {
+      margin-top: 10px;
+      padding: 8px;
+      background: #f0f8ff;
+      border: 1px dashed #00bfff;
+      border-radius: 5px;
+      min-height: 30px;
+    }
+
+    #medicine-table {
+      margin-top: 25px;
+    }
+
+    /* Prescription Print Styling */
+    @media print {
+      body {
+        margin: 20px;
+        font-size: 14px;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      th,
+      td {
+        border: 1px solid #000;
+        text-align: left;
+      }
+    }
+
+    /* Toast (non-print) */
+    .toast {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      background: #111827;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 8px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      z-index: 99999;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast.success {
+      background: #065f46;
+    }
+
+    .toast.error {
+      background: #7f1d1d;
+    }
+
+    @media print {
+      .toast {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="navbar">
+    <div class="logo">
+      <img src="assets/care.png" alt="Logo" height="40" />
+      <span>Medi<strong>Flow</strong></span>
+    </div>
+    <nav>
+      <ul>
+        <li onclick="location.href='index.html'">Home</li>
+        <li onclick="navigateTo('history')">History</li>
+        <li onclick="navigateTo('appointments')">Appointments</li>
+        <li onclick="navigateTo('analytics')">Analytics</li>
+        <li onclick="navigateTo('xray')">X-Ray</li>
+        <li onclick="navigateTo('medicine')">Add Medicine</li>
+      </ul>
+    </nav>
+    <div class="header-right" id="auth-buttons"></div>
+  </header>
+
+  <div class="container">
+    <h2>Create Prescription</h2>
+
+    <div id="default-ui">
+      <form id="prescription-form">
+
+        <!-- Patient Information Section -->
+        <div class="form-grid">
+          <h3 class="section-header">Patient Information</h3>
+
+          <div class="form-group">
+            <label>Patient Name *</label>
+            <input type="text" id="patientName" required placeholder="Enter patient name" />
+          </div>
+
+          <div class="form-group">
+            <label>Mobile Number</label>
+            <input type="text" id="patientContact" placeholder="Enter mobile number" />
+          </div>
+
+          <div class="form-group">
+            <label>Patient Email</label>
+            <input type="email" id="patientEmail" placeholder="name@example.com" />
+          </div>
+
+          <div class="form-group">
+            <label>Address</label>
+            <input type="text" id="address" placeholder="Enter address" />
+          </div>
+
+          <div class="form-group">
+            <label>Sex</label>
+            <select id="sex">
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Age</label>
+            <input type="number" id="age" placeholder="Enter age" />
+          </div>
+
+          <div class="form-group full-width">
+            <label>Treatment Type / Condition</label>
+            <select id="treatmentType">
+              <option value="">Select Treatment Type</option>
+              <option value="Root Canal">Root Canal</option>
+              <option value="Braces">Braces / Orthodontics</option>
+              <option value="Tooth Extraction">Tooth Extraction</option>
+              <option value="Dental Filling">Dental Filling</option>
+              <option value="Teeth Cleaning">Teeth Cleaning</option>
+              <option value="Crown/Bridge">Crown / Bridge</option>
+              <option value="Gum Treatment">Gum Treatment</option>
+              <option value="Teeth Whitening">Teeth Whitening</option>
+              <option value="Dental Implant">Dental Implant</option>
+              <option value="Wisdom Tooth">Wisdom Tooth</option>
+              <option value="Cavity Treatment">Cavity Treatment</option>
+              <option value="Dentures">Dentures</option>
+              <option value="Emergency Care">Emergency Care</option>
+              <option value="Consultation">General Consultation</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Medicine Section -->
+        <div class="form-grid">
+          <h3 class="section-header">Medicine Details</h3>
+
+          <div class="form-group full-width">
+            <label>Enter Medicine Code</label>
+            <input type="text" id="medicineCode" placeholder="Enter Medicine Code" />
+            <div class="button-group">
+              <button type="button" onclick="addMedicineCode()"> Add Another Code</button>
+              <button type="button" onclick="fetchMedicines()"> Fetch Medicines</button>
+              <button type="button" onclick="addManualMedicine()"> Add Medicine Manually</button>
+            </div>
+          </div>
+
+          <!-- show entered codes -->
+          <div class="form-group full-width">
+            <div id="code-list"><strong>Entered Codes:</strong> <span id="codesDisplay">None</span></div>
+          </div>
+        </div>
+
+        <table id="medicine-table" style="margin-top: 20px;">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Medicine Name</th>
+              <th>Dosage</th>
+              <th>Duration</th>
+              <th>Measure</th>
+              <th>Instruction</th>
+              <th>Remove</th>
+            </tr>
+          </thead>
+          <tbody id="medicine-list"></tbody>
+        </table>
+
+        <!-- Notes Section -->
+        <div class="form-grid">
+          <h3 class="section-header">Treatment & Notes</h3>
+
+          <div class="form-group full-width">
+            <label for="notes">Doctor's Notes & Treatment Details</label>
+            <textarea id="notes" rows="6"
+              placeholder="Enter treatment details, procedures, recommendations, and optional notes"></textarea>
+          </div>
+        </div>
+
+        <!-- Follow-up & X-ray Section -->
+        <div class="form-grid">
+          <h3 class="section-header">Follow-up & X-ray</h3>
+
+          <div class="form-group">
+            <label>Follow-up Date</label>
+            <input type="date" id="followUpDate" />
+          </div>
+
+          <div class="form-group">
+            <label>Follow-up Time</label>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <input type="time" id="followUpTime" style="flex: 1;" />
+              <label style="margin:0; display:flex; align-items:center; gap:6px; white-space: nowrap;">
+                <input type="checkbox" id="useDefaultTime" />
+                Default (09:00)
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="xrayUpload">Upload X-ray</label>
+            <input type="file" id="xrayUpload" accept="image/*" />
+            <button type="button" id="analyzeXrayBtn" onclick="analyzeXray()"
+              style="margin-top: 10px; background-color: #7b61ff; display: none;">
+              Analyze X-ray with AI
+            </button>
+            <div id="xrayPreview" style="margin-top: 10px;"></div>
+            <div id="xrayAnalysis" style="margin-top: 15px;"></div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="button-group" style="justify-content: center; margin-top: 30px;">
+          <button type="submit" style="background-color: #29a9f8; padding: 12px 30px; font-size: 1rem;">💾 Save
+            Prescription</button>
+          <button type="button" onclick="printPrescription()"
+            style="background-color: #7b61ff; padding: 12px 30px; font-size: 1rem;">🖨️ Print Prescription</button>
+        </div>
+
+        <!-- Hidden Print Layout -->
+        <div id="printArea" style="display:none; font-family: Arial, sans-serif;">
+
+          <!-- Doctor + Patient Info -->
+          <div style="display:flex; justify-content:space-between; border-bottom:1px solid #000; padding-bottom:5px;">
+            <div>
+              <h3 id="printDoctorName"></h3>
+              <p>
+                <span id="printDoctorDegree"></span><br>
+                Registration No.: <span id="printDoctorRegNo"></span><br>
+                <span id="printClinicName"></span>
+              </p>
+            </div>
+            <div style="text-align:right;">
+              <p><strong>Date:</strong> <span id="printDate"></span></p>
+            </div>
+          </div>
+
+          <!-- Patient Info -->
+          <div style="margin-top:10px;">
+            <strong id="printPatientName"></strong>
+            (<span id="printSexAge"></span>)<br>
+            <span id="printContact"></span><br>
+            <span id="printAddress"></span>
+          </div>
+
+          <!-- Prescription Title -->
+          <h3 style="text-align:center; margin:15px 0; text-decoration:underline;">PRESCRIPTION</h3>
+
+          <!-- Medicine Table -->
+          <table border="1" cellspacing="0" cellpadding="5" width="100%">
+            <thead>
+              <tr style="background:#f0f0f0;">
+                <th>Medicine / Description</th>
+                <th>Dosage</th>
+                <th>Duration</th>
+                <th>Measure</th>
+                <th>Instruction</th>
+              </tr>
+            </thead>
+            <tbody id="printMedicineList"></tbody>
+          </table>
+
+          <!-- Treatment/Notes Section -->
+          <div id="printTreatmentSection" style="margin-top:20px; display:none;">
+            <h4 style="margin-bottom:8px; text-decoration:underline;">Clinical Notes:</h4>
+            <p id="printTreatment" style="margin:0; white-space:pre-wrap;"></p>
+          </div>
+
+          <!-- Signature -->
+          <div style="margin-top:50px; text-align:right;">
+            <p>__________________________</p>
+            <p>Doctor’s Signature</p>
+          </div>
+        </div>
+
+        <!-- include history-utils before inline script so historyUtils is available -->
+        <script src="js/history-utils.js"></script>
+
+        <script>
+          // Theme management functions
+          function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            let theme = 'light';
+            if (savedTheme) {
+              theme = savedTheme;
+            } else if (prefersDark) {
+              theme = 'dark';
+            }
+
+            setTheme(theme);
+            updateThemeIcon(theme);
+          }
+
+          function setTheme(theme) {
+            if (theme === 'dark') {
+              document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+              document.documentElement.removeAttribute('data-theme');
+            }
+            localStorage.setItem('theme', theme);
+          }
+
+          function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+            updateThemeIcon(newTheme);
+          }
+
+          function updateThemeIcon(theme) {
+            const icon = document.getElementById('theme-icon');
+            if (icon) {
+              icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+            }
+          }
+
+          // Initialize theme on page load
+          initializeTheme();
+
+          let enteredCodes = [];
+          // holds selected x-ray info for saving to history
+          let xrayPayload = null; // { name, type, size, dataUrl }
+          // Global variable to store AI analysis results (accessible across all functions)
+          window.xrayAnalysisResults = null;
+
+          // Default-time toggle behavior
+          (function initFollowUpControls() {
+            const cb = document.getElementById("useDefaultTime");
+            const time = document.getElementById("followUpTime");
+            if (!cb || !time) return;
+            const sync = () => {
+              if (cb.checked) {
+                time.value = "09:00";
+                time.disabled = true;
+              } else {
+                time.disabled = false;
+              }
+            };
+            cb.addEventListener("change", sync);
+            sync();
+          })();
+
+          // Send prescription via email. Awaits first attempt (with timeout) so request starts before print DOM swap.
+          async function emailPrescription(prescriptionData) {
+            try {
+              const to = (prescriptionData && prescriptionData.patientEmail || "").trim();
+              if (!to) {
+                console.warn(" No patient email provided - skipping email send");
+                showToast('No patient email - prescription not emailed', 'error');
+                return; // no email provided
+              }
+
+              console.log("Preparing to send prescription email to:", to);
+
+              const doctorName = (prescriptionData && prescriptionData.doctor) || (JSON.parse(localStorage.getItem("doctorProfile") || "null")?.fullName) || "Doctor";
+              const subject = `Prescription from Dr. ${doctorName}`;
+
+              const medsRows = (prescriptionData.medicines || []).map(m => `
+        <tr>
+          <td>${(m.name || "-")}</td>
+          <td>${(m.dosage || "-")}</td>
+          <td>${(m.duration || "-")}</td>
+          <td>${(m.measure || "-")}</td>
+          <td>${(m.instruction || "-")}</td>
+        </tr>
+      `).join("");
+
+              const html = `
+        <div style="font-family:Arial,sans-serif;">
+          <h3 style="margin:0 0 8px;">Prescription</h3>
+          <div style="margin:6px 0;">Patient: <strong>${(prescriptionData.patientName || "-")}</strong></div>
+          <div style="margin:6px 0;">Mobile: ${(prescriptionData.mobile || "-")}</div>
+          <div style="margin:6px 0;">Doctor: Dr. ${(doctorName || "-")}</div>
+          ${prescriptionData.notes ? `<div style='margin:6px 0;'>Notes: ${(prescriptionData.notes)}</div>` : ""}
+          <h4 style="margin:12px 0 6px;">Medicines</h4>
+          <table cellpadding="6" cellspacing="0" border="1" style="border-collapse:collapse; width:100%;">
+            <thead>
+              <tr style="background:#f2f2f2;">
+                <th>Medicine</th><th>Dosage</th><th>Duration</th><th>Measure</th><th>Instruction</th>
+              </tr>
+            </thead>
+            <tbody>${medsRows || `<tr><td colspan='5' style='text-align:center;'>No medicines</td></tr>`}</tbody>
+          </table>
+          ${prescriptionData.xray && prescriptionData.xray.name ? `<p style='margin-top:10px;'>X-ray attached: ${(prescriptionData.xray.name)}</p>` : ""}
+          
+          ${window.xrayAnalysisResults && window.xrayAnalysisResults.success ? `
+            <div style="margin-top: 30px; padding: 20px; background: #f0fdf4; border: 2px solid #22c55e; border-radius: 10px;">
+              <h3 style="margin: 0 0 15px 0; color: #15803d;"> AI X-ray Analysis Results</h3>
+              
+              <p style="margin: 10px 0;">
+                <strong>Severity:</strong> 
+                <span style="padding: 4px 12px; background: ${window.xrayAnalysisResults.severity === 'high' ? '#fee2e2' : window.xrayAnalysisResults.severity === 'moderate' ? '#fef3c7' : '#dcfce7'}; 
+                       color: ${window.xrayAnalysisResults.severity === 'high' ? '#991b1b' : window.xrayAnalysisResults.severity === 'moderate' ? '#92400e' : '#166534'}; 
+                       border-radius: 12px; font-size: 12px; font-weight: 600;">
+                  ${window.xrayAnalysisResults.severity.toUpperCase()}
+                </span>
+                &nbsp;&nbsp;
+                <strong>Confidence:</strong> ${(window.xrayAnalysisResults.confidence * 100).toFixed(0)}%
+              </p>
+              
+              <div style="margin: 15px 0;">
+                <strong style="color: #15803d;">Findings:</strong>
+                <ul style="margin: 8px 0; padding-left: 20px;">
+                  ${window.xrayAnalysisResults.findings.map(f => `
+                    <li style="margin: 8px 0; color: #374151;">
+                      <strong>${f.type}</strong> - ${f.location}
+                      <br><span style="font-size: 13px; color: #6b7280;">${f.description}</span>
+                      <br><span style="font-size: 12px; color: #6b7280;">Confidence: ${(f.confidence * 100).toFixed(0)}%</span>
+                    </li>
+                  `).join('')}
+                </ul>
+              </div>
+              
+              <div style="margin: 15px 0;">
+                <strong style="color: #15803d;">Recommendations:</strong>
+                <ul style="margin: 8px 0; padding-left: 20px;">
+                  ${window.xrayAnalysisResults.recommendations.map(r => `
+                    <li style="margin: 5px 0; color: #374151;">${r}</li>
+                  `).join('')}
+                </ul>
+              </div>
+              
+              <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #bbf7d0; font-size: 12px; color: #6b7280;">
+                <em>Note: This is an AI-assisted analysis. Please verify findings with professional examination.</em>
+              </div>
+            </div>
+          ` : ''}
+        </div>`;
+
+              const token = localStorage.getItem("token");
+
+              // Ensure X-ray is always compressed before sending
+              let xrayToSend = prescriptionData.xray || (typeof xrayPayload !== 'undefined' ? xrayPayload : undefined);
+              if (xrayToSend && xrayToSend.dataUrl) {
+                const sizeBytes = dataUrlSizeBytes(xrayToSend.dataUrl);
+                const sizeMB = sizeBytes / 1024 / 1024;
+                console.log(` X-ray for email: ${xrayToSend.name}, size: ${sizeMB.toFixed(2)}MB`);
+
+                // If still too large (>6MB), compress further
+                if (sizeMB > 6) {
+                  console.warn(`X-ray too large (${sizeMB.toFixed(2)}MB), re-compressing...`);
+                  try {
+                    // Create temporary image to re-compress
+                    const tempImg = new Image();
+                    await new Promise((resolve, reject) => {
+                      tempImg.onload = resolve;
+                      tempImg.onerror = reject;
+                      tempImg.src = xrayToSend.dataUrl;
+                    });
+
+                    const canvas = document.createElement('canvas');
+                    const maxDim = 1000;
+                    let { width, height } = tempImg;
+                    const scale = Math.min(1, maxDim / Math.max(width, height));
+                    width = Math.max(1, Math.round(width * scale));
+                    height = Math.max(1, Math.round(height * scale));
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(tempImg, 0, 0, width, height);
+
+                    let quality = 0.5;
+                    let compressed = canvas.toDataURL('image/jpeg', quality);
+                    while (dataUrlSizeBytes(compressed) > 5 * 1024 * 1024 && quality > 0.2) {
+                      quality -= 0.1;
+                      compressed = canvas.toDataURL('image/jpeg', quality);
+                    }
+
+                    xrayToSend = {
+                      name: xrayToSend.name,
+                      type: 'image/jpeg',
+                      size: dataUrlSizeBytes(compressed),
+                      dataUrl: compressed
+                    };
+                    console.log(`✓ Re-compressed to ${(xrayToSend.size / 1024 / 1024).toFixed(2)}MB, quality: ${quality.toFixed(2)}`);
+                  } catch (e) {
+                    console.error('Re-compression failed:', e);
+                  }
+                }
+              }
+
+              // Log AI analysis status
+              console.log(' AI analysis for email:', {
+                hasAnalysis: !!window.xrayAnalysisResults,
+                isSuccess: window.xrayAnalysisResults?.success
+              });
+
+              const payload = {
+                to,
+                subject,
+                html: html,
+                text: `Prescription for ${prescriptionData.patientName || "-"} by Dr. ${doctorName}`,
+                xray: xrayToSend || undefined,
+                xrayAnalysis: window.xrayAnalysisResults || undefined
+              };
+
+              // Debug: indicate if X-ray will be sent
+              try {
+                const hasX = !!(payload.xray && payload.xray.dataUrl);
+                console.log("Email payload X-ray present:", hasX, hasX ? (payload.xray.name || "(unnamed)") : "");
+                if (hasX) {
+                  console.log("Final X-ray size for email:", (dataUrlSizeBytes(payload.xray.dataUrl) / 1024 / 1024).toFixed(2), "MB");
+                }
+              } catch (_) { }
+
+              console.log("Sending email request to server...");
+
+              // First attempt: send email immediately (direct endpoint)
+              // Await up to 1200ms to ensure request is dispatched before print
+              const attempt = fetch("http://localhost:5000/api/prescriptions/email", {
+                method: "POST",
+                headers: Object.assign(
+                  { "Content-Type": "application/json" },
+                  token ? { "Authorization": `Bearer ${token}` } : {}
+                ),
+                body: JSON.stringify(payload),
+                keepalive: true
+              }).then(async res => {
+                console.log(" Email API response status:", res.status);
+                try {
+                  const data = await res.json().catch(() => ({}));
+                  console.log(" Email API response data:", data);
+                  // remember for post-print toast
+                  window.__emailSentStatus = { sent: !!data.sent, status: res.status, message: data.message || data.error };
+                } catch (_) { }
+                return res;
+              }).catch(err => {
+                console.error(" Email API request failed:", err?.message || err);
+                window.__emailSentStatus = { sent: false, status: 0, message: String(err?.message || err) };
+                throw err;
+              });
+
+              // Race with a timeout so we don't block UI too long
+              await Promise.race([
+                attempt,
+                new Promise(resolve => setTimeout(resolve, 1200))
+              ]);
+
+              // Schedule a retry in background if first failed
+              attempt.catch(() => {
+                setTimeout(() => {
+                  fetch("http://localhost:5000/api/prescriptions/email", {
+                    method: "POST",
+                    headers: Object.assign(
+                      { "Content-Type": "application/json" },
+                      token ? { "Authorization": `Bearer ${token}` } : {}
+                    ),
+                    body: JSON.stringify(payload),
+                    keepalive: true
+                  }).then(async res => {
+                    try {
+                      const data = await res.json().catch(() => ({}));
+                      window.__emailSentStatus = { sent: !!data.sent, status: res.status, message: data.message || data.error };
+                    } catch (_) { }
+                  }).catch(() => { });
+                }, 4000);
+              });
+            } catch (_) { /* ignore email errors */ }
+          }
+
+          function showToast(message, type) {
+            try {
+              const div = document.createElement('div');
+              div.className = `toast ${type || ''}`;
+              div.textContent = message;
+              document.body.appendChild(div);
+              setTimeout(() => { div.remove(); }, 4000);
+            } catch (_) { }
+          }
+
+          function addMedicineCode() {
+            const codeInput = document.getElementById("medicineCode");
+            const code = codeInput.value.trim();
+
+            if (!code) {
+              alert("Please enter a code");
+              return;
+            }
+
+            if (!enteredCodes.includes(code)) {
+              enteredCodes.push(code);
+              updateCodesDisplay();
+            } else {
+              alert(`Code "${code}" already entered`);
+            }
+
+            codeInput.value = "";
+          }
+
+          function updateCodesDisplay() {
+            const codesDisplay = document.getElementById("codesDisplay");
+            if (enteredCodes.length > 0) {
+              codesDisplay.textContent = enteredCodes.join(", ");
+            } else {
+              codesDisplay.textContent = "None";
+            }
+          }
+
+          function fetchMedicines() {
+            const listEl = document.getElementById("medicine-list");
+            listEl.innerHTML = "";
+
+            const addRows = (medicines) => {
+              if (!Array.isArray(medicines) || medicines.length === 0) {
+                alert("No medicines found for the given codes");
+                return;
+              }
+              medicines.forEach(med => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+          <td>${med.code || ""}</td>
+          <td>${med.name || ""}</td>
+          <td>${med.dosage || ""}</td>
+          <td>${med.duration || ""}</td>
+          <td>${med.measure || ""}</td>
+          <td>${med.instruction || ""}</td>
+          <td><button type="button" onclick="removeMedicine(this)">Remove</button></td>
+        `;
+                listEl.appendChild(row);
+              });
+            };
+
+            // Prefer server (per-doctor) lookup by code
+            const token = localStorage.getItem("token");
+            if (token) {
+              const fetches = enteredCodes.map(async (code) => {
+                try {
+                  const res = await fetch(`http://localhost:5000/api/medicines/code/${encodeURIComponent(code)}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                  });
+                  if (res.ok) {
+                    const json = await res.json().catch(() => ({}));
+
+                    // Support both single object (legacy) and array (new)
+                    let meds = [];
+                    if (json.medicines && Array.isArray(json.medicines)) {
+                      meds = json.medicines;
+                    } else if (json.medicine) {
+                      meds = [json.medicine];
+                    } else if (json.data) {
+                      meds = [json.data];
+                    }
+
+                    if (meds.length > 0) {
+                      // Map all found medicines
+                      return meds.map(m => ({
+                        code: m.code,
+                        name: m.name,
+                        dosage: "",
+                        duration: "",
+                        measure: m.dosageAmount || "",
+                        instruction: [m.morning, m.afternoon, m.night].filter(v => v && v !== "none").join("/") || ""
+                      }));
+                    }
+                  }
+                } catch (e) {
+                  console.warn("Medicine fetch by code failed:", code, e);
+                }
+                return null;
+              });
+
+              Promise.all(fetches).then((results) => {
+                // Flatten the array of arrays (since each code can return multiple meds)
+                const meds = results.flat().filter(Boolean);
+                if (meds.length > 0) {
+                  addRows(meds);
+                  return;
+                }
+                // Fallback to local (per-user) storage if none from server
+                const email = (localStorage.getItem("email") || "").toLowerCase().trim();
+                const storageKey = email ? `medicines_user_${email}` : "medicines";
+                const storedMedicines = JSON.parse(localStorage.getItem(storageKey) || "[]");
+                const filtered = storedMedicines.filter(med => enteredCodes.includes(med.code));
+                addRows(filtered);
+              });
+              return;
+            }
+
+            // No token -> local per-user fallback only
+            const email = (localStorage.getItem("email") || "").toLowerCase().trim();
+            const storageKey = email ? `medicines_user_${email}` : "medicines";
+            const storedMedicines = JSON.parse(localStorage.getItem(storageKey) || "[]");
+            const filtered = storedMedicines.filter(med => enteredCodes.includes(med.code));
+            addRows(filtered);
+          }
+
+          function addManualMedicine() {
+            const listEl = document.getElementById("medicine-list");
+            if (!listEl) return;
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+          <td contenteditable="true" class="editable-cell" data-placeholder="Code"></td>
+          <td contenteditable="true" class="editable-cell" data-placeholder="Medicine name"></td>
+          <td contenteditable="true" class="editable-cell" data-placeholder="Dosage (e.g. 1-0-1)"></td>
+          <td contenteditable="true" class="editable-cell" data-placeholder="Duration (e.g. 5 days)"></td>
+          <td contenteditable="true" class="editable-cell" data-placeholder="Measure (e.g. 1 tablet)"></td>
+          <td>
+            <select class="manual-instruction-select">
+              <option value="">Instruction</option>
+              <option value="जेवण नंतर">जेवण नंतर</option>
+              <option value="जेवण आधी">जेवण आधी</option>
+            </select>
+          </td>
+          <td><button type="button" onclick="removeMedicine(this)">Remove</button></td>
+        `;
+            listEl.appendChild(row);
+          }
+
+          function removeMedicine(button) {
+            button.closest("tr").remove();
+          }
+
+          function renderAuthButtons() {
+            const div = document.getElementById("auth-buttons");
+            if (!div) return;
+            const displayName = (JSON.parse(localStorage.getItem("doctorProfile") || "null")?.fullName) || localStorage.getItem("doctorName");
+            const email = localStorage.getItem("email");
+            if (displayName || email) {
+              div.innerHTML = ``;
+            } else {
+              div.innerHTML = `<button class="book-btn" onclick="location.href='signup.html'">Login</button>`;
+            }
+          }
+
+          function navigateTo(page) {
+            if (page === "signup") { window.location.href = "signup.html"; }
+            else if (page === "profile") { window.location.href = "profile.html"; }
+            else if (page === "prescription") { window.location.href = "prescription.html"; }
+            else if (page === "history") { window.location.href = "history.html"; }
+            else if (page === "appointments") { window.location.href = "doctor-appointments.html"; }
+            else if (page === "analytics") { window.location.href = "analytics.html"; }
+            else if (page === "xray") { window.location.href = "xray.html"; }
+            else if (page === "medicine") { window.location.href = "medicine.html"; }
+          }
+
+          function logout() {
+            try { localStorage.setItem("global_logout", String(Date.now())); } catch (e) { }
+            localStorage.removeItem("email");
+            localStorage.removeItem("token");
+            localStorage.removeItem("loggedIn");
+            localStorage.removeItem("doctorName");
+            localStorage.removeItem("doctorProfile");
+            renderAuthButtons();
+            window.location.href = "index.html";
+          }
+
+          renderAuthButtons();
+
+          // Cross-tab logout listener
+          window.addEventListener("storage", function (e) {
+            if (e && e.key === "global_logout") {
+              const hasAuth = localStorage.getItem("email") || localStorage.getItem("token");
+              if (hasAuth) {
+                localStorage.removeItem("email");
+                localStorage.removeItem("token");
+                localStorage.removeItem("loggedIn");
+                localStorage.removeItem("doctorName");
+                localStorage.removeItem("doctorProfile");
+              }
+              renderAuthButtons();
+              window.location.href = "index.html";
+            }
+          });
+
+          // 🔹 Fetch doctor details from backend
+          async function getDoctorProfile() {
+            try {
+              const token = localStorage.getItem("token");
+              if (!token) return JSON.parse(localStorage.getItem("doctorProfile") || "null");
+
+              const res = await fetch("http://localhost:5000/api/doctors/profile", {
+                headers: {
+                  "Authorization": `Bearer ${token}`
+                }
+              });
+
+              if (!res.ok) {
+                console.error("Failed to fetch doctor profile from server");
+                // fallback to localStorage copy
+                return JSON.parse(localStorage.getItem("doctorProfile") || "null");
+              }
+
+              const data = await res.json();
+              return data.doctor || data;
+            } catch (err) {
+              console.error("Error fetching doctor profile:", err);
+              return JSON.parse(localStorage.getItem("doctorProfile") || "null");
+            }
+          }
+
+          // Utility: estimate data URL size in bytes
+          function dataUrlSizeBytes(dataUrl) {
+            try {
+              const base64 = String(dataUrl || '').split(',')[1] || '';
+              return Math.ceil((base64.length * 3) / 4);
+            } catch { return 0; }
+          }
+
+          // Utility: compress image file to JPEG within max dimension and quality
+          // Ensures email-safe size (< 5MB after base64 encoding)
+          // For panoramic X-rays, use lower quality to reduce file size significantly
+          function compressImageFile(file, { maxDim = 1600, quality = 0.7 } = {}) {
+            return new Promise((resolve, reject) => {
+              const img = new Image();
+              const reader = new FileReader();
+              reader.onload = () => {
+                img.onload = () => {
+                  try {
+                    const canvas = document.createElement('canvas');
+                    let { width, height } = img;
+                    const scale = Math.min(1, maxDim / Math.max(width, height));
+                    width = Math.max(1, Math.round(width * scale));
+                    height = Math.max(1, Math.round(height * scale));
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Start with requested quality, then reduce if needed
+                    let outUrl = canvas.toDataURL('image/jpeg', quality);
+                    let currentQuality = quality;
+
+                    // Ensure result is under 5MB (safe for most email servers)
+                    const maxBytes = 5 * 1024 * 1024;
+                    while (dataUrlSizeBytes(outUrl) > maxBytes && currentQuality > 0.3) {
+                      currentQuality -= 0.1;
+                      outUrl = canvas.toDataURL('image/jpeg', currentQuality);
+                    }
+
+                    console.log(`X-ray compressed: ${(dataUrlSizeBytes(outUrl) / 1024 / 1024).toFixed(2)}MB, quality: ${currentQuality.toFixed(2)}`);
+                    resolve(outUrl);
+                  } catch (e) { reject(e); }
+                };
+                img.onerror = reject;
+                img.src = reader.result;
+              };
+              reader.onerror = reject;
+              reader.readAsDataURL(file);
+            });
+          }
+
+          // Handle X-ray file selection -> compress + preview + store as data URL for history
+          (function initXrayUpload() {
+            const input = document.getElementById("xrayUpload");
+            const preview = document.getElementById("xrayPreview");
+            if (!input || !preview) return;
+
+            input.addEventListener("change", async () => {
+              const file = input.files && input.files[0];
+              xrayPayload = null;
+              preview.innerHTML = "";
+              if (!file) return;
+
+              // Only accept image types
+              if (!file.type.startsWith("image/")) {
+                alert("Please select an image file for X-ray.");
+                input.value = "";
+                return;
+              }
+
+              try {
+                // Show processing message
+                preview.innerHTML = `<div style="font-size:12px; color:#0066cc;"> Compressing X-ray image...</div>`;
+
+                // First attempt: Compress with standard settings (good for panoramic X-rays)
+                let compressed = await compressImageFile(file, { maxDim: 1000, quality: 0.6 });
+                let bytes = dataUrlSizeBytes(compressed);
+                console.log(`Compression attempt 1: ${(bytes / 1024 / 1024).toFixed(2)} MB`);
+
+                // If still too large, compress more aggressively
+                if (bytes > 4 * 1024 * 1024) {
+                  console.log('First compression too large, trying more aggressive compression...');
+                  compressed = await compressImageFile(file, { maxDim: 800, quality: 0.45 });
+                  bytes = dataUrlSizeBytes(compressed);
+                  console.log(`Compression attempt 2: ${(bytes / 1024 / 1024).toFixed(2)} MB`);
+                }
+
+                // If still too large, try ultra compression
+                if (bytes > 4 * 1024 * 1024) {
+                  console.log('Still too large, using ultra compression...');
+                  compressed = await compressImageFile(file, { maxDim: 600, quality: 0.35 });
+                  bytes = dataUrlSizeBytes(compressed);
+                  console.log(`Compression attempt 3: ${(bytes / 1024 / 1024).toFixed(2)} MB`);
+                }
+
+                // Final attempt - extreme compression for very large panoramic X-rays
+                if (bytes > 4 * 1024 * 1024) {
+                  console.log('Using extreme compression for large panoramic X-ray...');
+                  compressed = await compressImageFile(file, { maxDim: 500, quality: 0.3 });
+                  bytes = dataUrlSizeBytes(compressed);
+                  console.log(`Compression attempt 4 (extreme): ${(bytes / 1024 / 1024).toFixed(2)} MB`);
+                }
+
+                // Validate size is email-safe (< 4MB for better compatibility with all email servers)
+                if (bytes > 4 * 1024 * 1024) {
+                  alert(`X-ray image is too large (${(bytes / 1024 / 1024).toFixed(2)} MB) even after maximum compression.\n\nPlease:\n1. Take a screenshot of the X-ray instead of uploading the original\n2. Use a photo editing app to reduce the resolution\n3. Or use a smaller/lower quality image`);
+                  input.value = "";
+                  preview.innerHTML = "";
+                  return;
+                }
+
+                // Validate the compressed data is valid
+                if (!compressed || !compressed.startsWith('data:image')) {
+                  alert('Error compressing X-ray image. Please try a different image.');
+                  input.value = "";
+                  preview.innerHTML = "";
+                  return;
+                }
+
+                xrayPayload = {
+                  name: file.name,
+                  type: 'image/jpeg',
+                  size: bytes,
+                  dataUrl: compressed
+                };
+
+                const img = document.createElement('img');
+                img.src = compressed;
+                img.alt = 'X-ray preview';
+                img.style.maxWidth = '240px';
+                img.style.borderRadius = '6px';
+                img.style.border = '1px solid #ddd';
+                preview.innerHTML = `<div style="font-size:12px; color:#22c55e;">✓ X-ray compressed: ${file.name} (${(bytes / 1024 / 1024).toFixed(2)} MB)</div>`;
+                preview.appendChild(img);
+
+                // Show AI analysis button
+                const analyzeBtn = document.getElementById('analyzeXrayBtn');
+                if (analyzeBtn) analyzeBtn.style.display = 'inline-block';
+
+                console.log('✓ X-ray compressed successfully:', { name: file.name, sizeMB: (bytes / 1024 / 1024).toFixed(2) });
+              } catch (e) {
+                console.error('X-ray compression error:', e);
+                alert('Failed to process X-ray image. Please try a different file.');
+                input.value = "";
+                preview.innerHTML = "";
+              }
+            });
+          })();
+
+          // AI X-ray Analysis Function
+          async function analyzeXray() {
+            if (!xrayPayload || !xrayPayload.dataUrl) {
+              alert('Please upload an X-ray image first');
+              return;
+            }
+
+            const analysisDiv = document.getElementById('xrayAnalysis');
+            const analyzeBtn = document.getElementById('analyzeXrayBtn');
+
+            try {
+              // Show loading state
+              analysisDiv.innerHTML = `
+        <div style="padding: 20px; background: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 10px;">
+          <div style="font-size: 14px; color: #0369a1; font-weight: 600;">
+             AI is analyzing your dental X-ray...
+          </div>
+          <div style="margin-top: 10px; height: 4px; background: #e0f2fe; border-radius: 2px; overflow: hidden;">
+            <div style="height: 100%; width: 60%; background: #0ea5e9; animation: progress 2s ease-in-out infinite;"></div>
+          </div>
+        </div>
+      `;
+              analyzeBtn.disabled = true;
+              analyzeBtn.textContent = ' Analyzing...';
+
+              // Call AI analysis API
+              const response = await fetch('http://localhost:5000/api/xray-analysis/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  imageDataUrl: xrayPayload.dataUrl,
+                  xrayType: 'panoramic' // You can make this dynamic based on user selection
+                })
+              });
+
+              const result = await response.json();
+
+              if (result.success) {
+                // Store analysis results globally for email
+                window.xrayAnalysisResults = result;
+                console.log(' AI analysis results stored for email:', {
+                  severity: result.severity,
+                  findingsCount: result.findings?.length,
+                  recommendationsCount: result.recommendations?.length
+                });
+
+                // Display analysis results
+                let html = `
+          <div style="padding: 20px; background: #f0fdf4; border: 2px solid #22c55e; border-radius: 10px;">
+            <h4 style="margin: 0 0 15px 0; color: #15803d; font-size: 16px;">
+               AI Analysis Complete
+            </h4>
+            <div style="margin-bottom: 15px;">
+              <strong>Severity:</strong> 
+              <span style="padding: 4px 12px; background: ${result.severity === 'high' ? '#fee2e2' : result.severity === 'moderate' ? '#fef3c7' : '#dcfce7'}; 
+                     color: ${result.severity === 'high' ? '#991b1b' : result.severity === 'moderate' ? '#92400e' : '#166534'}; 
+                     border-radius: 12px; font-size: 12px; font-weight: 600;">
+                ${result.severity.toUpperCase()}
+              </span>
+              <span style="margin-left: 10px; color: #6b7280;">
+                Confidence: ${(result.confidence * 100).toFixed(0)}%
+              </span>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+              <strong style="color: #15803d;">Findings:</strong>
+              <ul style="margin: 8px 0; padding-left: 20px;">
+                ${result.findings.map(f => `
+                  <li style="margin: 5px 0; color: #374151;">
+                    <strong>${f.type}</strong> - ${f.location}
+                    <br><span style="font-size: 13px; color: #6b7280;">${f.description}</span>
+                  </li>
+                `).join('')}
+              </ul>
+            </div>
+            
+            <div>
+              <strong style="color: #15803d;">Recommendations:</strong>
+              <ul style="margin: 8px 0; padding-left: 20px;">
+                ${result.recommendations.map(r => `
+                  <li style="margin: 5px 0; color: #374151;">${r}</li>
+                `).join('')}
+              </ul>
+            </div>
+            
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #bbf7d0; font-size: 12px; color: #6b7280;">
+              <em>Note: This is an AI-assisted analysis. Please verify findings with professional examination.</em>
+            </div>
+          </div>
+        `;
+                analysisDiv.innerHTML = html;
+              } else {
+                throw new Error(result.error || 'Analysis failed');
+              }
+
+            } catch (error) {
+              console.error('X-ray analysis error:', error);
+              analysisDiv.innerHTML = `
+        <div style="padding: 20px; background: #fef2f2; border: 2px solid #ef4444; border-radius: 10px; color: #991b1b;">
+          <strong> Analysis Failed</strong>
+          <p style="margin: 10px 0 0 0; font-size: 14px;">${error.message}</p>
+          <p style="margin: 10px 0 0 0; font-size: 12px; color: #6b7280;">
+            Make sure the server is running at http://localhost:5000
+          </p>
+        </div>
+      `;
+            } finally {
+              analyzeBtn.disabled = false;
+              analyzeBtn.textContent = 'Analyze X-ray with AI';
+            }
+          }
+
+          // Handle Save Prescription (submit) to persist history with optional X-ray (no print)
+          (function initSaveHandler() {
+            const form = document.getElementById("prescription-form");
+            if (!form) return;
+            form.addEventListener("submit", async (e) => {
+              e.preventDefault();
+
+              const doctorProfile = await getDoctorProfile() || (JSON.parse(localStorage.getItem("doctorProfile") || "{}"));
+
+              const patientNameVal = document.getElementById("patientName").value || "";
+              const patientContactVal = document.getElementById("patientContact").value || "";
+              const addressVal = document.getElementById("address").value || "";
+              const sexVal = document.getElementById("sex").value || "";
+              const ageVal = document.getElementById("age").value || "";
+
+              const medicineRows = document.querySelectorAll("#medicine-list tr");
+              const medicinesToSave = [];
+              let hasInvalidManual = false;
+              medicineRows.forEach(row => {
+                const cells = row.querySelectorAll("td");
+                const medCode = (cells[0] && cells[0].innerText) ? cells[0].innerText.trim() : "";
+                const medName = (cells[1] && cells[1].innerText) ? cells[1].innerText.trim() : "";
+                const dosage = (cells[2] && cells[2].innerText) ? cells[2].innerText.trim() : "";
+                const duration = (cells[3] && cells[3].innerText) ? cells[3].innerText.trim() : "";
+                const measure = (cells[4] && cells[4].innerText) ? cells[4].innerText.trim() : "";
+                let instruction = (cells[5] && cells[5].innerText) ? cells[5].innerText.trim() : "";
+
+                const selectEl = cells[5] ? cells[5].querySelector("select.manual-instruction-select") : null;
+                if (selectEl) {
+                  instruction = (selectEl.value || "").trim();
+                }
+
+                const isManual = !!(cells[1] && cells[1].isContentEditable);
+                const anyFilled = [0, 1, 2, 3, 4].some(i => {
+                  const c = cells[i];
+                  return c && c.innerText && c.innerText.trim();
+                }) || !!instruction;
+                if (isManual && anyFilled && !medName) {
+                  hasInvalidManual = true;
+                }
+
+                medicinesToSave.push({
+                  name: medName || medCode || "",
+                  dosage,
+                  duration,
+                  measure,
+                  instruction
+                });
+              });
+
+              if (hasInvalidManual) {
+                alert("Please enter a medicine name for all manually added medicines.");
+                return;
+              }
+
+              const prescriptionData = {
+                patientName: patientNameVal,
+                mobile: patientContactVal,
+                patientEmail: (document.getElementById("patientEmail")?.value || "").trim(),
+                address: addressVal,
+                sex: sexVal,
+                age: ageVal ? parseInt(ageVal, 10) : undefined,
+                treatmentType: document.getElementById("treatmentType").value || "",
+                medicines: medicinesToSave,
+                medicines: medicinesToSave,
+                notes: document.getElementById("notes").value || "",
+                treatment: "", // Merged into notes
+                doctor: doctorProfile.fullName || doctorProfile.name || "Unknown",
+                xray: xrayPayload || undefined,
+                xrayAnalysis: window.xrayAnalysisResults || undefined,
+                followUpDate: (() => {
+                  const d = (document.getElementById("followUpDate")?.value || "").trim();
+                  const t = (document.getElementById("followUpTime")?.value || "").trim();
+                  const useDefault = !!document.getElementById("useDefaultTime")?.checked;
+                  if (!d) return undefined;
+                  try {
+                    const iso = `${d}T${(useDefault ? "09:00" : (t || "09:00"))}:00`;
+                    const dt = new Date(iso);
+                    return isNaN(dt.getTime()) ? undefined : dt.toISOString();
+                  } catch { return undefined; }
+                })()
+              };
+
+              // Optional server save
+              try {
+                const token = localStorage.getItem("token");
+                console.log(" Saving prescription (Save button) with X-ray:", {
+                  hasXray: !!(prescriptionData.xray && prescriptionData.xray.dataUrl),
+                  xrayName: prescriptionData.xray?.name
+                });
+
+                const response = await fetch("http://localhost:5000/api/prescriptions/add", {
+                  method: "POST",
+                  headers: Object.assign(
+                    { "Content-Type": "application/json" },
+                    token ? { "Authorization": `Bearer ${token}` } : {}
+                  ),
+                  body: JSON.stringify(prescriptionData)
+                });
+
+                if (response.ok) {
+                  console.log(" Prescription saved to database successfully");
+                } else {
+                  console.warn(" Prescription save failed:", await response.text());
+                }
+              } catch (err) {
+                console.error(" Failed to save prescription:", err);
+              }
+
+              // Local history save
+              try {
+                if (window.historyUtils && typeof window.historyUtils.saveHistoryForCurrentUser === "function") {
+                  const entry = {
+                    patient: patientNameVal,
+                    mobileNumber: patientContactVal,
+                    prescription: prescriptionData,
+                    notes: "Saved prescription"
+                  };
+                  window.historyUtils.saveHistoryForCurrentUser(entry);
+                  alert("Prescription saved.");
+                }
+              } catch (_) { }
+            });
+          })();
+
+          async function printPrescription() {
+
+            const doctorProfile = await getDoctorProfile() || (JSON.parse(localStorage.getItem("doctorProfile") || "{}"));
+
+            document.getElementById("printDoctorName").innerText =
+              doctorProfile && (doctorProfile.fullName || doctorProfile.name) ? `Dr. ${doctorProfile.fullName || doctorProfile.name}` : "Doctor Name";
+            document.getElementById("printDoctorDegree").innerText =
+              (doctorProfile && (doctorProfile.specialization || doctorProfile.degree)) || "Degree";
+            document.getElementById("printDoctorRegNo").innerText =
+              (doctorProfile && (doctorProfile.RegistrationNo || doctorProfile.registrationNo)) || "N/A";
+            document.getElementById("printClinicName").innerText =
+              (doctorProfile && doctorProfile.clinicName) || "";
+
+
+            const patientNameVal = document.getElementById("patientName").value || "Patient Name";
+            const patientContactVal = document.getElementById("patientContact").value || "";
+            const addressVal = document.getElementById("address").value || "";
+            const sexVal = document.getElementById("sex").value || "Sex";
+            const ageVal = document.getElementById("age").value || "";
+
+            document.getElementById("printPatientName").innerText = patientNameVal;
+            document.getElementById("printSexAge").innerText = `${sexVal} / ${ageVal || "Age"}`;
+            document.getElementById("printContact").innerText = patientContactVal;
+            document.getElementById("printAddress").innerText = addressVal;
+
+            //  Date
+            const now = new Date();
+            document.getElementById("printDate").innerText = now.toLocaleString();
+
+            //  Gather medicines from table rows into an array for saving & printing
+            const medicineRows = document.querySelectorAll("#medicine-list tr");
+            const printTable = document.getElementById("printMedicineList");
+            printTable.innerHTML = "";
+
+            // We'll also build a medicines array to send to backend
+            const medicinesToSave = [];
+
+            medicineRows.forEach(row => {
+              const cells = row.querySelectorAll("td");
+              const medCode = (cells[0] && cells[0].innerText) ? cells[0].innerText.trim() : "";
+              const medName = (cells[1] && cells[1].innerText) ? cells[1].innerText.trim() : "";
+              const dosage = (cells[2] && cells[2].innerText) ? cells[2].innerText.trim() : "";
+              const duration = (cells[3] && cells[3].innerText) ? cells[3].innerText.trim() : "";
+              const measure = (cells[4] && cells[4].innerText) ? cells[4].innerText.trim() : "";
+              let instruction = (cells[5] && cells[5].innerText) ? cells[5].innerText.trim() : "";
+
+              const selectEl = cells[5] ? cells[5].querySelector("select.manual-instruction-select") : null;
+              if (selectEl) {
+                instruction = (selectEl.value || "").trim();
+              }
+
+              // Prepare print row
+              const tr = document.createElement("tr");
+              tr.innerHTML = `
+        <td>${medName || "-"}</td>
+        <td>${dosage || "-"}</td>
+        <td>${duration || "-"}</td>
+        <td>${measure || "-"}</td>
+        <td>${instruction || "-"}</td>
+      `;
+              printTable.appendChild(tr);
+
+              // Prepare object for backend (fields mapped to model)
+              medicinesToSave.push({
+                name: medName || medCode || "",
+                dosage: dosage || "",
+                duration: duration || "",
+                measure: measure || "",
+                instruction: instruction || ""
+              });
+            });
+
+            //  Fill Clinical Notes section in print area
+            const notesVal = document.getElementById("notes").value || "";
+            if (notesVal.trim()) {
+              document.getElementById("printTreatmentSection").style.display = "block";
+              document.getElementById("printTreatment").innerText = notesVal;
+            } else {
+              document.getElementById("printTreatmentSection").style.display = "none";
+            }
+
+            // Build prescription object to save (field names match backend model)
+            const prescriptionData = {
+              patientName: patientNameVal,
+              mobile: patientContactVal,   // backend model expects `mobile`
+              patientEmail: (document.getElementById("patientEmail")?.value || "").trim(),
+              address: addressVal,
+              sex: sexVal,
+              age: ageVal ? parseInt(ageVal, 10) : undefined,
+              treatmentType: document.getElementById("treatmentType").value || "",
+              medicines: medicinesToSave,
+              notes: document.getElementById("notes").value || "",
+              treatment: treatmentVal,
+              doctor: doctorProfile.fullName || doctorProfile.name || "Unknown",
+              // include x-ray info (data URL) so it persists with this prescription
+              xray: xrayPayload || undefined,
+              xrayAnalysis: window.xrayAnalysisResults || undefined,
+              followUpDate: (() => {
+                const d = (document.getElementById("followUpDate")?.value || "").trim();
+                const t = (document.getElementById("followUpTime")?.value || "").trim();
+                const useDefault = !!document.getElementById("useDefaultTime")?.checked;
+                if (!d) return undefined;
+                const timeStr = (useDefault ? "09:00" : (t || ""));
+                try {
+                  const iso = timeStr ? `${d}T${timeStr}:00` : `${d}T09:00:00`;
+                  const dt = new Date(iso);
+                  if (isNaN(dt.getTime())) return undefined;
+                  return dt.toISOString();
+                } catch (_) {
+                  return undefined;
+                }
+              })()
+              // date will be set by backend (or you can include `date: now.toISOString()` if preferred)
+            };
+
+            // Save to backend history BEFORE printing (but don't block printing on save failure)
+            try {
+              const token = localStorage.getItem("token");
+              console.log(" Saving prescription to database with X-ray:", {
+                hasXray: !!(prescriptionData.xray && prescriptionData.xray.dataUrl),
+                xrayName: prescriptionData.xray?.name
+              });
+
+              const response = await fetch("http://localhost:5000/api/prescriptions/add", {
+                method: "POST",
+                headers: Object.assign(
+                  { "Content-Type": "application/json" },
+                  token ? { "Authorization": `Bearer ${token}` } : {}
+                ),
+                body: JSON.stringify(prescriptionData)
+              });
+
+              if (response.ok) {
+                console.log(" Prescription saved to database successfully");
+              } else {
+                console.warn(" Prescription save failed:", await response.text());
+              }
+            } catch (err) {
+              console.error("Failed to save prescription history to server:", err);
+              // proceed to print even if save fails
+            }
+
+            // --- Save into per-user local history (frontend-only) ---
+            try {
+              if (window.historyUtils && typeof window.historyUtils.saveHistoryForCurrentUser === "function") {
+                const entry = {
+                  patient: patientNameVal,
+                  mobileNumber: patientContactVal,
+                  prescription: prescriptionData,
+                  notes: "Printed prescription",
+                  serverSavedAt: new Date().toISOString()
+                };
+                window.historyUtils.saveHistoryForCurrentUser(entry);
+              } else {
+                console.warn("historyUtils not available; local history not saved.");
+              }
+            } catch (err) {
+              console.error("Failed to save local history:", err);
+            }
+
+            //  Trigger email to patient (non-blocking), immediately before printing
+            try {
+              console.log("Calling emailPrescription with data:", {
+                hasEmail: !!prescriptionData.patientEmail,
+                hasXray: !!(prescriptionData.xray && prescriptionData.xray.dataUrl),
+                xraySize: prescriptionData.xray ? (prescriptionData.xray.size / 1024 / 1024).toFixed(2) + 'MB' : 'N/A'
+              });
+              await emailPrescription(prescriptionData);
+            } catch (e) {
+              console.error(" Email send error:", e);
+            }
+
+            // Show print area only for printing (same behavior as before)
+            const printContents = document.getElementById("printArea").innerHTML;
+            const originalContents = document.body.innerHTML;
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+
+            // Show status toast if available after print restore
+            try {
+              if (window.__emailSentStatus) {
+                const s = window.__emailSentStatus;
+                if (s.sent) showToast('Prescription email sent', 'success');
+                else showToast('Prescription email failed', 'error');
+              }
+            } catch (_) { }
+
+            // Small delay so the email request isn't interrupted by reload (and allow toast visibility)
+            setTimeout(() => { location.reload(); }, 3000);
+          }
+        </script>
+        <script src="js/chatbot.js"></script>
+        <script src="js/doctor-theme.js"></script>
+</body>
+
+</html>

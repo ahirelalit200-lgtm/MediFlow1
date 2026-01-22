@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Prescriptions - Patient Portal</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/patient-theme.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Prescriptions Page Specific Styles */
+    .filters {
+      background: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+      margin-bottom: 2rem;
+      display: flex;
+      gap: 1rem;
+      align-items: end;
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .filter-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .filter-group input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      box-sizing: border-box;
+    }
+
+    .filter-btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      height: fit-content;
+    }
+
+    .prescription-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--primary-color);
+      margin-bottom: 1.5rem;
+    }
+
+    .prescription-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 1rem;
+    }
+
+    .prescription-info h3 {
+      color: var(--text-main);
+      margin: 0 0 0.25rem 0;
+      font-size: 1.1rem;
+    }
+
+    .prescription-info p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    .prescription-date {
+      text-align: right;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .medicines-list {
+      margin: 1rem 0;
+    }
+
+    .medicines-list h4 {
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .medicine-item {
+      background: var(--bg-color);
+      padding: 0.75rem;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid var(--border-color);
+    }
+
+    .medicine-name {
+      font-weight: 500;
+      color: var(--text-main);
+      font-size: 0.9rem;
+    }
+
+    .medicine-details {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .prescription-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .action-btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: transform 0.2s;
+    }
+
+    .view-btn {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .download-btn {
+      background: #10b981;
+      color: white;
+    }
+
+    /* X-ray Section Styles */
+    .xray-section {
+      margin: 1rem 0;
+      background: var(--bg-color);
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .xray-section h4 {
+      margin: 0 0 1rem 0;
+      color: var(--text-main);
+      font-size: 0.95rem;
+    }
+
+    .xray-preview {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .xray-image-container {
+      flex: 0 0 150px;
+    }
+
+    .xray-thumbnail {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      transition: transform 0.2s;
+    }
+
+    .xray-thumbnail:hover {
+      transform: scale(1.05);
+    }
+
+    .xray-info {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+
+    .xray-info p {
+      margin: 0.25rem 0;
+    }
+
+    .xray-analysis-preview {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .analysis-header {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .ai-badge {
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .severity-badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .severity-normal {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .severity-low {
+      background: #fef9c3;
+      color: #854d0e;
+    }
+
+    .severity-medium {
+      background: #fed7aa;
+      color: #9a3412;
+    }
+
+    .severity-high {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .findings-summary ul {
+      margin: 0.5rem 0 0 0;
+      padding-left: 1.25rem;
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    /* Modal Styles for X-ray */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      overflow: auto;
+    }
+
+    .modal-content {
+      margin: auto;
+      display: block;
+      width: 80%;
+      max-width: 800px;
+      max-height: 90vh;
+      margin-top: 2rem;
+    }
+
+    #modal-xray-image {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .close {
+      position: absolute;
+      top: 15px;
+      right: 35px;
+      color: #f1f1f1;
+      font-size: 40px;
+      font-weight: bold;
+      transition: 0.3s;
+      cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: #bbb;
+      text-decoration: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="assets/care.png" alt="Logo" height="32" />
+      <span>MediFlow</span>
+    </div>
+    <nav class="nav-links">
+      <a href="patient-dashboard.html" class="nav-item">
+        <span class="nav-icon">📊</span>
+        Dashboard
+      </a>
+      <a href="patient-prescriptions.html" class="nav-item active">
+        <span class="nav-icon">💊</span>
+        Prescriptions
+      </a>
+      <a href="patient-appointments.html" class="nav-item">
+        <span class="nav-icon">📅</span>
+        Appointments
+      </a>
+      <a href="patient-xrays.html" class="nav-item">
+        <span class="nav-icon">🩻</span>
+        X-Ray Reports
+      </a>
+      <a href="patient-profile.html" class="nav-item">
+        <span class="nav-icon">👤</span>
+        Profile
+      </a>
+    </nav>
+    <div class="user-profile-mini">
+      <div class="avatar-placeholder">P</div>
+      <div style="flex:1; overflow:hidden;">
+        <div style="font-weight:600; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+          id="sidebar-patient-name">Patient</div>
+        <div style="font-size:0.75rem; color:var(--text-muted); cursor:pointer;" onclick="patientLogout()">Sign Out
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="header-bar">
+      <div class="welcome-text">
+        <h1>My Prescriptions</h1>
+        <p>Welcome,
+          <span id="patient-name">Patient</span>
+        </p>
+      </div>
+      <div class="header-actions">
+        <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark Mode">
+          <span class="theme-icon" id="theme-icon">🌙</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="filters">
+      <div class="filter-group"><label for="doctor-search">Doctor Name</label><input type="text" id="doctor-search"
+          placeholder="Search by doctor name..." /></div>
+      <div class="filter-group"><label for="start-date">From Date</label><input type="date" id="start-date" /></div>
+      <div class="filter-group"><label for="end-date">To Date</label><input type="date" id="end-date" /></div><button
+        class="filter-btn" onclick="applyFilters()">Apply Filters</button><button class="filter-btn"
+        style="background: var(--secondary-color);" onclick="clearFilters()">Clear</button>
+    </div>
+
+    <div id="loading" class="loading" style="display: none;">Loading your prescriptions... </div>
+    <div id="error" class="error" style="display: none;"></div>
+
+    <div id="prescriptions-grid" class="prescriptions-grid">
+
+    </div>
+
+    <div id="pagination" class="pagination" style="display: none; justify-content:center; gap:0.5rem; margin-top:2rem;">
+      <button class="filter-btn"
+        style="background:var(--bg-color); color:var(--text-main); border:1px solid var(--border-color);">Previous</button><button
+        class="filter-btn"
+        style="background:var(--bg-color); color:var(--text-main); border:1px solid var(--border-color);">Next</button>
+    </div>
+  </main>
+  <script> // Theme logic
+
+    function initializeTheme() {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      let theme = savedTheme || (prefersDark ? 'dark' : 'light');
+      setTheme(theme);
+    }
+
+    function setTheme(theme) {
+      if (theme === 'dark') document.body.setAttribute('data-theme', 'dark');
+      else document.body.removeAttribute('data-theme');
+      localStorage.setItem('theme', theme);
+      updateThemeIcon(theme);
+    }
+
+    function toggleTheme() {
+      const current = document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      setTheme(current === 'dark' ? 'light' : 'dark');
+    }
+
+    function updateThemeIcon(theme) {
+      const icon = document.getElementById('theme-icon');
+      if (icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    initializeTheme();
+  </script>
+  <script src="js/config.js"></script>
+  <script src="js/patient-prescriptions.js"></script>
+</body>
+
+</html>

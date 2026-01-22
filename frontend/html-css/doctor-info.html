@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Doctor Information</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    .info-container {
+      max-width: 600px;
+      margin: 60px auto;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-container h2 {
+      text-align: center;
+      color: #1976d2;
+      margin-bottom: 25px;
+    }
+
+    .info-container form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .info-container input,
+    .info-container textarea {
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .info-container button {
+      background-color: #1976d2;
+      color: #fff;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .info-container button:hover {
+      background-color: #125cb1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="info-container">
+    <h2>Complete Your Profile</h2>
+    <form id="doctor-info-form">
+      <input type="text" id="fullName" placeholder="Full Name" required />
+      <input type="text" id="specialization" placeholder="Specialization (e.g., Dentist, Cardiologist)" required />
+      <input type="text" id="clinicName" placeholder="Clinic / Hospital Name" required />
+      <textarea id="address" placeholder="Clinic Address" rows="3" required></textarea>
+      <input type="text" id="phone" placeholder="Phone Number" required />
+      <input type="text" id="timings" placeholder="Available Timings (e.g., 9AM - 1PM)" />
+      <input type="text" id="experience" placeholder="Experience / Degree (optional)" />
+
+      <button type="submit">Save Info & Continue</button>
+    </form>
+  </div>
+
+  <script>
+    // Auto-fill name from localStorage if available
+    document.getElementById("fullName").value = localStorage.getItem("doctorName") || "";
+
+    const form = document.getElementById("doctor-info-form");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const payload = {
+        fullName: document.getElementById("fullName").value,
+        specialization: document.getElementById("specialization").value,
+        clinicName: document.getElementById("clinicName").value,
+        address: document.getElementById("address").value,
+        phone: document.getElementById("phone").value,
+        timings: document.getElementById("timings").value,
+        experience: document.getElementById("experience").value,
+      };
+
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await fetch("http://localhost:5000/api/doctor/profile", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          alert("Profile saved successfully ");
+          // Mark profile complete flag (optional)
+          localStorage.setItem("profileComplete", "true");
+          window.location.href = "dashboard.html";
+        } else {
+          alert(data.message || "Failed to save profile ");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Server error. Please try again later.");
+      }
+    });
+  </script>
+</body>
+</html>

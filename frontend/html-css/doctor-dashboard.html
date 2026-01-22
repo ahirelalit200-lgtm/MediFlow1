@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doctor Dashboard - MediFlow</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/chatbot.css" />
+  <script src="js/config.js"></script>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="logo">
+      <img src="assets/care.png" alt="Logo" height="40" />
+      <span>Medi<strong>Flow</strong></span>
+    </div>
+    <nav>
+      <ul>
+        <li onclick="location.href='index.html'">Home</li>
+        <li onclick="navigateTo('history')">History</li>
+        <li onclick="navigateTo('appointments')">Appointments</li>
+        <li onclick="navigateTo('analytics')">Analytics</li>
+        <li onclick="navigateTo('xray')">X-Ray</li>
+        <li onclick="navigateTo('medicine')">Add Medicine</li>
+      </ul>
+    </nav>
+    <div class="header-right">
+      <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark Mode">
+        <span class="theme-icon" id="theme-icon">🌙</span>
+      </button>
+      <div id="auth-buttons">
+        <!-- Will be filled by JS -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-text">
+      <h1>Welcome, <span class="highlight" id="doctor-name">Doctor</span></h1>
+      <p>Manage your patients, write digital prescriptions, generate X-rays, and keep your clinic paperless and
+        efficient.</p>
+      <button class="learn-btn" onclick="navigateTo('prescription')">Create Prescription</button>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <h2>What You Can Do</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3>Write Prescriptions</h3>
+        <p>Generate digital, printable, and shareable prescriptions in seconds.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Manage Medicines</h3>
+        <p>Add and update frequently prescribed medicines with dosage info.</p>
+      </div>
+      <div class="feature-card">
+        <h3>View History</h3>
+        <p>Track all previous prescriptions with date-range filters and export options.</p>
+      </div>
+      <div class="feature-card">
+        <h3>X-Ray AI Tool</h3>
+        <p>Upload and convert patient X-rays into explainable AI-generated reports.</p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    function navigateTo(page) {
+      if (page === "signup") {
+        window.location.href = "signup.html";
+      } else if (page === "profile") {
+        window.location.href = "profile.html";
+      } else if (page === "prescription") {
+        window.location.href = "prescription.html";
+      } else if (page === "history") {
+        window.location.href = "history.html";
+      } else if (page === "analytics") {
+        window.location.href = "analytics.html";
+      } else if (page === "xray") {
+        window.location.href = "xray.html";
+      } else if (page === "appointments") {
+        window.location.href = "doctor-appointments.html";
+      } else if (page === "medicine") {
+        window.location.href = "medicine.html";
+      } else if (page === "patient-portal") {
+        window.location.href = "patient-auth.html";
+      }
+    }
+
+    async function loadProfile() {
+      const email = localStorage.getItem("email");
+      const token = localStorage.getItem("token");
+
+      if (!email && !token) {
+        alert("Not logged in ");
+        window.location.href = "signup.html?mode=login";
+        return;
+      }
+
+      let profileData = null;
+
+      // 1. Try from localStorage (your old flow)
+      profileData = JSON.parse(localStorage.getItem("doctorProfile"));
+      if (!profileData && email) {
+        const profiles = JSON.parse(localStorage.getItem("doctorProfiles")) || {};
+        profileData = profiles[email];
+      }
+
+      // 2. If not in localStorage, try from backend (new logic)
+      if (!profileData && token) {
+        // Try plural endpoint first, then singular — supports either backend mounting.
+        const endpoints = [
+          `${API_BASE_URL}/api/doctors/me`,  // plural (preferred)
+          `${API_BASE_URL}/api/doctor/me`    // singular (fallback)
+        ];
+
+        for (let ep of endpoints) {
+          try {
+            const res = await fetch(ep, {
+              headers: { "Authorization": "Bearer " + token }
+            });
+
+            if (!res.ok) {
+              // if 404 or other, try next endpoint
+              console.warn(`Profile fetch ${ep} returned status ${res.status}`);
+              continue;
+            }
+
+            // attempt to parse JSON
+            const json = await res.json();
+            // some controllers return { doctor: {...} } — normalize
+            profileData = json && json.doctor ? json.doctor : json;
+
+            // cache it
+            if (profileData && typeof profileData === "object") {
+              localStorage.setItem("doctorProfile", JSON.stringify(profileData));
+            }
+
+            break; // stop trying endpoints
+          } catch (err) {
+            console.warn("Error fetching profile from", ep, err);
+            // try next endpoint
+          }
+        }
+      }
+
+      // 2b. If still not found but we have an email, try email-based endpoint
+      if (!profileData && email) {
+        try {
+          const res = await fetch(`${API_BASE_URL}/api/doctors/profile/` + encodeURIComponent(email));
+          if (res.ok) {
+            const json = await res.json().catch(() => null);
+            if (json && (json.doctor || json.data?.doctor)) {
+              profileData = json.doctor || json.data?.doctor;
+              localStorage.setItem("doctorProfile", JSON.stringify(profileData));
+            }
+          }
+        } catch (err) {
+          console.warn("Email-based profile fetch failed", err);
+        }
+      }
+
+      // 3. If still no profile
+      if (!profileData) {
+        alert("No profile data found Please complete your profile.");
+        window.location.href = "profile-setup.html";
+        return;
+      }
+
+      // Update welcome message with doctor's name
+      const displayName = profileData.fullName || profileData.name || "Doctor";
+      document.getElementById("doctor-name").innerText = displayName;
+
+      // Cache the name for future use
+      localStorage.setItem("doctorName", displayName);
+    }
+
+    function logout() {
+      try { localStorage.setItem("global_logout", String(Date.now())); } catch (e) { }
+      localStorage.removeItem("email");
+      localStorage.removeItem("token");
+      localStorage.removeItem("loggedIn");
+      localStorage.removeItem("doctorName");
+      localStorage.removeItem("doctorProfile");
+      alert("You have logged out ");
+      window.location.href = "maindashboard.html";
+    }
+
+    // Load profile on page load
+    loadProfile();
+
+    // Replace login button with profile + logout if logged in
+    const authDiv = document.getElementById("auth-buttons");
+
+    // Prefer doctorProfile.fullName, then doctorName, then fallback to generic
+    let displayName = null;
+    try {
+      const profileRaw = localStorage.getItem("doctorProfile");
+      if (profileRaw) {
+        const prof = JSON.parse(profileRaw);
+        displayName = prof && (prof.fullName || prof.name) ? (prof.fullName || prof.name) : null;
+      }
+    } catch (e) {
+      // ignore parse errors
+    }
+    // fallback to doctorName stored previously or generic
+    if (!displayName) displayName = localStorage.getItem("doctorName") || null;
+    const email = localStorage.getItem("email");
+
+    if (authDiv) {
+      if (displayName || email) {
+        // Logged in
+        authDiv.innerHTML = `
+          <button class="book-btn" onclick="navigateTo('profile')">Profile</button>
+          <button class="book-btn" style="background:#ff4d4d; color:white;" onclick="logout()">Logout</button>
+        `;
+        // Update welcome message with cached name if available
+        if (displayName) {
+          document.getElementById("doctor-name").innerText = displayName;
+        }
+      } else {
+        // Not logged in
+        authDiv.innerHTML = `
+          <button class="book-btn" onclick="navigateTo('signup')">Login</button>
+        `;
+      }
+    }
+  </script>
+  <script>
+    // Cross-tab logout listener
+    window.addEventListener("storage", function (e) {
+      if (e && e.key === "global_logout") {
+        const hasAuth = localStorage.getItem("email") || localStorage.getItem("token");
+        if (hasAuth) {
+          localStorage.removeItem("email");
+          localStorage.removeItem("token");
+          localStorage.removeItem("loggedIn");
+          localStorage.removeItem("doctorName");
+          localStorage.removeItem("doctorProfile");
+          window.location.href = "maindashboard.html";
+        }
+      }
+    });
+  </script>
+  <script src="js/chatbot.js"></script>
+  <script src="js/doctor-theme.js"></script>
+</body>
+
+</html>
