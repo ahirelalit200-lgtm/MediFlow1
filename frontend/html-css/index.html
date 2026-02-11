@@ -1,491 +1,717 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Doctor Dashboard - MediFlow</title>
-  <link rel="stylesheet" href="css/styles.css" />
-  <link rel="stylesheet" href="css/chatbot.css" />
-  <link rel="icon" href="assets/care.png" type="image/png">
-  <script src="js/config.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prescription System - Main Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        /* Reset and Base Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background: linear-gradient(to right, #f7fbff, #e5f3ff);
+            color: #1a1a1a;
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 60px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            color: #00a4e4;
+            font-weight: 600;
+        }
+
+        /* Hero Section */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 80px 60px;
+            text-align: center;
+            color: #1a1a1a;
+        }
+
+        .hero-text {
+            max-width: 800px;
+            margin-bottom: 60px;
+        }
+
+        .hero-text h1 {
+            font-size: 3.2rem;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+
+        .highlight {
+            color: #29a9f8;
+        }
+
+        .hero-text p {
+            font-size: 1.1rem;
+            color: #4f4f4f;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        /* Login Options */
+        .login-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            max-width: 800px;
+            width: 100%;
+            margin-bottom: 60px;
+        }
+
+        .login-card {
+            background-color: #ffffff;
+            padding: 40px 30px;
+            border-radius: 20px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .doctor-card {
+            border-left: 4px solid #29a9f8;
+        }
+
+        .doctor-card:hover {
+            border-left-color: #7b61ff;
+        }
+
+        .patient-card {
+            border-left: 4px solid #7b61ff;
+        }
+
+        .patient-card:hover {
+            border-left-color: #29a9f8;
+        }
+
+        .login-icon {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .doctor-card .login-icon {
+            color: #29a9f8;
+        }
+
+        .patient-card .login-icon {
+            color: #7b61ff;
+        }
+
+        .login-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        .login-card p {
+            font-size: 0.95rem;
+            color: #4f4f4f;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .login-btn {
+            background-color: #29a9f8;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .login-btn:hover {
+            background-color: #7b61ff;
+            transform: translateY(-2px);
+        }
+
+        .patient-card .login-btn {
+            background-color: #7b61ff;
+        }
+
+        .patient-card .login-btn:hover {
+            background-color: #29a9f8;
+        }
+
+        /* Features Section */
+        .features {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 80px 60px;
+            border-radius: 25px;
+            margin: 60px 0;
+            max-width: 1200px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .features::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .features-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .features-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .features h2 {
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+            color: #ffffff;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .features-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.9);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .feature-card:hover::before {
+            left: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon-wrapper {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 25px;
+            background: linear-gradient(135deg, #29a9f8, #7b61ff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(41, 169, 248, 0.3);
+        }
+
+        .feature-card .feature-icon {
+            font-size: 2.2rem;
+            color: #ffffff;
+            z-index: 1;
+        }
+
+        .feature-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .feature-card p {
+            color: #4f4f4f;
+            line-height: 1.7;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #29a9f8;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Enhanced feature cards with specific colors */
+        .feature-card:nth-child(1) .feature-icon-wrapper {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .feature-card:nth-child(2) .feature-icon-wrapper {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            box-shadow: 0 4px 20px rgba(78, 205, 196, 0.3);
+        }
+
+        .feature-card:nth-child(3) .feature-icon-wrapper {
+            background: linear-gradient(135deg, #45b7d1, #96c93d);
+            box-shadow: 0 4px 20px rgba(69, 183, 209, 0.3);
+        }
+
+        .feature-card:nth-child(4) .feature-icon-wrapper {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            box-shadow: 0 4px 20px rgba(240, 147, 251, 0.3);
+        }
+
+        .feature-card:nth-child(5) .feature-icon-wrapper {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            box-shadow: 0 4px 20px rgba(79, 172, 254, 0.3);
+        }
+
+        .feature-card:nth-child(6) .feature-icon-wrapper {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            box-shadow: 0 4px 20px rgba(67, 233, 123, 0.3);
+        }
+
+        .theme-toggle-btn {
+            background-color: #ffffff;
+            border: 2px solid #e0e0e0;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            margin-right: 15px;
+        }
+
+        .theme-toggle-btn:hover {
+            background-color: #29a9f8;
+            border-color: #29a9f8;
+            transform: scale(1.05);
+        }
+
+        .theme-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px 30px;
+            }
+
+            .hero {
+                padding: 60px 30px;
+            }
+
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+
+            .login-options {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .features {
+                padding: 60px 30px;
+                margin: 30px 20px;
+            }
+
+            .features h2 {
+                font-size: 2.2rem;
+            }
+
+            .features-subtitle {
+                font-size: 1rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                margin-top: 40px;
+            }
+
+            .feature-card {
+                padding: 30px 25px;
+            }
+
+            .feature-icon-wrapper {
+                width: 70px;
+                height: 70px;
+            }
+
+            .feature-card .feature-icon {
+                font-size: 2rem;
+            }
+
+            .feature-card h3 {
+                font-size: 1.2rem;
+            }
+
+            .feature-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .stat-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px 0;
+                border-bottom: 1px solid rgba(0,0,0,0.05);
+            }
+
+            .stat-item:last-child {
+                border-bottom: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .features {
+                padding: 40px 20px;
+                margin: 20px 10px;
+            }
+
+            .features h2 {
+                font-size: 1.8rem;
+            }
+
+            .feature-card {
+                padding: 25px 20px;
+            }
+
+            .feature-icon-wrapper {
+                width: 60px;
+                height: 60px;
+            }
+
+            .feature-card .feature-icon {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
 </head>
-
 <body>
-  <!-- Navbar -->
-  <header class="navbar">
-    <div class="logo">
-      <img src="assets/care.png" alt="Logo" height="40" />
-      <span>Medi<strong>Flow</strong></span>
-    </div>
-    <nav>
-      <ul>
-        <li onclick="navigateTo('history')">History</li>
-        <li onclick="navigateTo('appointments')">Appointments</li>
-        <li onclick="navigateTo('analytics')">Analytics</li>
-        <li onclick="navigateTo('xray')">X-Ray</li>
-        <li onclick="navigateTo('medicine')">Add Medicine</li>
-      </ul>
-    </nav>
-    <div class="header-right" id="auth-buttons">
-      <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark Mode">
-        <span class="theme-icon" id="theme-icon">🌙</span>
-      </button>
-      <!-- Will be filled by JS -->
-    </div>
-  </header>
-
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="hero-text">
-      <h1>Welcome, <span class="doctor-title">DR.</span> <span class="highlight doctor-name-display"
-          id="doctor-name">Doctor</span></h1>
-      <p>Manage your patients, write digital prescriptions, generate X-rays, and keep your clinic paperless and
-        efficient.</p>
-      <button class="learn-btn" onclick="navigateTo('prescription')">Create Prescription</button>
-    </div>
-    <div class="hero-stats-card">
-      <h3 class="stats-title">📊 Today's Overview</h3>
-      <div class="quick-stat">
-        <span class="stat-icon">📋</span>
-        <div>
-          <h4 id="total-prescriptions">0</h4>
-          <p>Total Prescriptions</p>
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="logo">
+            <img src="assets/care.png" alt="Logo" height="40" />
+            <span>Medi<strong>Flow</strong></span>
         </div>
-      </div>
-      <div class="quick-stat">
-        <span class="stat-icon">📅</span>
-        <div>
-          <h4 id="total-appointments">0</h4>
-          <p>Upcoming Appointments</p>
+        <div class="header-right">
+            <div class="header-right" id="auth-buttons"></div>
+            <span style="color: #4f4f4f; font-size: 0.9rem;">Empowering Healthcare Through Digital Innovation</span>
         </div>
-      </div>
-      <div class="quick-stat">
-        <span class="stat-icon">🩺</span>
-        <div>
-          <h4 id="total-patients">0</h4>
-          <p>Total Patients</p>
+    </div>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-text">
+            <h1>Welcome to <span class="highlight">Prescription System</span></h1>
+            <p>Comprehensive healthcare management platform designed for modern medical practices. Secure, efficient, and user-friendly solutions for doctors and patients.</p>
         </div>
-      </div>
-      <button class="quick-action-btn" onclick="navigateTo('analytics')">
-        View Full Analytics →
-      </button>
-    </div>
-  </section>
 
-  <!-- Features Section -->
-  <section class="features">
-    <h2>What You Can Do</h2>
-    <div class="feature-grid">
-      <div class="feature-card">
-        <div class="feature-icon">📝</div>
-        <h3>Write Prescriptions</h3>
-        <p>Generate digital, printable, and shareable prescriptions in seconds.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">💊</div>
-        <h3>Manage Medicines</h3>
-        <p>Add and update frequently prescribed medicines with dosage info.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">📋</div>
-        <h3>View History</h3>
-        <p>Track all previous prescriptions with date-range filters and export options.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🤖</div>
-        <h3>X-Ray AI Tool</h3>
-        <p>Upload and convert patient X-rays into explainable AI-generated reports.</p>
-      </div>
-    </div>
-  </section>
+        <!-- Login Options -->
+        <div class="login-options">
+            <div class="login-card doctor-card" onclick="redirectToDoctor()">
+                <span class="login-icon"></span>
+                <h2>Doctor Portal</h2>
+                <p>Access patient records, create prescriptions, manage appointments, and track comprehensive medical history with advanced tools.</p>
+                <button class="login-btn">Access Doctor Portal</button>
+            </div>
 
-  <!-- Quick Actions Section -->
-  <section class="quick-actions">
-    <div class="quick-actions-container">
-      <h2>Quick Actions</h2>
-      <div class="actions-grid">
-        <button class="action-btn" onclick="navigateTo('prescription')">
-          <span class="action-icon">📝</span>
-          <span>New Prescription</span>
-        </button>
-        <button class="action-btn" onclick="navigateTo('appointments')">
-          <span class="action-icon">📅</span>
-          <span>View Appointments</span>
-        </button>
-        <button class="action-btn" onclick="navigateTo('xray')">
-          <span class="action-icon">🔬</span>
-          <span>Upload X-Ray</span>
-        </button>
-        <button class="action-btn" onclick="navigateTo('history')">
-          <span class="action-icon">📋</span>
-          <span>Patient History</span>
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-content">
-      <div class="footer-section">
-        <div class="footer-logo">
-          <img src="assets/care.png" alt="Logo" height="35" />
-          <span>Medi<strong>Flow</strong></span>
+            <div class="login-card patient-card" onclick="redirectToPatient()">
+                <span class="login-icon"></span>
+                <h2>Patient Portal</h2>
+                <p>View your prescriptions, medical history, upcoming appointments, and communicate securely with your healthcare providers.</p>
+                <button class="login-btn">Access Patient Portal</button>
+            </div>
         </div>
-        <p class="footer-desc">Modern healthcare management system for efficient clinic operations.</p>
-      </div>
-      <div class="footer-section">
-        <h4>Quick Links</h4>
-        <ul class="footer-links">
-          <li><a href="#" onclick="navigateTo('prescription')">Create Prescription</a></li>
-          <li><a href="#" onclick="navigateTo('appointments')">Appointments</a></li>
-          <li><a href="#" onclick="navigateTo('analytics')">Analytics</a></li>
-          <li><a href="#" onclick="navigateTo('xray')">X-Ray Analysis</a></li>
-        </ul>
-      </div>
-      <div class="footer-section">
-        <h4>Support</h4>
-        <ul class="footer-links">
-          <li><a href="#" onclick="navigateTo('profile')">My Profile</a></li>
-          <li><a href="#" onclick="navigateTo('medicine')">Medicine Library</a></li>
-          <li><a href="#" onclick="navigateTo('history')">Patient History</a></li>
-          <li><a href="#" onclick="navigateTo('patient-portal')">Patient Portal</a></li>
-        </ul>
-      </div>
-      <div class="footer-section">
-        <h4>Contact</h4>
-        <p class="footer-contact">📧 support@mediflow.com</p>
-        <p class="footer-contact">📞 +91 1234567890</p>
-        <p class="footer-contact">🏥 Healthcare Solutions</p>
-      </div>
+
+        <!-- Features Section -->
+        <div class="features">
+            <div class="features-content">
+                <div class="features-header">
+                    <h2>Why Choose Our Platform?</h2>
+                    <p class="features-subtitle">Experience the future of healthcare management with our comprehensive, secure, and intelligent platform designed for modern medical practices.</p>
+                </div>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3>Enterprise Security</h3>
+                        <p>HIPAA-compliant infrastructure with end-to-end encryption, multi-factor authentication, and advanced threat protection ensuring complete data security.</p>
+                        <div class="feature-stats">
+                            <div class="stat-item">
+                                <span class="stat-number">256-bit</span>
+                                <span class="stat-label">Encryption</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">99.9%</span>
+                                <span class="stat-label">Uptime</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        
+                        <h3>Cross-Platform Access</h3>
+                        <p>Seamlessly access your medical data across all devices with our responsive design and native mobile applications for iOS and Android.</p>
+                        <div class="feature-stats">
+                            <div class="stat-item">
+                                <span class="stat-number">5+</span>
+                                <span class="stat-label">Platforms</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">24/7</span>
+                                <span class="stat-label">Access</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>Lightning Performance</h3>
+                        <p>Optimized cloud infrastructure delivers sub-second response times for critical medical information access and real-time collaboration.</p>
+                        <div class="feature-stats">
+                            <div class="stat-item">
+                                <span class="stat-number">&lt;0.5s</span>
+                                <span class="stat-label">Load Time</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">CDN</span>
+                                <span class="stat-label">Global</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>AI-Powered Insights</h3>
+                        <p>Advanced machine learning algorithms provide intelligent diagnosis assistance, drug interaction alerts, and predictive health analytics.</p>
+                        <div class="feature-stats">
+                            <div class="stat-item">
+                                <span class="stat-number">95%</span>
+                                <span class="stat-label">Accuracy</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">Smart</span>
+                                <span class="stat-label">Analysis</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>Clinical Integration</h3>
+                        <p>Seamlessly integrate with existing hospital systems, lab equipment, and third-party medical devices for comprehensive patient care.</p>
+                        <div class="feature-stats">
+                            <div class="stat-item">
+                                <span class="stat-number">50+</span>
+                                <span class="stat-label">Integrations</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">HL7</span>
+                                <span class="stat-label">Standard</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>Advanced Analytics</h3>
+                        <p>Comprehensive reporting and analytics dashboard with customizable metrics, trend analysis, and population health insights.</p>
+                        <div class="feature-stats">
+                            <div class="stat-item">
+                                <span class="stat-number">Real-time</span>
+                                <span class="stat-label">Reports</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">Custom</span>
+                                <span class="stat-label">Dashboards</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2024 Prescription System. All rights reserved. | Secure Healthcare Management Platform</p>
+        </div>
     </div>
-    <div class="footer-bottom">
-      <p>&copy; 2025 MediFlow. All rights reserved. | Designed for modern healthcare professionals</p>
-    </div>
-  </footer>
 
-  <script>
-    // Theme management functions
-    function initializeTheme() {
-      const savedTheme = localStorage.getItem('theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    <script>
+        // Theme management functions
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-      let theme = 'light';
-      if (savedTheme) {
-        theme = savedTheme;
-      } else if (prefersDark) {
-        theme = 'dark';
-      }
+            let theme = 'light';
+            if (savedTheme) {
+                theme = savedTheme;
+            } else if (prefersDark) {
+                theme = 'dark';
+            }
 
-      setTheme(theme);
-      updateThemeIcon(theme);
-    }
+            setTheme(theme);
+            updateThemeIcon(theme);
+        }
 
-    function setTheme(theme) {
-      if (theme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      } else {
-        document.documentElement.removeAttribute('data-theme');
-      }
-      localStorage.setItem('theme', theme);
-    }
+        function setTheme(theme) {
+            if (theme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+            } else {
+                document.body.removeAttribute('data-theme');
+            }
+            localStorage.setItem('theme', theme);
+        }
 
-    function toggleTheme() {
-      const currentTheme = document.documentElement.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      setTheme(newTheme);
-      updateThemeIcon(newTheme);
-    }
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+            updateThemeIcon(newTheme);
+        }
 
-    function updateThemeIcon(theme) {
-      const icon = document.getElementById('theme-icon');
-      if (icon) {
-        icon.textContent = theme === 'dark' ? '☀️' : '🌙';
-      }
-    }
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('theme-icon');
+            if (icon) {
+                icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+            }
+        }
 
-    // Initialize theme on page load
-    initializeTheme();
+        // Initialize theme on page load
+        initializeTheme();
 
-    function navigateTo(page) {
-      if (page === "signup") {
-        window.location.href = "signup.html";
-      } else if (page === "profile") {
-        window.location.href = "profile.html";
-      } else if (page === "prescription") {
-        window.location.href = "prescription.html";
-      } else if (page === "history") {
-        window.location.href = "history.html";
-      } else if (page === "analytics") {
-        window.location.href = "analytics.html";
-      } else if (page === "xray") {
-        window.location.href = "xray.html";
-      } else if (page === "appointments") {
-        window.location.href = "doctor-appointments.html";
-      } else if (page === "medicine") {
-        window.location.href = "medicine.html";
-      } else if (page === "patient-portal") {
-        window.location.href = "patient-auth.html";
-      }
-    }
+        function redirectToDoctor() {
+            // Add loading animation
+            const doctorCard = document.querySelector('.doctor-card');
+            doctorCard.style.transform = 'scale(0.95)';
+            doctorCard.style.opacity = '0.8';
 
-    function logout() {
-      try { localStorage.setItem("global_logout", String(Date.now())); } catch (e) { }
-      localStorage.removeItem("email");
-      localStorage.removeItem("token");
-      localStorage.removeItem("loggedIn");
-      localStorage.removeItem("doctorName");
-      localStorage.removeItem("doctorProfile");
-      alert("You have logged out ");
-      window.location.href = "maindashboard.html";
-    }
+            setTimeout(() => {
+                window.location.href = 'signup.html';
+            }, 200);
+        }
 
-    async function loadProfile() {
-      const email = localStorage.getItem("email");
-      const token = localStorage.getItem("token");
+        function redirectToPatient() {
+            // Add loading animation
+            const patientCard = document.querySelector('.patient-card');
+            patientCard.style.transform = 'scale(0.95)';
+            patientCard.style.opacity = '0.8';
 
-      if (!email && !token) {
-        return; // Not logged in, keep as "Doctor"
-      }
+            setTimeout(() => {
+                window.location.href = 'patient-auth.html';
+            }, 200);
+        }
 
-      let profileData = null;
+        // Add keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === '1') {
+                redirectToDoctor();
+            } else if (e.key === '2') {
+                redirectToPatient();
+            }
+        });
 
-      // 1. Try from localStorage (your old flow)
-      profileData = JSON.parse(localStorage.getItem("doctorProfile"));
-      if (!profileData && email) {
-        const profiles = JSON.parse(localStorage.getItem("doctorProfiles")) || {};
-        profileData = profiles[email];
-      }
+        // Add entrance animation delay for cards
+        window.addEventListener('load', function() {
+            const cards = document.querySelectorAll('.login-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
 
-      // 2. If not in localStorage, try from backend (new logic)
-      if (!profileData && token) {
-        // Try plural endpoint first, then singular — supports either backend mounting.
-        const endpoints = [
-          "http://localhost:5000/api/doctors/me",  // plural (preferred)
-          "http://localhost:5000/api/doctor/me"    // singular (fallback)
-        ];
-
-        for (let ep of endpoints) {
-          try {
-            const res = await fetch(ep, {
-              headers: { "Authorization": "Bearer " + token }
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 300 + (index * 200));
             });
-
-            if (!res.ok) {
-              // if 404 or other, try next endpoint
-              console.warn(`Profile fetch ${ep} returned status ${res.status}`);
-              continue;
-            }
-
-            // attempt to parse JSON
-            const json = await res.json();
-            // some controllers return { doctor: {...} } — normalize
-            profileData = json && json.doctor ? json.doctor : json;
-
-            // cache it
-            if (profileData && typeof profileData === "object") {
-              localStorage.setItem("doctorProfile", JSON.stringify(profileData));
-            }
-
-            break; // stop trying endpoints
-          } catch (err) {
-            console.warn("Error fetching profile from", ep, err);
-            // try next endpoint
-          }
-        }
-      }
-
-      // 2b. If still not found but we have an email, try email-based endpoint
-      if (!profileData && email) {
-        try {
-          const res = await fetch("http://localhost:5000/api/doctors/profile/" + encodeURIComponent(email));
-          if (res.ok) {
-            const json = await res.json().catch(() => null);
-            if (json && (json.doctor || json.data?.doctor)) {
-              profileData = json.doctor || json.data?.doctor;
-              localStorage.setItem("doctorProfile", JSON.stringify(profileData));
-            }
-          }
-        } catch (err) {
-          console.warn("Email-based profile fetch failed", err);
-        }
-      }
-
-      // Update welcome message with doctor's name if profile was found
-      if (profileData) {
-        const displayName = profileData.fullName || profileData.name || "Doctor";
-        document.getElementById("doctor-name").innerText = displayName;
-
-        // Cache the name for future use
-        localStorage.setItem("doctorName", displayName);
-      }
-    }
-
-    // Load profile on page load
-    loadProfile();
-
-    // Fetch and display dashboard stats
-    function getAuthHeaders() {
-      const token = localStorage.getItem('token');
-      if (!token) return {};
-      return { "Authorization": "Bearer " + token };
-    }
-
-    let __isLoadingDashboardStats = false;
-    async function loadDashboardStats() {
-      if (__isLoadingDashboardStats) return;
-      __isLoadingDashboardStats = true;
-      try {
-        // Fetch prescriptions count
-        const prescriptionsRes = await fetch('http://localhost:5000/api/prescriptions', { headers: getAuthHeaders() });
-        if (prescriptionsRes.ok) {
-          const prescriptionsData = await prescriptionsRes.json();
-          console.log('Prescriptions API response:', prescriptionsData);
-          const count = prescriptionsData.count || prescriptionsData.prescriptions?.length || prescriptionsData.length || 0;
-          console.log('Prescriptions count calculated:', count);
-          document.getElementById('total-prescriptions').textContent = count;
-        } else {
-          console.warn('Prescriptions API failed:', prescriptionsRes.status);
-        }
-
-        // Fetch appointments count
-        const appointmentsRes = await fetch('http://localhost:5000/api/appointments/requests', { headers: getAuthHeaders() });
-        if (appointmentsRes.ok) {
-          const appointmentsData = await appointmentsRes.json();
-          console.log('Appointments API response:', appointmentsData);
-          const appointments = Array.isArray(appointmentsData) ? appointmentsData : [];
-          console.log('Appointments array:', appointments);
-          // Count upcoming appointments only (status: pending or scheduled)
-          const now = new Date();
-          const upcoming = appointments.filter(apt => {
-            const aptDate = new Date(apt.date || apt.dateTime || apt.appointmentDate || apt.createdAt);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            const isStatusOk = (apt.status === 'pending' || apt.status === 'scheduled');
-            const isDateOk = (aptDate >= today);
-
-            console.log(`Checking appointment: ID=${apt._id || '?'}, Status=${apt.status}, Date=${aptDate.toDateString()}, StatusOK=${isStatusOk}, DateOK=${isDateOk}`);
-
-            return isStatusOk && isDateOk;
-          });
-          console.log('Upcoming appointments:', upcoming.length);
-          document.getElementById('total-appointments').textContent = upcoming.length;
-        } else {
-          console.warn('Appointments API failed:', appointmentsRes.status);
-        }
-
-        // Fetch patients count
-        // Try multiple endpoints for patients count
-        let patientsCount = 0;
-
-        // Try analytics endpoint first
-        try {
-          const analyticsRes = await fetch('http://localhost:5000/api/analytics/recent-patients', { headers: getAuthHeaders() });
-          if (analyticsRes.ok) {
-            const analyticsData = await analyticsRes.json();
-            console.log('Analytics patients API response:', analyticsData);
-            patientsCount = analyticsData.recentPatients?.length || analyticsData.patients?.length || analyticsData.length || 0;
-          }
-        } catch (e) {
-          console.log('Analytics endpoint failed, trying patient/all');
-        }
-
-        // Fallback to patient/all if analytics didn't work
-        if (patientsCount === 0) {
-          const patientsRes = await fetch('http://localhost:5000/api/patient/all', { headers: getAuthHeaders() });
-          if (patientsRes.ok) {
-            const patientsData = await patientsRes.json();
-            console.log('Patients API response:', patientsData);
-            patientsCount = patientsData.count || patientsData.patients?.length || patientsData.data?.length || patientsData.length || 0;
-          } else {
-            console.warn('Patients API failed:', patientsRes.status);
-          }
-        }
-
-        console.log('Final patients count calculated:', patientsCount);
-        document.getElementById('total-patients').textContent = patientsCount;
-      } catch (error) {
-        console.error('Could not load dashboard stats:', error);
-        // Keep default values (0) if fetch fails
-      } finally {
-        __isLoadingDashboardStats = false;
-      }
-    }
-
-    // Load stats on page load + keep them updated in real time
-    loadDashboardStats();
-
-    (function startRealtimeDashboardStats() {
-      const REFRESH_MS = 15000;
-
-      // Periodic refresh
-      setInterval(() => {
-        loadDashboardStats();
-      }, REFRESH_MS);
-
-      // Refresh when user returns to the tab
-      document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) {
-          loadDashboardStats();
-        }
-      });
-    })();
-
-    // Replace login button with profile + logout if logged in
-    const authDiv = document.getElementById("auth-buttons");
-
-    // Prefer doctorProfile.fullName, then doctorName, then fallback to generic
-    let displayName = null;
-    try {
-      const profileRaw = localStorage.getItem("doctorProfile");
-      if (profileRaw) {
-        const prof = JSON.parse(profileRaw);
-        displayName = prof && (prof.fullName || prof.name) ? (prof.fullName || prof.name) : null;
-      }
-    } catch (e) {
-      // ignore parse errors
-    }
-    // fallback to doctorName stored previously or generic
-    if (!displayName) displayName = localStorage.getItem("doctorName") || null;
-    const email = localStorage.getItem("email");
-
-    if (authDiv) {
-      if (displayName || email) {
-        // Logged in
-        authDiv.innerHTML = `
-          <button class="book-btn" onclick="navigateTo('profile')">Profile</button>
-        `;
-        // Update welcome message with cached name if available
-        if (displayName) {
-          document.getElementById("doctor-name").innerText = displayName;
-        }
-      } else {
-        // Not logged in
-        authDiv.innerHTML = `
-          <button class="book-btn" onclick="navigateTo('signup')">Login</button>
-        `;
-      }
-    }
-  </script>
-  <script>
-    // Cross-tab logout listener
-    window.addEventListener("storage", function (e) {
-      if (e && e.key === "global_logout") {
-        const hasAuth = localStorage.getItem("email") || localStorage.getItem("token");
-        if (hasAuth) {
-          localStorage.removeItem("email");
-          localStorage.removeItem("token");
-          localStorage.removeItem("loggedIn");
-          localStorage.removeItem("doctorName");
-          localStorage.removeItem("doctorProfile");
-          window.location.href = "index.html";
-        }
-      }
-    });
-  </script>
-  <script src="js/chatbot.js"></script>
+        });
+    </script>
 </body>
-
 </html>
