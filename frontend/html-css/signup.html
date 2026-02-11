@@ -164,8 +164,8 @@
       const password = document.getElementById("password").value;
 
       const url = isSignup
-        ? "http://localhost:5000/api/auth/signup"
-        : "http://localhost:5000/api/auth/login";
+        ? `${window.API_BASE_URL}/api/signup`
+        : `${window.API_BASE_URL}/api/login`;
 
       const payload = isSignup ? { name, email, password } : { email, password };
 

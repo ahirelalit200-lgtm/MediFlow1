@@ -53,7 +53,7 @@ function saveAuthLocals(emailRaw, serverData = {}) {
 async function fetchAndSaveProfileFromServer(token) {
   if (!token) return;
   try {
-    const res = await fetch("http://localhost:5000/api/doctors/me", {
+    const res = await fetch(`${window.API_BASE_URL}/api/doctors/me`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -90,11 +90,11 @@ form.addEventListener("submit", async (e) => {
     return alert("Please fill required fields.");
   }
 
-  const endpoint = isLogin ? "/api/auth/login" : "/api/auth/signup";
+  const endpoint = isLogin ? "/api/login" : "/api/signup";
   const payload = isLogin ? { email: emailRaw, password } : { name, email: emailRaw, password };
 
   try {
-    const res = await fetch(`http://localhost:5000${endpoint}`, {
+    const res = await fetch(`${window.API_BASE_URL}${endpoint}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
