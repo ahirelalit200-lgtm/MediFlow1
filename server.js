@@ -4,9 +4,11 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const path = require("path");
+require('dotenv').config();
 
 const app = express();
-const JWT_SECRET = "your_jwt_secret"; // use env variable in real projects
+const PORT = process.env.PORT || 5000;
+const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
 // ====== Middleware ======
 app.use(cors());
@@ -26,7 +28,7 @@ app.use(express.static(path.join(__dirname, "frontend")));
 
 // ====== MongoDB Connection ======
 mongoose
-  .connect("mongodb://127.0.0.1:27017/doctors", {
+  .connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/doctors", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -132,8 +134,6 @@ app.put("/api/doctor/profile", authMiddleware, async (req, res) => {
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "frontend", "html-css", "maindashboard.html"));
 });
-
-const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
