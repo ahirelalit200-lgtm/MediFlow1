@@ -1,0 +1,6 @@
+[build]
+  base = "prescription-system (2)/prescription-system (2)/prescription-system (2)/prescription-system (2)/prescription-system"
+  publish = "frontend/html-css"
+
+[build.environment]
+  NODE_VERSION = "18"
