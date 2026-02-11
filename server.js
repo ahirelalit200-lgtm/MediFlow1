@@ -11,7 +11,10 @@ const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
 // ====== Middleware ======
-app.use(cors());
+app.use(cors({
+  origin: ['https://medi-flow1.vercel.app', 'http://localhost:3000', 'http://localhost:5000'],
+  credentials: true
+}));
 app.use(express.json());
 
 // ✅ Serve main dashboard when accessing html-css directory

@@ -10,6 +10,11 @@ const API_BASE_URL = (window.location.hostname === 'localhost' || window.locatio
   ? DEV_API_BASE_URL
   : PROD_API_BASE_URL;
 
+// Force production URL for Vercel deployment
+if (window.location.hostname.includes('vercel.app')) {
+  window.API_BASE_URL = PROD_API_BASE_URL;
+}
+
 (function () {
   try {
     const fromStorage = typeof localStorage !== "undefined" ? localStorage.getItem("API_BASE_URL") : null;
