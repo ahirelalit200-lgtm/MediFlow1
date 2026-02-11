@@ -6,7 +6,6 @@ const bcrypt = require("bcryptjs");
 const path = require("path");
 
 const app = express();
-const PORT = 5000;
 const JWT_SECRET = "your_jwt_secret"; // use env variable in real projects
 
 // ====== Middleware ======
@@ -134,7 +133,8 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "frontend", "html-css", "maindashboard.html"));
 });
 
-// ====== Start Server ======
-app.listen(5000, () => {
-  console.log("✅ Server running at http://localhost:5000");
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
 });
