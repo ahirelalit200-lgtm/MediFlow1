@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "buildCommand": "cd frontend/html-css && cp maindashboard.html index.html",
+  "outputDirectory": "frontend/html-css",
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/frontend/html-css/index.html"
+    }
+  ]
+}
