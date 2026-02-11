@@ -1,10 +1,6 @@
 // Application Configuration
 const API_BASE_URL = "https://mediflow-api-8796.onrender.com";
 
-if (window.location.hostname.includes('vercel.app')) {
-  window.API_BASE_URL = "https://mediflow-api-8796.onrender.com";
-}
-
 (function () {
   try {
     const fromStorage = typeof localStorage !== "undefined" ? localStorage.getItem("API_BASE_URL") : null;
