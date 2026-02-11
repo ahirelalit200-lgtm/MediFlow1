@@ -1,19 +1,28 @@
 // Application Configuration
 // Change API_BASE_URL to your production API URL when deploying
 
-// Optional: Auto-detect localhost vs production
+// Production API URL
 const PROD_API_BASE_URL = "https://mediflow-api-8796.onrender.com";
 const DEV_API_BASE_URL = "http://localhost:5000";
 
-// Use production URL unless explicitly on localhost
-const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-  ? DEV_API_BASE_URL
-  : PROD_API_BASE_URL;
-
-// Force production URL for Vercel deployment
-if (window.location.hostname.includes('vercel.app')) {
-  window.API_BASE_URL = PROD_API_BASE_URL;
+// Auto-detect environment
+function getApiBaseUrl() {
+  // Check if we're on Vercel
+  if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')) {
+    return PROD_API_BASE_URL;
+  }
+  
+  // Check if we're on localhost
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    return DEV_API_BASE_URL;
+  }
+  
+  // Default to production
+  return PROD_API_BASE_URL;
 }
+
+// Set the API base URL
+const API_BASE_URL = getApiBaseUrl();
 
 (function () {
   try {
