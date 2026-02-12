@@ -150,16 +150,20 @@ app.put("/api/doctor/profile", authMiddleware, async (req, res) => {
 
 // Get all medicines for a doctor
 app.get("/api/medicines", authMiddleware, async (req, res) => {
+  console.log("🔹 GET /api/medicines called by doctor:", req.doctor.id);
   try {
     const medicines = await Medicine.find({ doctorId: req.doctor.id });
     res.json(medicines);
   } catch (err) {
+    console.error("❌ Error fetching medicines:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
 
 // Add new medicine
 app.post("/api/medicines", authMiddleware, async (req, res) => {
+  console.log("🔹 POST /api/medicines called by doctor:", req.doctor.id);
+  console.log("🔹 Medicine data:", req.body);
   try {
     const { name, dosageAmount, unit, morning, afternoon, night, code } = req.body;
     
@@ -175,8 +179,10 @@ app.post("/api/medicines", authMiddleware, async (req, res) => {
     });
     
     await medicine.save();
+    console.log("✅ Medicine saved successfully:", medicine);
     res.status(201).json(medicine);
   } catch (err) {
+    console.error("❌ Error saving medicine:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
