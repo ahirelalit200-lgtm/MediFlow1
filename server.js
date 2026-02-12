@@ -185,6 +185,9 @@ app.post("/api/medicines", authMiddleware, async (req, res) => {
       return res.status(400).json({ message: "Missing required fields: name and code are required" });
     }
     
+    // Log received data for debugging
+    console.log("🔹 Received medicine data:", { name, dosageAmount, unit, morning, afternoon, night, code });
+    
     const medicine = new Medicine({
       name,
       dosageAmount,
