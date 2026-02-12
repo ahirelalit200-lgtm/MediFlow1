@@ -654,7 +654,7 @@
 
               // First attempt: send email immediately (direct endpoint)
               // Await up to 1200ms to ensure request is dispatched before print
-              const attempt = fetch("http://localhost:5000/api/prescriptions/email", {
+              const attempt = fetch("${window.API_BASE_URL}/api/prescriptions/email", {
                 method: "POST",
                 headers: Object.assign(
                   { "Content-Type": "application/json" },
@@ -686,7 +686,7 @@
               // Schedule a retry in background if first failed
               attempt.catch(() => {
                 setTimeout(() => {
-                  fetch("http://localhost:5000/api/prescriptions/email", {
+                  fetch("${window.API_BASE_URL}/api/prescriptions/email", {
                     method: "POST",
                     headers: Object.assign(
                       { "Content-Type": "application/json" },
@@ -772,7 +772,7 @@
             if (token) {
               const fetches = enteredCodes.map(async (code) => {
                 try {
-                  const res = await fetch(`http://localhost:5000/api/medicines/code/${encodeURIComponent(code)}`, {
+                  const res = await fetch(`${window.API_BASE_URL}/api/medicines/code/${encodeURIComponent(code)}`, {
                     headers: { Authorization: `Bearer ${token}` }
                   });
                   if (res.ok) {
@@ -916,7 +916,7 @@
               const token = localStorage.getItem("token");
               if (!token) return JSON.parse(localStorage.getItem("doctorProfile") || "null");
 
-              const res = await fetch("http://localhost:5000/api/doctors/profile", {
+              const res = await fetch("${window.API_BASE_URL}/api/doctors/profile", {
                 headers: {
                   "Authorization": `Bearer ${token}`
                 }
@@ -1111,7 +1111,7 @@
               analyzeBtn.textContent = ' Analyzing...';
 
               // Call AI analysis API
-              const response = await fetch('http://localhost:5000/api/xray-analysis/analyze', {
+              const response = await fetch('${window.API_BASE_URL}/api/xray-analysis/analyze', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1187,7 +1187,7 @@
           <strong> Analysis Failed</strong>
           <p style="margin: 10px 0 0 0; font-size: 14px;">${error.message}</p>
           <p style="margin: 10px 0 0 0; font-size: 12px; color: #6b7280;">
-            Make sure the server is running at http://localhost:5000
+            Make sure the server is running at ${window.API_BASE_URL}
           </p>
         </div>
       `;
@@ -1288,7 +1288,7 @@
                   xrayName: prescriptionData.xray?.name
                 });
 
-                const response = await fetch("http://localhost:5000/api/prescriptions/add", {
+                const response = await fetch("${window.API_BASE_URL}/api/prescriptions/add", {
                   method: "POST",
                   headers: Object.assign(
                     { "Content-Type": "application/json" },
@@ -1445,7 +1445,7 @@
                 xrayName: prescriptionData.xray?.name
               });
 
-              const response = await fetch("http://localhost:5000/api/prescriptions/add", {
+              const response = await fetch("${window.API_BASE_URL}/api/prescriptions/add", {
                 method: "POST",
                 headers: Object.assign(
                   { "Content-Type": "application/json" },

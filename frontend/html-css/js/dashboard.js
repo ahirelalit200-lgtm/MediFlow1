@@ -40,7 +40,7 @@ async function fetchDoctorProfileFromServer() {
     if (!token) return null;
 
     // Use token-based endpoint to resolve current user's profile
-    const res = await fetch("http://localhost:5000/api/doctors/me", {
+    const res = await fetch("${window.API_BASE_URL}/api/doctors/me", {
       headers: { Authorization: `Bearer ${token}` }
     });
 
@@ -58,7 +58,7 @@ async function fetchDoctorProfileFromServer() {
     const email = localStorage.getItem("email");
     if (email) {
       try {
-        const res2 = await fetch("http://localhost:5000/api/doctors/profile/" + encodeURIComponent(email));
+        const res2 = await fetch("${window.API_BASE_URL}/api/doctors/profile/" + encodeURIComponent(email));
         if (res2.ok) {
           const j2 = await res2.json().catch(() => ({}));
           if (j2 && (j2.doctor || j2.data?.doctor)) {
