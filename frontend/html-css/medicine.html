@@ -313,7 +313,7 @@
               night: "none",
               code: m.code
             };
-            await fetch("http://localhost:5000/api/medicines", {
+            await fetch("${window.API_BASE_URL}/api/medicines", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -387,7 +387,7 @@
       const token = localStorage.getItem("token");
       if (token) {
         try {
-          const res = await fetch("http://localhost:5000/api/medicines", {
+          const res = await fetch("${window.API_BASE_URL}/api/medicines", {
             headers: { Authorization: `Bearer ${token}` }
           });
 
