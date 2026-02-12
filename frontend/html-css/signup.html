@@ -183,22 +183,34 @@
         }
 
         if (isSignup) {
-          // After signup → go to profile setup
-          alert("Signup successful Please fill your profile next.");
+          // After signup → save token and go to profile setup
+          alert("Signup successful! Please fill your profile next.");
           localStorage.setItem("email", email);
-          localStorage.setItem("tempPassword", password); 
+          
+          // Save JWT token from backend
+          if (data.token) {
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("loggedIn", "true");
+          }
+          
           window.location.href = "profile-setup.html";
         } else {
           // Login success
-          alert("Login successful ");
+          alert("Login successful!");
           localStorage.setItem("email", email);
+          
+          // Save JWT token from backend
+          if (data.token) {
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("loggedIn", "true");
+          }
 
           // Save doctor profile returned from backend directly
           if (data.doctorProfile) {
             localStorage.setItem("doctorProfile", JSON.stringify(data.doctorProfile));
           }
 
-          //  Redirect to doctor dashboard
+          // Redirect to doctor dashboard
           window.location.href = "index.html";
         }
       } catch (err) {
