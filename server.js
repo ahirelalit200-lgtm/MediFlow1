@@ -53,6 +53,19 @@ const DoctorSchema = new mongoose.Schema({
 
 const Doctor = mongoose.model("Doctor", DoctorSchema);
 
+const MedicineSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  dosageAmount: String,
+  unit: String,
+  morning: { type: String, default: "none" },
+  afternoon: { type: String, default: "none" },
+  night: { type: String, default: "none" },
+  code: { type: String, required: true },
+  doctorId: { type: mongoose.Schema.Types.ObjectId, ref: "Doctor", required: true }
+});
+
+const Medicine = mongoose.model("Medicine", MedicineSchema);
+
 // ====== Auth Middleware ======
 function authMiddleware(req, res, next) {
   const authHeader = req.headers["authorization"];
@@ -128,6 +141,41 @@ app.put("/api/doctor/profile", authMiddleware, async (req, res) => {
     }).select("-password");
 
     res.json(updated);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ====== Medicine Routes ======
+
+// Get all medicines for a doctor
+app.get("/api/medicines", authMiddleware, async (req, res) => {
+  try {
+    const medicines = await Medicine.find({ doctorId: req.doctor.id });
+    res.json(medicines);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Add new medicine
+app.post("/api/medicines", authMiddleware, async (req, res) => {
+  try {
+    const { name, dosageAmount, unit, morning, afternoon, night, code } = req.body;
+    
+    const medicine = new Medicine({
+      name,
+      dosageAmount,
+      unit,
+      morning,
+      afternoon,
+      night,
+      code,
+      doctorId: req.doctor.id
+    });
+    
+    await medicine.save();
+    res.status(201).json(medicine);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
