@@ -67,9 +67,14 @@ document.addEventListener("DOMContentLoaded", () => {
       RegistrationNo
     };
 
-    // Prefer real token if returned by backend at signup; otherwise fall back to stored token/email
+    // Only use JWT token - email fallback won't work with auth middleware
     const storedToken = localStorage.getItem("token");
-    const token = storedToken || email; // backend should ideally return JWT at signup/login
+    const token = storedToken;
+    
+    if (!token) {
+      alert("Please login first to save your profile");
+      return;
+    }
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/doctor/profile`, {
