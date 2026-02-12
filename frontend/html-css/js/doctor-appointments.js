@@ -55,7 +55,7 @@ async function makeAPIRequest(endpoint, options = {}) {
   };
 
   try {
-    const response = await fetch(`http://localhost:5000${endpoint}`, mergedOptions);
+    const response = await fetch(`${window.API_BASE_URL}${endpoint}`, mergedOptions);
 
     if (response.status === 401) {
       // Token expired or invalid

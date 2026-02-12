@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const saveToDatabase = async () => {
           try {
             // Save to X-ray collection
-            const xrayResponse = await fetch("http://localhost:5000/api/xrays", {
+            const xrayResponse = await fetch(`${window.API_BASE_URL}/api/xrays`, {
               method: "POST",
               headers: Object.assign(
                 { "Content-Type": "application/json" },

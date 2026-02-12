@@ -227,8 +227,8 @@
       if (!profileData && token) {
         // Try plural endpoint first, then singular — supports either backend mounting.
         const endpoints = [
-          "http://localhost:5000/api/doctors/me",  // plural (preferred)
-          "http://localhost:5000/api/doctor/me"    // singular (fallback)
+          `${window.API_BASE_URL}/api/doctors/me`,  // plural (preferred)
+          `${window.API_BASE_URL}/api/doctor/me`    // singular (fallback)
         ];
 
         for (let ep of endpoints) {
@@ -264,7 +264,7 @@
       // 2b. If still not found but we have an email, try email-based endpoint
       if (!profileData && email) {
         try {
-          const res = await fetch("http://localhost:5000/api/doctors/profile/" + encodeURIComponent(email));
+          const res = await fetch(`${window.API_BASE_URL}/api/doctors/profile/` + encodeURIComponent(email));
           if (res.ok) {
             const json = await res.json().catch(() => null);
             if (json && (json.doctor || json.data?.doctor)) {

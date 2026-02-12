@@ -1,7 +1,7 @@
 // Chatbot functionality
 class MedicalChatbot {
   constructor() {
-    this.apiUrl = 'http://localhost:5000/api/chatbot';
+    this.apiUrl = `${window.API_BASE_URL}/api/chatbot`;
     this.conversationId = null;
     this.isOpen = false;
     this.isListening = false;

@@ -131,7 +131,7 @@ async function searchHistory() {
   // If token exists, try server call first (server should return only current user's history when JWT used)
   if (token) {
     try {
-      let url = "http://localhost:5000/api/prescriptions/history";
+      let url = `${window.API_BASE_URL}/api/prescriptions/history`;
       const params = new URLSearchParams();
       if (nameFilter) params.append("name", nameFilter);
       if (mobileFilter) params.append("mobile", mobileFilter);

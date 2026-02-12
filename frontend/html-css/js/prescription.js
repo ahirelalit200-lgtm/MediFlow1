@@ -90,7 +90,7 @@ if (!form) {
     const token = localStorage.getItem("token") || localStorage.getItem("email") || "";
 
     try {
-      const res = await fetch("http://localhost:5000/api/prescriptions", {
+      const res = await fetch(`${window.API_BASE_URL}/api/prescriptions`, {
         method: "POST",
         headers: Object.assign({
           "Content-Type": "application/json"

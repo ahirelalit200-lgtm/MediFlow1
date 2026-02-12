@@ -89,7 +89,7 @@
       try {
         const token = localStorage.getItem("token");
 
-        const res = await fetch("http://localhost:5000/api/doctor/profile", {
+        const res = await fetch(`${window.API_BASE_URL}/api/doctor/profile`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

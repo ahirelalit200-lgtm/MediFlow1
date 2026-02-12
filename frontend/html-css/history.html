@@ -609,7 +609,7 @@
           const params = new URLSearchParams();
           if (nameFilter) params.append("name", nameFilter);
           if (mobileFilter) params.append("mobile", mobileFilter);
-          const url = "http://localhost:5000/api/prescriptions/history" + (params.toString() ? `?${params.toString()}` : "");
+          const url = `${window.API_BASE_URL}/api/prescriptions/history` + (params.toString() ? `?${params.toString()}` : "");
           const res = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
           if (res.ok) {
             const json = await res.json().catch(() => null);

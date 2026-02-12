@@ -161,7 +161,7 @@
    */
   async function syncEntryToServer(entry, opts = {}) {
     if (!entry) return null;
-    const endpoint = opts.endpoint || "http://localhost:5000/api/history";
+    const endpoint = opts.endpoint || `${window.API_BASE_URL}/api/history`;
     const token = opts.token || localStorage.getItem("token") || null;
     if (!token) {
       // no token: cannot sync to server
