@@ -1,4 +1,8 @@
 // frontend/html-css/js/profile.js
+
+// Fallback API URL in case config.js doesn't load properly
+const API_BASE_URL = window.API_BASE_URL || "https://mediflow-api-8796.onrender.com";
+
 document.addEventListener("DOMContentLoaded", () => {
   const profileForm = document.getElementById("profileForm");
   if (!profileForm) return console.warn("profileForm not found on page.");
@@ -68,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const token = storedToken || email; // backend should ideally return JWT at signup/login
 
     try {
-      const res = await fetch(`${window.API_BASE_URL}/api/doctors/profile`, {
+      const res = await fetch(`${API_BASE_URL}/api/doctors/profile`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
