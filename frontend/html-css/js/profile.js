@@ -72,8 +72,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const token = storedToken || email; // backend should ideally return JWT at signup/login
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/doctors/profile`, {
-        method: "POST",
+      const res = await fetch(`${API_BASE_URL}/api/doctor/profile`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           ...(token ? { "Authorization": `Bearer ${token}` } : {})
