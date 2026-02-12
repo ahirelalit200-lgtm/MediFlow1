@@ -152,11 +152,18 @@ app.put("/api/doctor/profile", authMiddleware, async (req, res) => {
 app.get("/api/medicines", authMiddleware, async (req, res) => {
   console.log("🔹 GET /api/medicines called by doctor:", req.doctor.id);
   try {
+    // Check if Medicine model exists and is accessible
+    if (typeof Medicine === 'undefined') {
+      console.error("❌ Medicine model is undefined");
+      return res.status(500).json({ message: "Medicine model not initialized" });
+    }
+    
     const medicines = await Medicine.find({ doctorId: req.doctor.id });
+    console.log("✅ Found medicines:", medicines.length);
     res.json(medicines);
   } catch (err) {
     console.error("❌ Error fetching medicines:", err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 
@@ -165,7 +172,18 @@ app.post("/api/medicines", authMiddleware, async (req, res) => {
   console.log("🔹 POST /api/medicines called by doctor:", req.doctor.id);
   console.log("🔹 Medicine data:", req.body);
   try {
+    // Check if Medicine model exists and is accessible
+    if (typeof Medicine === 'undefined') {
+      console.error("❌ Medicine model is undefined");
+      return res.status(500).json({ message: "Medicine model not initialized" });
+    }
+    
     const { name, dosageAmount, unit, morning, afternoon, night, code } = req.body;
+    
+    if (!name || !code) {
+      console.error("❌ Missing required fields:", { name, code });
+      return res.status(400).json({ message: "Missing required fields: name and code are required" });
+    }
     
     const medicine = new Medicine({
       name,
@@ -183,7 +201,7 @@ app.post("/api/medicines", authMiddleware, async (req, res) => {
     res.status(201).json(medicine);
   } catch (err) {
     console.error("❌ Error saving medicine:", err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 
