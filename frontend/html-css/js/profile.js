@@ -93,24 +93,14 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Server may return the created/updated doctor under different keys; normalize it
-      const serverProfile = (json && (json.doctor || json.data?.doctor)) ? (json.doctor || json.data?.doctor) : {
-        fullName, email, specialization, clinicName, address, phone, timings, experience, degree, RegistrationNo
-      };
-
-      // Save locally for quick access (and for prefill when user logs in again)
-      localStorage.setItem("doctorProfile", JSON.stringify(serverProfile));
+      // Save the profile to localStorage for dashboard use
+      localStorage.setItem("doctorProfile", JSON.stringify(json));
       localStorage.setItem("email", email);
 
-      // IMPORTANT: Clear temporary auth markers created during signup so user must login again
-      localStorage.removeItem("token");
-      localStorage.removeItem("loggedIn");
-      localStorage.removeItem("doctorName");
+      alert("Profile saved successfully! Redirecting to dashboard...");
 
-      alert("Profile saved successfully ✅ Please log in to continue.");
-
-      // Redirect user to login page so they can authenticate properly
-      window.location.href = "index.html";
+      // Redirect to doctor dashboard directly (no need to login again)
+      window.location.href = "doctor-dashboard.html";
     } catch (err) {
       console.error("Failed to save profile (network/server):", err);
       alert("Server error ❌ (network or server may be down). Please try again later.");
@@ -126,7 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.removeItem("token");
       localStorage.removeItem("loggedIn");
       localStorage.removeItem("doctorName");
-      window.location.href = "index.html";
+      window.location.href = "doctor-dashboard.html";
     });
   }
 
@@ -140,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.removeItem("loggedIn");
         localStorage.removeItem("doctorName");
         localStorage.removeItem("doctorProfile");
-        window.location.href = "index.html";
+        window.location.href = "doctor-dashboard.html";
       }
     }
   });
