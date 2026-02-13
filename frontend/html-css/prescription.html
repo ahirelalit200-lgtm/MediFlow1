@@ -834,7 +834,12 @@
                 const email = (localStorage.getItem("email") || "").toLowerCase().trim();
                 const storageKey = email ? `medicines_user_${email}` : "medicines";
                 const storedMedicines = JSON.parse(localStorage.getItem(storageKey) || "[]");
-                const filtered = storedMedicines.filter(med => enteredCodes.includes(med.code));
+                const filtered = storedMedicines.filter(med => enteredCodes.includes(med.code)).map(m => ({
+                  ...m,
+                  instruction: (m.instruction || "")
+                    .replace(/before/g, "जेवण आधी")
+                    .replace(/after/g, "जेवण नंतर")
+                }));
                 addRows(filtered);
               });
               return;
@@ -844,7 +849,12 @@
             const email = (localStorage.getItem("email") || "").toLowerCase().trim();
             const storageKey = email ? `medicines_user_${email}` : "medicines";
             const storedMedicines = JSON.parse(localStorage.getItem(storageKey) || "[]");
-            const filtered = storedMedicines.filter(med => enteredCodes.includes(med.code));
+            const filtered = storedMedicines.filter(med => enteredCodes.includes(med.code)).map(m => ({
+              ...m,
+              instruction: (m.instruction || "")
+                .replace(/before/g, "जेवण आधी")
+                .replace(/after/g, "जेवण नंतर")
+            }));
             addRows(filtered);
           }
 

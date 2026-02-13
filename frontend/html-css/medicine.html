@@ -332,6 +332,9 @@
             console.warn("Failed to save medicine to server (skipping):", err);
           }
         });
+        alert("Medicines saved to server!");
+      } else {
+        alert("Medicines saved locally.");
       }
 
       // Show Preview
@@ -407,8 +410,9 @@
           }
 
           if (res.ok) {
-            const json = await res.json().catch(() => ({}));
-            const serverItems = Array.isArray(json.medicines) ? json.medicines : [];
+            const json = await res.json().catch(() => ([]));
+            const serverItems = Array.isArray(json) ? json : (Array.isArray(json.medicines) ? json.medicines : []);
+
             // Map server model -> UI model
             const mapped = serverItems.map(m => ({
               code: m.code,
@@ -421,10 +425,19 @@
                 .map(v => v === "before" ? "जेवण आधी" : (v === "after" ? "जेवण नंतर" : v))
                 .join("/") || ""
             }));
-            // Merge by code, prefer local values when present
+
+            // Merge by code, prefer server values for dosage/duration if they exist
             const byCode = new Map();
+            // Start with server items
             mapped.forEach(m => byCode.set(m.code, m));
-            localList.forEach(m => byCode.set(m.code, Object.assign({}, byCode.get(m.code) || {}, m)));
+            // Layer local items on top, but keep server dosage/duration if non-empty
+            localList.forEach(m => {
+              const existing = byCode.get(m.code);
+              const merged = Object.assign({}, existing || {}, m);
+              if (existing && existing.dosage) merged.dosage = existing.dosage;
+              if (existing && existing.duration) merged.duration = existing.duration;
+              byCode.set(m.code, merged);
+            });
             renderTableFromList(Array.from(byCode.values()));
             return;
           }
