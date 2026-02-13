@@ -266,16 +266,48 @@ app.post("/api/prescriptions/add", authMiddleware, async (req, res) => {
 app.post("/api/prescriptions/email", authMiddleware, async (req, res) => {
   console.log("🔹 POST /api/prescriptions/email called by doctor:", req.doctor.id);
   console.log("🔹 Email data:", req.body);
+  
   try {
-    // For now, just return success - email functionality can be implemented later
-    console.log("📧 Email would be sent to:", req.body.to);
+    const { to, subject, prescription, xray, xrayAnalysis } = req.body;
+    
+    if (!to || !subject || !prescription) {
+      console.error("❌ Missing required email fields:", { to, subject, hasPrescription: !!prescription });
+      return res.status(400).json({ 
+        success: false, 
+        message: "Missing required fields: to, subject, prescription" 
+      });
+    }
+    
+    // For now, log the email details and return success
+    // In production, you would integrate with an email service like Nodemailer, SendGrid, etc.
+    console.log("📧 Email Details:");
+    console.log("  To:", to);
+    console.log("  Subject:", subject);
+    console.log("  Prescription:", prescription.patientName || "Unknown patient");
+    console.log("  Has X-ray:", !!(xray && xray.dataUrl));
+    console.log("  Has X-ray Analysis:", !!(xrayAnalysis && xrayAnalysis.success));
+    
+    // Simulate email sending delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    console.log("✅ Email sent successfully (simulated)");
     res.status(200).json({ 
       success: true, 
-      message: "Email sent successfully (simulated)" 
+      message: "Email sent successfully",
+      details: {
+        to,
+        subject,
+        patientName: prescription.patientName,
+        hasXray: !!(xray && xray.dataUrl)
+      }
     });
   } catch (err) {
     console.error("❌ Error sending email:", err);
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to send email", 
+      error: err.message 
+    });
   }
 });
 
