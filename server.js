@@ -288,14 +288,24 @@ app.post("/api/patient/auth/signup", async (req, res) => {
 // Patient middleware for authentication
 const patientAuthMiddleware = (req, res, next) => {
   const token = req.header("Authorization")?.replace("Bearer ", "");
+  console.log("🔹 Patient auth middleware - token received:", token ? "Yes" : "No");
+  
   if (!token) return res.status(401).json({ message: "Access denied" });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "fallback_secret");
-    if (decoded.role !== 'patient') return res.status(401).json({ message: "Access denied" });
+    console.log("🔹 Patient auth middleware - decoded token:", { id: decoded.id, email: decoded.email, role: decoded.role });
+    
+    if (decoded.role !== 'patient') {
+      console.log("🔹 Patient auth middleware - role mismatch:", decoded.role);
+      return res.status(401).json({ message: "Access denied" });
+    }
+    
     req.patient = decoded;
+    console.log("🔹 Patient auth middleware - authentication successful");
     next();
   } catch (err) {
+    console.log("🔹 Patient auth middleware - token verification failed:", err.message);
     res.status(401).json({ message: "Invalid token" });
   }
 };
@@ -347,14 +357,19 @@ app.get("/api/patient/dashboard/stats", patientAuthMiddleware, async (req, res) 
       lastDoctor
     });
 
+    // Ensure we always return valid data, even if no prescriptions found
+    const stats = {
+      totalPrescriptions: totalPrescriptions || 0,
+      totalXrays: totalXrays || 0,
+      lastVisit: lastVisit || null,
+      lastDoctor: lastDoctor || null
+    };
+
+    console.log("🔹 Final stats being sent to frontend:", stats);
+
     res.json({
       success: true,
-      stats: {
-        totalPrescriptions,
-        totalXrays,
-        lastVisit,
-        lastDoctor
-      }
+      stats
     });
   } catch (err) {
     console.error("Get patient dashboard stats error:", err);
