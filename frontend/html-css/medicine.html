@@ -273,8 +273,49 @@
       tableBody.appendChild(row);
     }
 
-    function removeRow(btn) {
-      btn.closest("tr").remove();
+    async function removeRow(btn) {
+      const row = btn.closest("tr");
+      const codeInput = row.querySelectorAll("input")[0];
+      const code = codeInput ? codeInput.value.trim() : "";
+
+      if (code) {
+        if (!confirm(`Are you sure you want to permanently delete medicine with code "${code}"?`)) {
+          return;
+        }
+
+        const token = localStorage.getItem("token");
+        if (token) {
+          try {
+            const response = await fetch(`${window.API_BASE_URL}/api/medicines/${encodeURIComponent(code)}`, {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            });
+
+            if (response.ok) {
+              console.log("Medicine deleted from server");
+            } else {
+              const err = await response.json().catch(() => ({}));
+              console.warn("Server deletion failed:", err.message);
+            }
+          } catch (err) {
+            console.warn("Failed to delete medicine from server:", err);
+          }
+        }
+
+        // Cleanup local storage
+        const storageKey = getStorageKey();
+        try {
+          let list = JSON.parse(localStorage.getItem(storageKey) || "[]");
+          list = list.filter(m => m.code !== code);
+          localStorage.setItem(storageKey, JSON.stringify(list));
+        } catch (e) {
+          console.warn("Error updating local storage after deletion", e);
+        }
+      }
+
+      row.remove();
     }
 
     function saveMedicines() {
