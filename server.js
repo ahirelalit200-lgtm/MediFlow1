@@ -204,7 +204,12 @@ app.post("/api/login", async (req, res) => {
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
     const token = jwt.sign({ id: doctor._id }, JWT_SECRET, { expiresIn: "1d" });
-    res.json({ token });
+
+    // Return doctor profile (excluding password) if it exists
+    const doctorProfile = doctor.toObject();
+    delete doctorProfile.password;
+
+    res.json({ token, doctorProfile });
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ message: "Server error" });
@@ -897,8 +902,30 @@ app.delete("/api/medicines/:code", authMiddleware, async (req, res) => {
       return res.status(500).json({ message: "Medicine model not initialized" });
     }
 
-    const result = await Medicine.findOneAndDelete({
+    const result = await Medicine.deleteMany({
       code,
+      doctorId: req.doctor.id
+    });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: "No medicines found with this code" });
+    }
+
+    console.log(`✅ Deleted ${result.deletedCount} medicines with code: ${code}`);
+    res.json({ message: "Medicines deleted successfully", count: result.deletedCount });
+  } catch (err) {
+    console.error("❌ Error deleting medicines by code:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// Delete specific medicine by ID
+app.delete("/api/medicines/id/:id", authMiddleware, async (req, res) => {
+  console.log("🔹 DELETE /api/medicines/id called by doctor:", req.doctor.id);
+  const { id } = req.params;
+  try {
+    const result = await Medicine.findOneAndDelete({
+      _id: id,
       doctorId: req.doctor.id
     });
 
@@ -906,10 +933,33 @@ app.delete("/api/medicines/:code", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Medicine not found" });
     }
 
-    console.log("✅ Medicine deleted successfully:", code);
-    res.json({ message: "Medicine deleted successfully", code });
+    console.log("✅ Medicine deleted successfully by ID:", id);
+    res.json({ message: "Medicine deleted successfully", id });
   } catch (err) {
-    console.error("❌ Error deleting medicine:", err);
+    console.error("❌ Error deleting medicine by ID:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// Get medicines by code
+app.get("/api/medicines/code/:code", authMiddleware, async (req, res) => {
+  console.log("🔹 GET /api/medicines/code called by doctor:", req.doctor.id);
+  const { code } = req.params;
+  try {
+    if (typeof Medicine === 'undefined') {
+      return res.status(500).json({ message: "Medicine model not initialized" });
+    }
+
+    // Find ALL medicines with this code for this doctor
+    const meds = await Medicine.find({
+      code: String(code).trim(),
+      doctorId: req.doctor.id
+    });
+
+    console.log(`✅ Found ${meds.length} medicines for code: ${code}`);
+    res.json({ medicines: meds });
+  } catch (err) {
+    console.error("❌ Error fetching medicines by code:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });

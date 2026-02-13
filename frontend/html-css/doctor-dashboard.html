@@ -116,8 +116,8 @@
       if (!profileData && token) {
         // Try plural endpoint first, then singular — supports either backend mounting.
         const endpoints = [
-          `${API_BASE_URL}/api/doctors/me`,  // plural (preferred)
-          `${API_BASE_URL}/api/doctor/me`    // singular (fallback)
+          `${window.API_BASE_URL}/api/doctor/profile`,
+          `${window.API_BASE_URL}/api/doctor/me`
         ];
 
         for (let ep of endpoints) {
@@ -126,26 +126,18 @@
               headers: { "Authorization": "Bearer " + token }
             });
 
-            if (!res.ok) {
-              // if 404 or other, try next endpoint
-              console.warn(`Profile fetch ${ep} returned status ${res.status}`);
-              continue;
-            }
+            if (!res.ok) continue;
 
-            // attempt to parse JSON
             const json = await res.json();
-            // some controllers return { doctor: {...} } — normalize
             profileData = json && json.doctor ? json.doctor : json;
 
-            // cache it
-            if (profileData && typeof profileData === "object") {
+            // Cache it
+            if (profileData && typeof profileData === "object" && (profileData.fullName || profileData.name)) {
               localStorage.setItem("doctorProfile", JSON.stringify(profileData));
+              break;
             }
-
-            break; // stop trying endpoints
           } catch (err) {
             console.warn("Error fetching profile from", ep, err);
-            // try next endpoint
           }
         }
       }
@@ -166,9 +158,9 @@
         }
       }
 
-      // 3. If still no profile
-      if (!profileData) {
-        alert("No profile data found Please complete your profile.");
+      // 3. If still no profile or incomplete profile
+      if (!profileData || (!profileData.fullName && !profileData.name)) {
+        alert("Please complete your profile details first.");
         window.location.href = "profile-setup.html";
         return;
       }
