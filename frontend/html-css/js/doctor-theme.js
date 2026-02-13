@@ -1,16 +1,8 @@
 // Doctor Portal Theme Logic
 
 function initializeTheme() {
-    const savedTheme = localStorage.getItem('doctorTheme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    let theme = 'light';
-    if (savedTheme) {
-        theme = savedTheme;
-    } else if (prefersDark) {
-        theme = 'dark';
-    }
-
+    // Force light theme for all doctor portal pages
+    const theme = 'light';
     setTheme(theme);
 }
 
@@ -25,9 +17,9 @@ function setTheme(theme) {
 }
 
 function toggleTheme() {
-    const currentTheme = localStorage.getItem('doctorTheme') || 'light';
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
+    // Keep theme always light - disable toggle
+    const theme = 'light';
+    setTheme(theme);
 }
 
 function updateThemeIcon(theme) {
