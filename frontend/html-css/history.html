@@ -462,6 +462,9 @@
       });
       
       console.log("🔹 Finished rendering. Cards container now has:", document.getElementById("cards").children.length, "children");
+      console.log("🔹 Cards container HTML:", document.getElementById("cards").innerHTML.substring(0, 200) + "...");
+      console.log("🔹 Cards container styles:", window.getComputedStyle(document.getElementById("cards")).display);
+      console.log("🔹 Cards container visible:", document.getElementById("cards").offsetHeight > 0);
     }
 
     function buildPrintableHTML(rec) {
