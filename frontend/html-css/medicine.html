@@ -214,6 +214,29 @@
         <tbody id="preview-body"></tbody>
       </table>
     </div>
+
+    <!-- Saved Medicines Section -->
+    <div id="saved-medicines-section" style="margin-top: 40px;">
+      <h3>Saved Medicines</h3>
+      <div id="no-medicines-message" style="text-align: center; padding: 20px; color: #666; display: none;">
+        No medicines saved yet. Add medicines above and click "Save Medicines".
+      </div>
+      <table id="saved-medicines-table" style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background-color: #f0f4f8;">
+            <th style="padding: 10px; border: 1px solid #ddd;">Code</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Medicine Name</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Dosage</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Duration</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Measure</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Instruction</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="saved-medicines-body">
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <script>
@@ -347,6 +370,94 @@
       });
 
       previewDiv.style.display = "block";
+      
+      // Update saved medicines display
+      displaySavedMedicines();
+    }
+
+    // Display saved medicines in the read-only table
+    function displaySavedMedicines() {
+      const storageKey = getStorageKey();
+      let medicines = [];
+      try { 
+        medicines = JSON.parse(localStorage.getItem(storageKey) || "[]") || []; 
+      } catch (e) { 
+        medicines = []; 
+      }
+
+      const tableBody = document.getElementById("saved-medicines-body");
+      const noMedicinesMsg = document.getElementById("no-medicines-message");
+      const savedTable = document.getElementById("saved-medicines-table");
+
+      if (!tableBody) return;
+
+      tableBody.innerHTML = "";
+
+      if (medicines.length === 0) {
+        noMedicinesMsg.style.display = "block";
+        savedTable.style.display = "none";
+        return;
+      }
+
+      noMedicinesMsg.style.display = "none";
+      savedTable.style.display = "table";
+
+      medicines.forEach((medicine, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td style="padding: 10px; border: 1px solid #ddd;">${medicine.code || "-"}</td>
+          <td style="padding: 10px; border: 1px solid #ddd;">${medicine.name || "-"}</td>
+          <td style="padding: 10px; border: 1px solid #ddd;">${medicine.dosage || "-"}</td>
+          <td style="padding: 10px; border: 1px solid #ddd;">${medicine.duration || "-"}</td>
+          <td style="padding: 10px; border: 1px solid #ddd;">${medicine.measure || "-"}</td>
+          <td style="padding: 10px; border: 1px solid #ddd;">${medicine.instruction || "-"}</td>
+          <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
+            <button type="button" onclick="deleteMedicine(${index})" 
+                    style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+              Delete
+            </button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    // Delete a specific medicine
+    function deleteMedicine(index) {
+      if (!confirm("Are you sure you want to delete this medicine?")) {
+        return;
+      }
+
+      const storageKey = getStorageKey();
+      let medicines = [];
+      try { 
+        medicines = JSON.parse(localStorage.getItem(storageKey) || "[]") || []; 
+      } catch (e) { 
+        medicines = []; 
+      }
+
+      // Remove the medicine at the specified index
+      medicines.splice(index, 1);
+
+      // Save updated list to localStorage
+      try { 
+        localStorage.setItem(storageKey, JSON.stringify(medicines)); 
+      } catch (e) { }
+
+      // Also delete from server if we have the medicine code
+      const token = localStorage.getItem("token");
+      if (token && medicines[index] && medicines[index].code) {
+        // Note: This would need a DELETE endpoint on the server
+        // For now, we'll just update localStorage
+      }
+
+      // Refresh the display
+      displaySavedMedicines();
+      
+      // Also refresh the editable table
+      renderTableFromList(medicines);
+      
+      alert("Medicine deleted successfully!");
     }
 
     // Load from localStorage on page load
@@ -417,6 +528,7 @@
             mapped.forEach(m => byCode.set(m.code, m));
             localList.forEach(m => byCode.set(m.code, Object.assign({}, byCode.get(m.code) || {}, m)));
             renderTableFromList(Array.from(byCode.values()));
+            displaySavedMedicines();
             return;
           }
         } catch (err) {
@@ -425,6 +537,9 @@
       }
       // No token or server failed -> show local only
       if (localList.length > 0) renderTableFromList(localList);
+      
+      // Always display saved medicines section
+      displaySavedMedicines();
     }
 
     window.onload = () => { loadSavedMedicinesAndShow(); };
