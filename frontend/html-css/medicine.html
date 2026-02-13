@@ -308,9 +308,9 @@
               name: m.name,
               dosageAmount: String(m.measure || "").trim(),
               unit: "", // measure unit is not captured in this UI
-              morning: m.instruction === "जेवण आधी" ? "before" : "none",
+              morning: m.instruction === "जेवण आधी" ? "जेवण आधी" : "none",
               afternoon: "none",
-              night: m.instruction === "जेवण नंतर" ? "after" : "none",
+              night: m.instruction === "जेवण नंतर" ? "जेवण नंतर" : "none",
               dosage: m.dosage,
               duration: m.duration,
               code: m.code

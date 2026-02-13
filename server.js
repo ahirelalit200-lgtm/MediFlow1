@@ -865,7 +865,7 @@ app.post("/api/medicines", authMiddleware, async (req, res) => {
       return res.status(500).json({ message: "Medicine model not initialized" });
     }
 
-    const { name, dosageAmount, unit, morning, afternoon, night, code } = req.body;
+    const { name, dosageAmount, unit, morning, afternoon, night, code, dosage, duration } = req.body;
 
     if (!name || !code) {
       console.error("❌ Missing required fields:", { name, code });
@@ -873,7 +873,7 @@ app.post("/api/medicines", authMiddleware, async (req, res) => {
     }
 
     // Log received data for debugging
-    console.log("🔹 Received medicine data:", { name, dosageAmount, unit, morning, afternoon, night, code });
+    console.log("🔹 Received medicine data:", { name, dosageAmount, unit, morning, afternoon, night, code, dosage, duration });
 
     const medicine = new Medicine({
       name,
@@ -883,6 +883,8 @@ app.post("/api/medicines", authMiddleware, async (req, res) => {
       afternoon,
       night,
       code,
+      dosage,
+      duration,
       doctorId: req.doctor.id
     });
 
