@@ -361,6 +361,80 @@ app.get("/api/patient/prescriptions", patientAuthMiddleware, async (req, res) =>
   }
 });
 
+// Get Patient Profile
+app.get("/api/patient/auth/profile", patientAuthMiddleware, async (req, res) => {
+  try {
+    console.log("🔹 GET /api/patient/auth/profile called by patient:", req.patient.id);
+    
+    const patient = await Patient.findById(req.patient.id).select("-password");
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    res.json({
+      success: true,
+      patient: {
+        id: patient._id,
+        name: patient.name,
+        email: patient.email,
+        mobile: patient.mobile,
+        age: patient.age,
+        gender: patient.gender,
+        address: patient.address,
+        createdAt: patient.createdAt
+      }
+    });
+  } catch (err) {
+    console.error("Get patient profile error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Update Patient Profile
+app.put("/api/patient/auth/profile", patientAuthMiddleware, async (req, res) => {
+  try {
+    console.log("🔹 PUT /api/patient/auth/profile called by patient:", req.patient.id);
+    
+    const { name, mobile, age, gender, address } = req.body;
+    
+    // Validate input
+    const updateData = {};
+    if (name) updateData.name = name;
+    if (mobile) updateData.mobile = mobile;
+    if (age !== undefined) updateData.age = age;
+    if (gender) updateData.gender = gender;
+    if (address) updateData.address = address;
+
+    const updatedPatient = await Patient.findByIdAndUpdate(
+      req.patient.id,
+      updateData,
+      { new: true }
+    ).select("-password");
+
+    if (!updatedPatient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    res.json({
+      success: true,
+      message: "Profile updated successfully",
+      patient: {
+        id: updatedPatient._id,
+        name: updatedPatient.name,
+        email: updatedPatient.email,
+        mobile: updatedPatient.mobile,
+        age: updatedPatient.age,
+        gender: updatedPatient.gender,
+        address: updatedPatient.address,
+        createdAt: updatedPatient.createdAt
+      }
+    });
+  } catch (err) {
+    console.error("Update patient profile error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 // Get Doctor Profile
 app.get("/api/doctor/profile", authMiddleware, async (req, res) => {
   try {
