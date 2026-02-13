@@ -6,6 +6,10 @@ const bcrypt = require("bcryptjs");
 const path = require("path");
 require('dotenv').config();
 
+console.log("🔹 DEBUG: Environment Variables Loaded");
+console.log("🔹 EMAIL_USER:", process.env.EMAIL_USER ? "Set (" + process.env.EMAIL_USER + ")" : "NOT SET");
+console.log("🔹 EMAIL_PASS:", process.env.EMAIL_PASS ? "Set (Length: " + process.env.EMAIL_PASS.length + ")" : "NOT SET");
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
