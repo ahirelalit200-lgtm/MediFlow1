@@ -418,7 +418,7 @@
     </div>
     <nav>
       <ul>
-        <li onclick="location.href='index.html'">Home</li>
+        <li onclick="navigateTo('dashboard')">Home</li>
         <li onclick="navigateTo('history')">History</li>
 
         <li onclick="navigateTo('analytics')">Analytics</li>
@@ -558,6 +558,8 @@
         window.location.href = "profile.html";
       } else if (page === "prescription") {
         window.location.href = "prescription.html";
+      } else if (page === "dashboard") {
+        window.location.href = "doctor-dashboard.html";
       } else if (page === "history") {
         window.location.href = "history.html";
       } else if (page === "analytics") {

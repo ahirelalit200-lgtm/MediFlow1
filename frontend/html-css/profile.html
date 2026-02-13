@@ -151,7 +151,7 @@
     </div>
     <nav>
       <ul>
-        <li onclick="location.href='index.html'">Home</li>
+        <li onclick="navigateTo('dashboard')">Home</li>
         <li onclick="navigateTo('history')">History</li>
         <li onclick="navigateTo('appointments')">Appointments</li>
         <li onclick="navigateTo('analytics')">Analytics</li>
@@ -304,6 +304,7 @@
     // Navigation function for menu items
     function navigateTo(page) {
       const routes = {
+        'dashboard': 'doctor-dashboard.html',
         'history': 'history.html',
         'appointments': 'doctor-appointments.html',
         'analytics': 'analytics.html',
