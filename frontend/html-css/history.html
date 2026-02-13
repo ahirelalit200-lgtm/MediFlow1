@@ -615,11 +615,11 @@
           if (res.ok) {
             const json = await res.json().catch(() => null);
             let items = [];
-            if (Array.isArray(json)) items = json;
-            else if (Array.isArray(json.items)) items = json.items;
-            else if (Array.isArray(json.data)) items = json.data;
-            else if (Array.isArray(json.history)) items = json.history;
-            else if (Array.isArray(json.results)) items = json.results;
+            if (json && Array.isArray(json)) items = json;
+            else if (json && Array.isArray(json.items)) items = json.items;
+            else if (json && Array.isArray(json.data)) items = json.data;
+            else if (json && Array.isArray(json.history)) items = json.history;
+            else if (json && Array.isArray(json.results)) items = json.results;
 
             const normalized = items.map(normalizeItem).filter(it => {
               const pName = (it.patientName || "").toLowerCase();

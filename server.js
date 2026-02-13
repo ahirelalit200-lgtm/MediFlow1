@@ -372,6 +372,47 @@ app.post("/api/prescriptions/email", authMiddleware, async (req, res) => {
   }
 });
 
+// Get prescription history for a doctor
+app.get("/api/prescriptions/history", authMiddleware, async (req, res) => {
+  console.log("🔹 GET /api/prescriptions/history called by doctor:", req.doctor.id);
+  
+  try {
+    const { name, mobile } = req.query;
+    
+    // Build query for this doctor's prescriptions
+    let query = { doctorId: req.doctor.id };
+    
+    // Add filters if provided
+    if (name) {
+      query.patientName = { $regex: name, $options: "i" };
+    }
+    if (mobile) {
+      query.mobile = { $regex: mobile, $options: "i" };
+    }
+    
+    // Fetch prescriptions, sorted by creation date (newest first)
+    const prescriptions = await Prescription.find(query)
+      .sort({ createdAt: -1 })
+      .lean();
+    
+    console.log(`📋 Found ${prescriptions.length} prescriptions for doctor ${req.doctor.id}`);
+    
+    res.status(200).json({
+      success: true,
+      items: prescriptions,
+      total: prescriptions.length
+    });
+    
+  } catch (err) {
+    console.error("❌ Error fetching prescription history:", err);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to fetch prescription history", 
+      error: err.message 
+    });
+  }
+});
+
 // ====== Fallback: serve maindashboard.html for unknown routes ======
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "frontend", "html-css", "maindashboard.html"));
