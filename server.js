@@ -4,7 +4,10 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const path = require("path");
-require('dotenv').config();
+// Load env vars explicitly from current directory
+const envPath = path.join(__dirname, '.env');
+console.log("🔹 Loading .env from:", envPath);
+require('dotenv').config({ path: envPath });
 
 console.log("🔹 DEBUG: Environment Variables Loaded");
 console.log("🔹 EMAIL_USER:", process.env.EMAIL_USER ? "Set (" + process.env.EMAIL_USER + ")" : "NOT SET");
