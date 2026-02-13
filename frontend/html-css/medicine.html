@@ -147,12 +147,12 @@
     </div>
     <nav>
       <ul>
-        <li onclick="navigateTo('dashboard')">Home</li>
+        <li onclick="location.href='index.html'">Home</li>
         <li onclick="navigateTo('history')">History</li>
         <li onclick="navigateTo('appointments')">Appointments</li>
         <li onclick="navigateTo('analytics')">Analytics</li>
         <li onclick="navigateTo('xray')">X-Ray</li>
-        <li onclick="navigateTo('prescription')">Prescription</li>
+
       </ul>
     </nav>
     <div class="header-right" id="auth-buttons">
@@ -214,72 +214,45 @@
         <tbody id="preview-body"></tbody>
       </table>
     </div>
-
-    <!-- Saved Medicines Section -->
-    <div id="saved-medicines-section" style="margin-top: 40px;">
-      <h3>Saved Medicines</h3>
-      <div id="no-medicines-message" style="text-align: center; padding: 20px; color: #666; display: none;">
-        No medicines saved yet. Add medicines above and click "Save Medicines".
-      </div>
-      <table id="saved-medicines-table" style="width: 100%; border-collapse: collapse;">
-        <thead>
-          <tr style="background-color: #f0f4f8;">
-            <th style="padding: 10px; border: 1px solid #ddd;">Code</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Medicine Name</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Dosage</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Duration</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Measure</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Instruction</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Actions</th>
-          </tr>
-        </thead>
-        <tbody id="saved-medicines-body">
-        </tbody>
-      </table>
-    </div>
   </div>
 
   <script>
-    // Theme and Auth management
+    // Theme is handled by doctor-theme.js
     function renderAuthButtons() {
       const div = document.getElementById("auth-buttons");
       if (!div) return;
       const displayName = (JSON.parse(localStorage.getItem("doctorProfile") || "null")?.fullName) || localStorage.getItem("doctorName");
       const email = localStorage.getItem("email");
       if (displayName || email) {
-        div.innerHTML = ``; // Hide login buttons if already logged in
+        div.innerHTML = ``;
       } else {
-        div.innerHTML = `<button class="book-btn" onclick="location.href='signup.html'">Login</button>`;
+        div.innerHTML = `<button class="book-btn" onclick=\"location.href='signup.html'\">Login</button>`;
       }
     }
 
     function navigateTo(page) {
-      const routes = {
-        'dashboard': 'doctor-dashboard.html',
-        'history': 'history.html',
-        'appointments': 'doctor-appointments.html',
-        'analytics': 'analytics.html',
-        'xray': 'xray.html',
-        'prescription': 'prescription.html',
-        'medicine': 'medicine.html',
-        'signup': 'signup.html',
-        'profile': 'profile.html'
-      };
-      if (routes[page]) window.location.href = routes[page];
+      if (page === "signup") { window.location.href = "signup.html"; }
+      else if (page === "profile") { window.location.href = "profile.html"; }
+      else if (page === "prescription") { window.location.href = "prescription.html"; }
+      else if (page === "history") { window.location.href = "history.html"; }
+      else if (page === "appointments") { window.location.href = "doctor-appointments.html"; }
+      else if (page === "analytics") { window.location.href = "analytics.html"; }
+      else if (page === "xray") { window.location.href = "xray.html"; }
+      else if (page === "medicine") { window.location.href = "medicine.html"; }
     }
 
     function logout() {
       try { localStorage.setItem("global_logout", String(Date.now())); } catch (e) { }
+      // Clear auth/session only
       localStorage.removeItem("email");
       localStorage.removeItem("token");
       localStorage.removeItem("loggedIn");
       localStorage.removeItem("doctorName");
       localStorage.removeItem("doctorProfile");
       renderAuthButtons();
-      window.location.href = "index.html";
+      location.href = "index.html";
     }
 
-    // Medicine Row Management
     function addRow() {
       const tableBody = document.getElementById("medicine-table-body");
       const row = document.createElement("tr");
@@ -292,7 +265,7 @@
         <td>
           <select required>
             <option value="जेवण आधी">जेवण आधी</option>
-            <option value="जेवण नंतर" selected>जेवण नंतर</option>
+            <option value="जेवण नंतर">जेवण नंतर</option>
           </select>
         </td>
         <td><button type="button" class="remove-btn" onclick="removeRow(this)">X</button></td>
@@ -301,62 +274,46 @@
     }
 
     function removeRow(btn) {
-      const rows = document.querySelectorAll("#medicine-table-body tr");
-      if (rows.length > 1) {
-        btn.closest("tr").remove();
-      } else {
-        alert("At least one row is required.");
-      }
+      btn.closest("tr").remove();
     }
 
-    // Logic for saving medicines (allows multiple per code)
-    async function saveMedicines() {
+    function saveMedicines() {
       const rows = document.querySelectorAll("#medicine-table-body tr");
-      const medicinesToAdd = [];
+      const medicines = [];
 
       rows.forEach(row => {
         const inputs = row.querySelectorAll("input, select");
-        const code = inputs[0].value.trim();
-        const name = inputs[1].value.trim();
-        const dosage = inputs[2].value.trim();
-        const duration = inputs[3].value.trim();
-        const measure = inputs[4].value.trim();
-        const instruction = inputs[5].value.trim();
-
-        if (code && name) { // Only add if code and name are present
-          medicinesToAdd.push({
-            code,
-            name,
-            dosage,
-            duration,
-            measure,
-            instruction,
-          });
-        }
+        medicines.push({
+          code: inputs[0].value,
+          name: inputs[1].value,
+          dosage: inputs[2].value,
+          duration: inputs[3].value,
+          measure: inputs[4].value,
+          instruction: inputs[5].value,
+        });
       });
 
-      if (medicinesToAdd.length === 0) {
-        alert("Please enter both Name and Code for at least one medicine.");
-        return;
-      }
+      // Per-doctor localStorage namespace
+      const email = (localStorage.getItem("email") || "").toLowerCase().trim();
+      const storageKey = email ? `medicines_user_${email}` : "medicines";
+      try { localStorage.setItem(storageKey, JSON.stringify(medicines)); } catch (e) { }
 
+      // Also persist to backend (scoped by JWT) so prescriptions can fetch per doctor
       const token = localStorage.getItem("token");
-      const savedMedicinesWithIds = [];
-
-      // Save each to backend and get IDs
-      for (const m of medicinesToAdd) {
-        let savedMed = { ...m };
-        if (token) {
+      if (token) {
+        medicines.forEach(async (m) => {
           try {
+            // Map fields to backend model
             const payload = {
               name: m.name,
-              dosageAmount: m.measure,
-              morning: m.instruction.includes("जेवण आधी") ? "before" : "none", // Simplified mapping
-              afternoon: "none", // Not directly mapped from current instruction
-              night: m.instruction.includes("जेवण नंतर") ? "after" : "none", // Simplified mapping
+              dosageAmount: String(m.measure || "").trim(),
+              unit: "", // measure unit is not captured in this UI
+              morning: m.instruction === "जेवण आधी" ? "before" : "none",
+              afternoon: "none",
+              night: m.instruction === "जेवण नंतर" ? "after" : "none",
               code: m.code
             };
-            const res = await fetch(`${window.API_BASE_URL}/api/medicines`, {
+            const response = await fetch(`${window.API_BASE_URL}/api/medicines`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -364,405 +321,133 @@
               },
               body: JSON.stringify(payload)
             });
-            if (res.ok) {
-              const data = await res.json();
-              if (data._id) savedMed._id = data._id;
+
+            if (!response.ok) {
+              const errData = await response.json().catch(() => ({}));
+              console.warn("Server side save failed for", m.name, errData.message);
             }
           } catch (err) {
-            console.warn("Backend save failed for:", m.name, err);
+            console.warn("Failed to save medicine to server (skipping):", err);
           }
-        }
-        savedMedicinesWithIds.push(savedMed);
+        });
       }
 
-      // Update Local Storage
-      const storageKey = getStorageKey();
-      let localMeds = [];
-      try { localMeds = JSON.parse(localStorage.getItem(storageKey) || "[]"); } catch (e) { }
+      // Show Preview
+      const previewDiv = document.getElementById("preview");
+      const previewBody = document.getElementById("preview-body");
+      previewBody.innerHTML = "";
 
-      const merged = [...localMeds];
-      savedMedicinesWithIds.forEach(newMed => {
-        // Prevent exact duplicates (same code + same name)
-        const isDuplicate = merged.some(m => m.code === newMed.code && m.name === newMed.name);
-        if (!isDuplicate) merged.push(newMed);
-      });
-
-      localStorage.setItem(storageKey, JSON.stringify(merged));
-      alert(token ? `Saved ${savedMedicinesWithIds.length} medicines.` : "Medicines saved locally.");
-
-      // Reset input rows
-      document.getElementById("medicine-table-body").innerHTML = `
-        <tr>
-          <td><input type="text" placeholder="Code" required></td>
-          <td><input type="text" placeholder="Medicine name" required></td>
-          <td><input type="text" placeholder="1-0-1" required></td>
-          <td><input type="text" placeholder="3 days" required></td>
-          <td><input type="number" placeholder="6" required></td>
-          <td>
-            <select required>
-              <option value="जेवण आधी">जेवण आधी</option>
-              <option value="जेवण नंतर" selected>जेवण नंतर</option>
-            </select>
-          </td>
-          <td><button type="button" class="remove-btn" onclick="removeRow(this)">X</button></td>
-        </tr>
-      `;
-
-      displaySavedMedicines();
-    }
-
-    function displaySavedMedicines() {
-      const storageKey = getStorageKey();
-      let medicines = [];
-      try { medicines = JSON.parse(localStorage.getItem(storageKey) || "[]"); } catch (e) { }
-
-      const tableBody = document.getElementById("saved-medicines-body");
-      const noMsg = document.getElementById("no-medicines-message");
-      const table = document.getElementById("saved-medicines-table");
-
-      if (!tableBody) return;
-      tableBody.innerHTML = "";
-
-      if (medicines.length === 0) {
-        noMsg.style.display = "block";
-        table.style.display = "none";
-        return;
-      }
-
-      noMsg.style.display = "none";
-      table.style.display = "table";
-
-      medicines.forEach((med) => {
+      medicines.forEach(med => {
         const row = document.createElement("tr");
-        const deleteId = med._id || `local_${med.code}_${med.name}`;
-
         row.innerHTML = `
-          <td style="padding: 10px; border: 1px solid #ddd;">${med.code || "-"}</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">${med.name || "-"}</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">${med.dosage || "-"}</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">${med.duration || "-"}</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">${med.measure || "-"}</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">${med.instruction || "-"}</td>
-          <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
-            <button type="button" onclick="deleteMedicineById('${deleteId}')" class="remove-btn"
-                    style="background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
-              Delete
-            </button>
-          </td>
+          <td>${med.code}</td>
+          <td>${med.name}</td>
+          <td>${med.dosage}</td>
+          <td>${med.duration}</td>
+          <td>${med.measure}</td>
+          <td>${med.instruction}</td>
         `;
-        tableBody.appendChild(row);
+        previewBody.appendChild(row);
       });
+
+      previewDiv.style.display = "block";
     }
 
-    async function deleteMedicineById(id) {
-      if (!confirm("Delete this medicine?")) return;
-
-      const token = localStorage.getItem("token");
-      const isLocal = String(id).startsWith("local_");
-
-      if (token && !isLocal) {
-        try {
-          await fetch(`${window.API_BASE_URL}/api/medicines/id/${id}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` }
-          });
-        } catch (err) {
-          console.error("Server delete failed:", err);
-        }
-      }
-
-      // Update Local Storage
-      const storageKey = getStorageKey();
-      let medicines = [];
-      try { medicines = JSON.parse(localStorage.getItem(storageKey) || "[]"); } catch (e) { }
-
-      let filtered;
-      if (isLocal) {
-        const parts = id.split("_");
-        const lCode = parts[1];
-        const lName = parts.slice(2).join("_");
-        filtered = medicines.filter(m => !(m.code === lCode && m.name === lName));
-      } else {
-        filtered = medicines.filter(m => m._id !== id);
-      }
-
-      localStorage.setItem(storageKey, JSON.stringify(filtered));
-      displaySavedMedicines();
-    }
-
+    // Load from localStorage on page load
     function getStorageKey() {
       const email = (localStorage.getItem("email") || "").toLowerCase().trim();
       return email ? `medicines_user_${email}` : "medicines";
     }
 
-    async function initializePage() {
+    function renderTableFromList(medicines) {
+      const tableBody = document.getElementById("medicine-table-body");
+      if (!tableBody) return;
+      tableBody.innerHTML = "";
+      (medicines || []).forEach(med => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><input type="text" value="${med.code || ""}" required></td>
+          <td><input type="text" value="${med.name || ""}" required></td>
+          <td><input type="text" value="${med.dosage || ""}" required></td>
+          <td><input type="text" value="${med.duration || ""}" required></td>
+          <td><input type="number" value="${med.measure || ""}" required></td>
+          <td>
+            <select required>
+              <option value="जेवण आधी" ${(med.instruction == "जेवण आधी") ? "selected" : ""}>जेवण आधी</option>
+              <option value="जेवण नंतर" ${(med.instruction == "जेवण नंतर") ? "selected" : ""}>जेवण नंतर</option>
+            </select>
+          </td>
+          <td><button type="button" class="remove-btn" onclick="removeRow(this)">X</button></td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    async function loadSavedMedicinesAndShow() {
       renderAuthButtons();
+      const storageKey = getStorageKey();
+      let localList = [];
+      try { localList = JSON.parse(localStorage.getItem(storageKey) || "[]") || []; } catch (e) { localList = []; }
+
       const token = localStorage.getItem("token");
       if (token) {
         try {
           const res = await fetch(`${window.API_BASE_URL}/api/medicines`, {
             headers: { Authorization: `Bearer ${token}` }
           });
+
+          if (res.status === 401) {
+            console.warn("Session expired or invalid token. Clearing auth.");
+            localStorage.removeItem("token");
+            localStorage.removeItem("email");
+            localStorage.removeItem("loggedIn");
+            renderAuthButtons();
+          }
+
           if (res.ok) {
-            const list = await res.json();
-            // Backend might return { medicines: [] } or just []
-            const meds = Array.isArray(list) ? list : (list.medicines || []);
-            localStorage.setItem(getStorageKey(), JSON.stringify(meds));
+            const json = await res.json().catch(() => ({}));
+            const serverItems = Array.isArray(json.medicines) ? json.medicines : [];
+            // Map server model -> UI model
+            const mapped = serverItems.map(m => ({
+              code: m.code,
+              name: m.name,
+              dosage: "",
+              duration: "",
+              measure: m.dosageAmount || "",
+              instruction: [m.morning, m.afternoon, m.night].filter(v => v && v !== "none").join("/") || ""
+            }));
+            // Merge by code, prefer local values when present
+            const byCode = new Map();
+            mapped.forEach(m => byCode.set(m.code, m));
+            localList.forEach(m => byCode.set(m.code, Object.assign({}, byCode.get(m.code) || {}, m)));
+            renderTableFromList(Array.from(byCode.values()));
+            return;
           }
         } catch (err) {
-          console.warn("Sync failed:", err);
+          // fall back to local only
         }
       }
-      displaySavedMedicines();
+      // No token or server failed -> show local only
+      if (localList.length > 0) renderTableFromList(localList);
     }
 
-    window.onload = initializePage;
-
+    window.onload = () => { loadSavedMedicinesAndShow(); };
     // Cross-tab logout listener
     window.addEventListener("storage", function (e) {
       if (e && e.key === "global_logout") {
-        logout();
+        const hasAuth = localStorage.getItem("email") || localStorage.getItem("token");
+        if (hasAuth) {
+          localStorage.removeItem("email");
+          localStorage.removeItem("token");
+          localStorage.removeItem("loggedIn");
+          localStorage.removeItem("doctorName");
+          localStorage.removeItem("doctorProfile");
+          renderAuthButtons();
+          location.href = "index.html";
+        }
       }
     });
   </script>
 </body>
 
-</html>
-
-
-
-
-<!--<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Manage Medicines</title>
-  <link rel="stylesheet" href="css/styles.css" />
-  <style>
-    .medicine-container {
-      max-width: 1100px;
-      margin: 40px auto;
-      padding: 20px;
-    }
-
-    .medicine-layout {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 30px;
-    }
-
-    .medicine-form, .medicine-list {
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-      flex: 1 1 450px;
-    }
-
-    .medicine-form h2,
-    .medicine-list h3 {
-      text-align: center;
-      color: #1976d2;
-      margin-bottom: 20px;
-    }
-
-    #medicine-form {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    #medicine-form input,
-    #medicine-form select {
-      padding: 10px;
-      font-size: 15px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-
-    #medicine-form label {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    #medicine-form button {
-      background-color: #1976d2;
-      color: #fff;
-      border: none;
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    #medicine-form button:hover {
-      background-color: #125cb1;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-    }
-
-    th {
-      background-color: #f0f4f8;
-    }
-
-    @media screen and (max-width: 768px) {
-      .medicine-layout {
-        flex-direction: column;
-      }
-    }
-  </style>
-</head>
-<body>
-
-  <header class="navbar">
-    <div class="logo">
-      <img src="assets/care.png" alt="Logo" height="40" />
-      <span>Smile<strong>Care</strong></span>
-    </div>
-    <nav>
-      <ul>
-        <li onclick="location.href='index.html'">Home</li>
-        <li onclick="location.href='prescription.html'">Prescriptions</li>
-        <li onclick="location.href='history.html'">History</li>
-        <li onclick="location.href='profile.html'">Profile</li>
-      </ul>
-    </nav>
-    <div class="header-right">
-      <button class="book-btn" onclick="logout()">Logout</button>
-    </div>
-  </header>
-
-  <div class="medicine-container">
-    <div class="medicine-layout">   -->
-
-<!-- Form Section -->
-<!--  <div class="medicine-form">
-        <h2>Add New Medicine</h2>
-        <form id="medicine-form">
-          <input type="text" id="medicineName" placeholder="Medicine Name" required />
-          <input type="number" id="dosageAmount" placeholder="Dosage (e.g., 500)" required />
-
-          <select id="unit" required>
-            <option value="">Select Unit</option>
-            <option value="mg">mg</option>
-            <option value="ml">ml</option>
-            <option value="tablet">tablet</option>
-            <option value="capsule">capsule</option>
-            <option value="syrup">syrup</option>
-          </select>  -->
-
-<!--  Manual Medicine Code Only -->
-<!--   <input type="text" id="medicineCode" placeholder="Medicine Code" required />
-
-          <label>
-            Morning:
-            <select id="morningFood">
-              <option value="none">None</option>
-              <option value="before">Before Food</option>
-              <option value="after">After Food</option>
-            </select>
-          </label>
-
-          <label>
-            Afternoon:
-            <select id="afternoonFood">
-              <option value="none">None</option>
-              <option value="before">Before Food</option>
-              <option value="after">After Food</option>
-            </select>
-          </label>
-
-          <label>
-            Night:
-            <select id="nightFood">
-              <option value="none">None</option>
-              <option value="before">Before Food</option>
-              <option value="after">After Food</option>
-            </select>
-          </label>
-
-          <button type="submit">Add Medicine</button>
-        </form>
-      </div>  -->
-
-<!-- Table Section -->
-<!---  <div class="medicine-list">
-        <h3>Medicine List</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Dosage (Morning / Afternoon / Night)</th>
-              <th>Code</th>
-            </tr>
-          </thead>
-          <tbody id="medicine-table-body">
-           
-          </tbody>
-        </table>
-      </div>
-
-    </div>
-  </div>
-
-  <script>
-    function logout() {
-      localStorage.clear();
-      location.href = "signup.html";
-    }
-
-    // Medicine Form Handling
-    const form = document.getElementById("medicine-form");
-    const tableBody = document.getElementById("medicine-table-body");
-
-    const loadMedicines = () => {
-      tableBody.innerHTML = "";
-      const medicines = JSON.parse(localStorage.getItem("medicines") || "[]");
-      medicines.forEach((med) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${med.name} (${med.dosageAmount} ${med.unit})</td>
-          <td>${med.morning} / ${med.afternoon} / ${med.night}</td>
-          <td>${med.code}</td>
-        `;
-        tableBody.appendChild(row);
-      });
-    };
-
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-
-      const name = document.getElementById("medicineName").value;
-      const dosageAmount = document.getElementById("dosageAmount").value;
-      const unit = document.getElementById("unit").value;
-      const morning = document.getElementById("morningFood").value;
-      const afternoon = document.getElementById("afternoonFood").value;
-      const night = document.getElementById("nightFood").value;
-      const code = document.getElementById("medicineCode").value.trim();
-
-      const newMedicine = { name, dosageAmount, unit, morning, afternoon, night, code };
-
-      const medicines = JSON.parse(localStorage.getItem("medicines") || "[]");
-      medicines.push(newMedicine);
-      localStorage.setItem("medicines", JSON.stringify(medicines));
-
-      form.reset();
-      loadMedicines();
-    });
-
-    window.onload = loadMedicines;
-  </script>
-  <script src="js/chatbot.js"></script>
-</body>
 </html>
