@@ -841,36 +841,24 @@
   </div>
 
   <script>
-    // Theme management functions
+    // Theme management functions - Force light theme
     function initializeTheme() {
-      const savedTheme = localStorage.getItem('theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-      let theme = 'light';
-      if (savedTheme) {
-        theme = savedTheme;
-      } else if (prefersDark) {
-        theme = 'dark';
-      }
-
+      // Force light theme for consistency
+      const theme = 'light';
       setTheme(theme);
       updateThemeIcon(theme);
     }
 
     function setTheme(theme) {
-      if (theme === 'dark') {
-        document.body.setAttribute('data-theme', 'dark');
-      } else {
-        document.body.removeAttribute('data-theme');
-      }
-      localStorage.setItem('theme', theme);
+      // Always remove dark theme attribute
+      document.body.removeAttribute('data-theme');
+      localStorage.setItem('theme', 'light');
     }
 
     function toggleTheme() {
-      const currentTheme = document.body.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      setTheme(newTheme);
-      updateThemeIcon(newTheme);
+      // Keep theme always light - disable toggle
+      setTheme('light');
+      updateThemeIcon('light');
     }
 
     function updateThemeIcon(theme) {
