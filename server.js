@@ -86,6 +86,27 @@ const PrescriptionSchema = new mongoose.Schema({
 
 const Prescription = mongoose.model("Prescription", PrescriptionSchema);
 
+// ====== Email Service Setup ======
+const nodemailer = require('nodemailer');
+
+// Create email transporter (using Gmail)
+const transporter = nodemailer.createTransporter({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
+
+// Verify email configuration
+transporter.verify((error, success) => {
+  if (error) {
+    console.log('❌ Email server configuration error:', error);
+  } else {
+    console.log('✅ Email server is ready to send messages');
+  }
+});
+
 // ====== Auth Middleware ======
 function authMiddleware(req, res, next) {
   const authHeader = req.headers["authorization"];
@@ -268,7 +289,7 @@ app.post("/api/prescriptions/email", authMiddleware, async (req, res) => {
   console.log("🔹 Email data:", req.body);
   
   try {
-    const { to, subject, prescription, xray, xrayAnalysis } = req.body;
+    const { to, subject, html, text, prescription, xray, xrayAnalysis } = req.body;
     
     if (!to || !subject || !prescription) {
       console.error("❌ Missing required email fields:", { to, subject, hasPrescription: !!prescription });
@@ -278,19 +299,28 @@ app.post("/api/prescriptions/email", authMiddleware, async (req, res) => {
       });
     }
     
-    // For now, log the email details and return success
-    // In production, you would integrate with an email service like Nodemailer, SendGrid, etc.
-    console.log("📧 Email Details:");
-    console.log("  To:", to);
+    console.log("📧 Sending real email to:", to);
     console.log("  Subject:", subject);
     console.log("  Prescription:", prescription.patientName || "Unknown patient");
     console.log("  Has X-ray:", !!(xray && xray.dataUrl));
     console.log("  Has X-ray Analysis:", !!(xrayAnalysis && xrayAnalysis.success));
     
-    // Simulate email sending delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Prepare email options
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: to,
+      subject: subject,
+      text: text,
+      html: html
+    };
     
-    console.log("✅ Email sent successfully (simulated)");
+    // Send the email
+    const info = await transporter.sendMail(mailOptions);
+    
+    console.log("✅ Email sent successfully!");
+    console.log("  Message ID:", info.messageId);
+    console.log("  Response:", info.response);
+    
     res.status(200).json({ 
       success: true, 
       message: "Email sent successfully",
@@ -298,6 +328,7 @@ app.post("/api/prescriptions/email", authMiddleware, async (req, res) => {
         to,
         subject,
         patientName: prescription.patientName,
+        messageId: info.messageId,
         hasXray: !!(xray && xray.dataUrl)
       }
     });
