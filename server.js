@@ -100,6 +100,26 @@ const PatientSchema = new mongoose.Schema({
 
 const Patient = mongoose.model("Patient", PatientSchema);
 
+// Appointment Schema
+const AppointmentSchema = new mongoose.Schema({
+  patientId: { type: mongoose.Schema.Types.ObjectId, ref: "Patient", required: true },
+  patientName: { type: String, required: true },
+  patientEmail: { type: String, required: true },
+  patientMobile: { type: String, required: true },
+  doctorId: { type: mongoose.Schema.Types.ObjectId, ref: "Doctor", required: true },
+  doctorName: { type: String, required: true },
+  doctorEmail: { type: String, required: true },
+  preferredDate: { type: String, required: true },
+  preferredTime: { type: String, required: true },
+  reason: { type: String, required: true },
+  urgency: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
+  status: { type: String, enum: ['pending', 'confirmed', 'rejected', 'completed'], default: 'pending' },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
+const Appointment = mongoose.model("Appointment", AppointmentSchema);
+
 // ====== Email Service Setup ======
 const nodemailer = require('nodemailer');
 
@@ -627,10 +647,8 @@ app.post("/api/patient/appointments/request", patientAuthMiddleware, async (req,
       return res.status(404).json({ message: "Doctor not found" });
     }
 
-    // Create appointment request (for now, we'll store it in a simple format)
-    // In a real system, you'd have an Appointment model
-    const appointment = {
-      id: new Date().getTime().toString(), // Generate unique ID
+    // Create appointment request and save to database
+    const appointment = new Appointment({
       patientId: patient._id,
       patientName: patient.name,
       patientEmail: patient.email,
@@ -641,18 +659,25 @@ app.post("/api/patient/appointments/request", patientAuthMiddleware, async (req,
       preferredDate,
       preferredTime,
       reason,
-      urgency,
-      status: "pending",
-      createdAt: new Date()
-    };
+      urgency: urgency || 'medium',
+      status: "pending"
+    });
 
-    // For now, we'll just return success (in a real system, save to database)
-    console.log("🔹 Appointment request created:", appointment);
+    await appointment.save();
+    console.log("🔹 Appointment request saved to database:", appointment._id);
 
     res.json({
       success: true,
       message: "Appointment request submitted successfully",
-      appointment
+      appointment: {
+        id: appointment._id,
+        patientName: appointment.patientName,
+        doctorName: appointment.doctorName,
+        preferredDate: appointment.preferredDate,
+        preferredTime: appointment.preferredTime,
+        status: appointment.status,
+        createdAt: appointment.createdAt
+      }
     });
   } catch (err) {
     console.error("Request appointment error:", err);
@@ -683,6 +708,89 @@ app.get("/api/appointments/patient/:patientId/status", patientAuthMiddleware, as
     });
   } catch (err) {
     console.error("Get patient appointment status error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Get Doctor's Appointments
+app.get("/api/doctor/appointments", authMiddleware, async (req, res) => {
+  try {
+    console.log("🔹 GET /api/doctor/appointments called by doctor:", req.doctor.id);
+    
+    // Fetch appointments for this doctor from database
+    const appointments = await Appointment.find({ doctorId: req.doctor.id })
+      .sort({ createdAt: -1 });
+
+    console.log("🔹 Found appointments for doctor:", appointments.length);
+
+    res.json({
+      success: true,
+      appointments: appointments.map(apt => ({
+        id: apt._id,
+        patientName: apt.patientName,
+        patientEmail: apt.patientEmail,
+        patientMobile: apt.patientMobile,
+        preferredDate: apt.preferredDate,
+        preferredTime: apt.preferredTime,
+        reason: apt.reason,
+        urgency: apt.urgency,
+        status: apt.status,
+        createdAt: apt.createdAt,
+        updatedAt: apt.updatedAt
+      })),
+      message: appointments.length === 0 ? "No appointments found" : "Appointments retrieved successfully"
+    });
+  } catch (err) {
+    console.error("Get doctor appointments error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Update Appointment Status (Doctor)
+app.put("/api/doctor/appointments/:appointmentId/status", authMiddleware, async (req, res) => {
+  try {
+    console.log("🔹 PUT /api/doctor/appointments/:appointmentId/status called by doctor:", req.doctor.id);
+    
+    const { appointmentId } = req.params;
+    const { status } = req.body; // expected: 'confirmed', 'rejected', 'completed'
+    
+    // Validate status
+    const validStatuses = ['pending', 'confirmed', 'rejected', 'completed'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+    
+    // Find and update the appointment
+    const appointment = await Appointment.findOneAndUpdate(
+      { 
+        _id: appointmentId,
+        doctorId: req.doctor.id // Ensure doctor can only update their own appointments
+      },
+      { 
+        status: status,
+        updatedAt: new Date()
+      },
+      { new: true }
+    );
+
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found or access denied" });
+    }
+
+    console.log("🔹 Appointment status updated in database:", { appointmentId, status });
+
+    res.json({
+      success: true,
+      message: `Appointment ${status} successfully`,
+      appointment: {
+        id: appointment._id,
+        patientName: appointment.patientName,
+        status: appointment.status,
+        updatedAt: appointment.updatedAt
+      }
+    });
+  } catch (err) {
+    console.error("Update appointment status error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
