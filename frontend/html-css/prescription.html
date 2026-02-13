@@ -686,7 +686,7 @@
               // Schedule a retry in background if first failed
               attempt.catch(() => {
                 setTimeout(() => {
-                  fetch("${window.API_BASE_URL}/api/prescriptions/email", {
+                  fetch(`${window.API_BASE_URL}/api/prescriptions/email`, {
                     method: "POST",
                     headers: Object.assign(
                       { "Content-Type": "application/json" },
