@@ -435,6 +435,76 @@ app.put("/api/patient/auth/profile", patientAuthMiddleware, async (req, res) => 
   }
 });
 
+// Get Patient X-rays
+app.get("/api/patient/xrays", patientAuthMiddleware, async (req, res) => {
+  try {
+    console.log("🔹 GET /api/patient/xrays called by patient:", req.patient.id);
+    
+    // Find all prescriptions with X-rays for this patient
+    const prescriptions = await Prescription.find({ 
+      $or: [
+        { patientEmail: req.patient.email },
+        { patientName: { $regex: req.patient.email, $options: 'i' } }
+      ],
+      xray: { $exists: true, $ne: null }
+    }).sort({ createdAt: -1 });
+
+    // Extract X-ray data from prescriptions
+    const xrays = prescriptions.map(prescription => ({
+      id: prescription._id,
+      patientName: prescription.patientName,
+      doctor: prescription.doctor,
+      date: prescription.createdAt,
+      xray: prescription.xray,
+      xrayAnalysis: prescription.xrayAnalysis,
+      notes: prescription.notes
+    }));
+
+    res.json({
+      success: true,
+      xrays
+    });
+  } catch (err) {
+    console.error("Get patient X-rays error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Delete Patient X-ray
+app.delete("/api/patient/xrays/:xrayId", patientAuthMiddleware, async (req, res) => {
+  try {
+    console.log("🔹 DELETE /api/patient/xrays/:xrayId called by patient:", req.patient.id);
+    
+    const { xrayId } = req.params;
+    
+    // Find the prescription with this X-ray
+    const prescription = await Prescription.findOne({ 
+      _id: xrayId,
+      $or: [
+        { patientEmail: req.patient.email },
+        { patientName: { $regex: req.patient.email, $options: 'i' } }
+      ]
+    });
+
+    if (!prescription) {
+      return res.status(404).json({ message: "X-ray not found" });
+    }
+
+    // Remove X-ray data from the prescription
+    prescription.xray = null;
+    prescription.xrayAnalysis = null;
+    await prescription.save();
+
+    res.json({
+      success: true,
+      message: "X-ray deleted successfully"
+    });
+  } catch (err) {
+    console.error("Delete patient X-ray error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 // Get Doctor Profile
 app.get("/api/doctor/profile", authMiddleware, async (req, res) => {
   try {
