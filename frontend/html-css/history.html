@@ -604,12 +604,16 @@
           console.log("🔹 History API response status:", res.status);
           if (res.ok) {
             const json = await res.json().catch(() => null);
+            console.log("🔹 Raw API response:", json);
             let items = [];
             if (json && Array.isArray(json)) items = json;
             else if (json && Array.isArray(json.items)) items = json.items;
             else if (json && Array.isArray(json.data)) items = json.data;
             else if (json && Array.isArray(json.history)) items = json.history;
             else if (json && Array.isArray(json.results)) items = json.results;
+
+            console.log("🔹 Extracted items:", items);
+            console.log("🔹 Items count:", items.length);
 
             const normalized = items.map(normalizeItem).filter(it => {
               const pName = (it.patientName || "").toLowerCase();
