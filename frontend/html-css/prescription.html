@@ -635,8 +635,9 @@
               const payload = {
                 to,
                 subject,
-                html: html,
+                html,
                 text: `Prescription for ${prescriptionData.patientName || "-"} by Dr. ${doctorName}`,
+                prescription: prescriptionData, // Add prescription data for backend validation
                 xray: xrayToSend || undefined,
                 xrayAnalysis: window.xrayAnalysisResults || undefined
               };
