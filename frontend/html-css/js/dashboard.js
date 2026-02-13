@@ -40,8 +40,8 @@ async function fetchDoctorProfileFromServer() {
     if (!token) return null;
 
     // Use token-based endpoint to resolve current user's profile
-    // Corrected to use backticks and plural api/doctors
-    const res = await fetch(`${window.API_BASE_URL}/api/doctors/me`, {
+    // Reverted to singular /api/doctor
+    const res = await fetch(`${window.API_BASE_URL}/api/doctor/profile`, {
       headers: { Authorization: `Bearer ${token}` }
     });
 
@@ -52,14 +52,15 @@ async function fetchDoctorProfileFromServer() {
 
     const json = await res.json().catch(() => ({}));
     // Accept several response shapes
-    if (json && (json.doctor || json.data?.doctor || json.success && json.doctor)) {
-      return json.doctor || json.data?.doctor || json.doctor;
+    if (json && (json.doctor || json.fullName || json.name)) {
+      // The root server returns the doctor object directly or with properties
+      return json;
     }
     // If token endpoint failed or returned no profile, try email-based endpoint
     const email = localStorage.getItem("email");
     if (email) {
       try {
-        const res2 = await fetch(`${window.API_BASE_URL}/api/doctors/profile/` + encodeURIComponent(email));
+        const res2 = await fetch(`${window.API_BASE_URL}/api/doctor/profile/` + encodeURIComponent(email));
         if (res2.ok) {
           const j2 = await res2.json().catch(() => ({}));
           if (j2 && (j2.doctor || j2.data?.doctor)) {

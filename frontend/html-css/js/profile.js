@@ -16,13 +16,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!token) return;
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/doctors/me`, {
+      const res = await fetch(`${API_BASE_URL}/api/doctor/profile`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
         const json = await res.json();
-        const profile = json.doctor;
-        if (profile) {
+        const profile = json.doctor || json; // Root server returns doctor object directly
+        if (profile && (profile.fullName || profile.name || profile.email)) {
           localStorage.setItem("doctorProfile", JSON.stringify(profile));
           prefillForm(profile);
         }
@@ -97,15 +97,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // Only use JWT token - email fallback won't work with auth middleware
     const storedToken = localStorage.getItem("token");
     const token = storedToken;
-    
+
     if (!token) {
       alert("Please login first to save your profile");
       return;
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/doctors/profile`, {
-        method: "POST",
+      const res = await fetch(`${API_BASE_URL}/api/doctor/profile`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           ...(token ? { "Authorization": `Bearer ${token}` } : {})
@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Cross-tab logout listener
-  window.addEventListener("storage", function(e) {
+  window.addEventListener("storage", function (e) {
     if (e && e.key === "global_logout") {
       const hasAuth = localStorage.getItem("email") || localStorage.getItem("token");
       if (hasAuth) {
