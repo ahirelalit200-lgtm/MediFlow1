@@ -916,7 +916,7 @@
               const token = localStorage.getItem("token");
               if (!token) return JSON.parse(localStorage.getItem("doctorProfile") || "null");
 
-              const res = await fetch("${window.API_BASE_URL}/api/doctor/profile", {
+              const res = await fetch(`${window.API_BASE_URL}/api/doctor/profile`, {
                 headers: {
                   "Authorization": `Bearer ${token}`
                 }
@@ -1414,7 +1414,7 @@
               treatmentType: document.getElementById("treatmentType").value || "",
               medicines: medicinesToSave,
               notes: document.getElementById("notes").value || "",
-              treatment: treatmentVal,
+              treatment: document.getElementById("treatmentType").value || "",
               doctor: doctorProfile.fullName || doctorProfile.name || "Unknown",
               // include x-ray info (data URL) so it persists with this prescription
               xray: xrayPayload || undefined,
