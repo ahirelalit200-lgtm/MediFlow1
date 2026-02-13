@@ -660,16 +660,26 @@ app.get("/api/test", (req, res) => {
 app.post("/api/patient/appointments/request", patientAuthMiddleware, async (req, res) => {
   try {
     console.log("🔹 POST /api/patient/appointments/request endpoint reached");
-    console.log("🔹 POST /api/patient/appointments/request called by patient:", req.patient.id);
+
+    // Monolithic server middleware sets req.patient = decoded token (id, email)
+    // We need to fetch the full patient object to get name and mobile
+    let patient = req.patient;
+
+    // If patient doesn't have name (likely from monolithic middleware), fetch from DB
+    if (!patient.name || !patient.mobile) {
+      console.log("🔹 Fetching full patient details for appointment request...");
+      // Try both id and _id as token payload might differ
+      const patientId = patient.id || patient._id || patient.patientId;
+      patient = await Patient.findById(patientId);
+
+      if (!patient) {
+        return res.status(404).json({ message: "Patient not found" });
+      }
+    }
 
     const { doctorId, doctorEmail, doctorName, doctorMobile, preferredDate, preferredTime, reason, urgency } = req.body;
     console.log("🔹 Request body:", { doctorId, doctorEmail, doctorName, doctorMobile, preferredDate, preferredTime, reason, urgency });
-
-    // Get patient details
-    const patient = await Patient.findById(req.patient.id);
-    if (!patient) {
-      return res.status(404).json({ message: "Patient not found" });
-    }
+    console.log("🔹 Creating appointment request for patient:", patient.name);
 
     let doctor_id = null;
     let doctor_name = doctorName;
@@ -724,7 +734,7 @@ app.post("/api/patient/appointments/request", patientAuthMiddleware, async (req,
     });
   } catch (err) {
     console.error("❌ Request appointment error:", err);
-    console.error("❌ Validation errors:", err.errors);
+    if (err.errors) console.error("❌ Validation errors:", err.errors);
     res.status(500).json({ message: "Server error", error: err.message, details: err.errors });
   }
 });
