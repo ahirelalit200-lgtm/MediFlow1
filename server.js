@@ -49,6 +49,8 @@ const DoctorSchema = new mongoose.Schema({
   phone: String,
   timings: String,
   experience: String,
+  degree: String,
+  registrationNo: String
 });
 
 const Doctor = mongoose.model("Doctor", DoctorSchema);
@@ -121,6 +123,20 @@ const AppointmentSchema = new mongoose.Schema({
 });
 
 const Appointment = mongoose.model("Appointment", AppointmentSchema);
+
+// ====== Doctor Profile Routes ======
+
+// Get all doctor profiles
+app.get("/api/doctors/profiles", async (req, res) => {
+  try {
+    console.log("🔹 GET /api/doctors/profiles called");
+    const doctors = await Doctor.find({}, '-password').sort({ fullName: 1 });
+    res.json({ success: true, doctors });
+  } catch (err) {
+    console.error("❌ Error fetching doctor profiles:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
 
 // ====== Email Service Setup ======
 const nodemailer = require('nodemailer');
@@ -646,8 +662,8 @@ app.post("/api/patient/appointments/request", patientAuthMiddleware, async (req,
     console.log("🔹 POST /api/patient/appointments/request endpoint reached");
     console.log("🔹 POST /api/patient/appointments/request called by patient:", req.patient.id);
 
-    const { doctorId, preferredDate, preferredTime, reason, urgency } = req.body;
-    console.log("🔹 Request body:", { doctorId, preferredDate, preferredTime, reason, urgency });
+    const { doctorId, doctorEmail, doctorName, doctorMobile, preferredDate, preferredTime, reason, urgency } = req.body;
+    console.log("🔹 Request body:", { doctorId, doctorEmail, doctorName, doctorMobile, preferredDate, preferredTime, reason, urgency });
 
     // Get patient details
     const patient = await Patient.findById(req.patient.id);
@@ -655,10 +671,22 @@ app.post("/api/patient/appointments/request", patientAuthMiddleware, async (req,
       return res.status(404).json({ message: "Patient not found" });
     }
 
-    // Get doctor details
-    const doctor = await Doctor.findById(doctorId);
-    if (!doctor) {
-      return res.status(404).json({ message: "Doctor not found" });
+    let doctor_id = null;
+    let doctor_name = doctorName;
+    let doctor_email = doctorEmail;
+
+    // If doctorId is provided, validate and get details
+    if (doctorId && mongoose.Types.ObjectId.isValid(doctorId)) {
+      const doctor = await Doctor.findById(doctorId);
+      if (doctor) {
+        doctor_id = doctor._id;
+        doctor_name = doctor.fullName;
+        doctor_email = doctor.email;
+      }
+    }
+
+    if (!doctor_name) {
+      return res.status(400).json({ message: "Doctor name is required" });
     }
 
     // Create appointment request and save to database
@@ -667,9 +695,10 @@ app.post("/api/patient/appointments/request", patientAuthMiddleware, async (req,
       patientName: patient.name,
       patientEmail: patient.email,
       patientMobile: patient.mobile,
-      doctorId: doctor._id,
-      doctorName: doctor.fullName,
-      doctorEmail: doctor.email,
+      doctorId: doctor_id,
+      doctorName: doctor_name,
+      doctorEmail: doctor_email || "Not specified",
+      doctorMobile: doctorMobile || "Not specified",
       preferredDate,
       preferredTime,
       reason,
@@ -696,6 +725,25 @@ app.post("/api/patient/appointments/request", patientAuthMiddleware, async (req,
   } catch (err) {
     console.error("Request appointment error:", err);
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Get Appointment Status for Patient
+app.get("/api/appointments/patient/:id/status", patientAuthMiddleware, async (req, res) => {
+  try {
+    const patientId = req.params.id;
+    console.log(`🔹 GET /api/appointments/patient/${patientId}/status called`);
+
+    // Basic security check
+    if (req.patient.id !== patientId) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    const appointments = await Appointment.find({ patientId }).sort({ createdAt: -1 });
+    res.json({ success: true, appointments });
+  } catch (err) {
+    console.error("❌ Error fetching appointment status:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 

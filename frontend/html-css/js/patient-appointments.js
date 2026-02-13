@@ -54,7 +54,7 @@ async function makePatientAPIRequest(endpoint, options = {}) {
   };
 
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, mergedOptions);
+    const response = await fetch(`${window.API_BASE_URL}${endpoint}`, mergedOptions);
 
     if (response.status === 401) {
       // Token expired or invalid
@@ -176,8 +176,9 @@ function displayDoctors(doctors) {
       <div class="doctor-card" 
            data-doctor-name="${doctor.fullName}" 
            data-doctor-phone="${doctor.phone || ''}" 
-           data-doctor-email="${doctor.email}"
-           data-doctor-area="${addressDisplay.toLowerCase()}"
+            data-doctor-email="${doctor.email}"
+            data-doctor-id="${doctor._id || doctor.id}"
+            data-doctor-area="${addressDisplay.toLowerCase()}"
            data-doctor-degree="${(doctor.degree || '').toUpperCase()}"
            data-doctor-specialization="${(doctor.specialization || '').toLowerCase()}">
         <div class="doctor-name">Dr. ${doctor.fullName}</div>
@@ -462,9 +463,15 @@ function selectDoctor(selectedCard) {
   // Fill form with selected doctor's information
   const doctorName = selectedCard.dataset.doctorName;
   const doctorPhone = selectedCard.dataset.doctorPhone;
+  const doctorId = selectedCard.dataset.doctorId;
+  const doctorEmail = selectedCard.dataset.doctorEmail;
 
   document.getElementById("doctor-name").value = `Dr. ${doctorName}`;
   document.getElementById("doctor-mobile").value = doctorPhone || '';
+
+  // Store hidden values for submission
+  document.getElementById("doctor-name").dataset.selectedDoctorId = doctorId || '';
+  document.getElementById("doctor-name").dataset.selectedDoctorEmail = doctorEmail || '';
 
   // Show success message
   showMessage(`Selected Dr. ${doctorName}. You can modify the details below if needed.`, 'success');
@@ -513,6 +520,8 @@ async function handleAppointmentSubmission(event) {
 
   try {
     const appointmentData = {
+      doctorId: document.getElementById("doctor-name").dataset.selectedDoctorId || null,
+      doctorEmail: document.getElementById("doctor-name").dataset.selectedDoctorEmail || null,
       doctorName,
       doctorMobile,
       preferredDate,
@@ -604,7 +613,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function checkAppointmentStatusUpdates() {
   try {
     const patientInfo = getPatientInfo();
-    const response = await fetch(`${API_BASE_URL}/api/appointments/patient/${patientInfo.id}/status`, {
+    const response = await fetch(`${window.API_BASE_URL}/api/appointments/patient/${patientInfo.id}/status`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
