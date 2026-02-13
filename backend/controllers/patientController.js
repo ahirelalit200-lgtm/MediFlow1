@@ -12,7 +12,7 @@ exports.getPrescriptions = async (req, res) => {
     // Build query to find prescriptions by composite key (name + email) or mobile
     let query = {
       $or: [
-        { 
+        {
           $and: [
             { patientEmail: patient.email },
             { patientName: { $regex: new RegExp(patient.name, 'i') } }
@@ -66,7 +66,7 @@ exports.getXrays = async (req, res) => {
     // Build query using composite key (name + email) with fallbacks
     let query = {
       $or: [
-        { 
+        {
           $and: [
             { patientEmail: patient.email },
             { patientName: { $regex: new RegExp(patient.name, 'i') } }
@@ -90,8 +90,8 @@ exports.getXrays = async (req, res) => {
       ...query,
       'xray.dataUrl': { $exists: true, $ne: null } // Only prescriptions with X-ray data
     })
-    .sort({ createdAt: -1 })
-    .limit(50);
+      .sort({ createdAt: -1 })
+      .limit(50);
 
     console.log(`Found ${prescriptionsWithXrays.length} prescriptions with X-rays`);
 
@@ -118,7 +118,7 @@ exports.getXrays = async (req, res) => {
 
     // Combine both sources
     const allXrays = [...standaloneXrays, ...prescriptionXrays];
-    
+
     // Sort by date (newest first)
     allXrays.sort((a, b) => new Date(b.createdAt || b.uploadDate) - new Date(a.createdAt || a.uploadDate));
 
@@ -157,7 +157,7 @@ exports.getPrescriptionById = async (req, res) => {
     }
 
     // Verify this prescription belongs to the patient
-    const belongsToPatient = 
+    const belongsToPatient =
       prescription.patientEmail === patient.email ||
       prescription.mobile === patient.mobile ||
       prescription.patientName.toLowerCase().includes(patient.name.toLowerCase());
@@ -187,8 +187,8 @@ exports.getMedicationSchedule = async (req, res) => {
       ],
       medicines: { $exists: true, $ne: [] }
     })
-    .sort({ date: -1 })
-    .limit(5);
+      .sort({ date: -1 })
+      .limit(5);
 
     // Extract current medications
     const medications = [];
@@ -220,7 +220,7 @@ exports.getMedicationSchedule = async (req, res) => {
 exports.createAppointmentRequest = async (req, res) => {
   try {
     const patient = req.patient;
-    const { doctorName, doctorMobile, preferredDate, preferredTime, reason, urgency = 'normal' } = req.body;
+    const { doctorId, doctorName, doctorEmail, doctorMobile, preferredDate, preferredTime, reason, urgency = 'normal' } = req.body;
 
     if (!doctorName || !doctorMobile || !preferredDate || !reason) {
       return res.status(400).json({ message: "Doctor name, doctor mobile, preferred date, and reason are required" });
@@ -232,7 +232,9 @@ exports.createAppointmentRequest = async (req, res) => {
       patientName: patient.name,
       patientEmail: patient.email,
       patientMobile: patient.mobile,
+      doctorId: doctorId || null,
       doctorName,
+      doctorEmail: doctorEmail || null,
       doctorMobile,
       preferredDate: new Date(preferredDate),
       preferredTime,

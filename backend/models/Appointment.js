@@ -6,35 +6,37 @@ const appointmentSchema = new mongoose.Schema({
   patientName: { type: String, required: true, trim: true },
   patientEmail: { type: String, required: true, lowercase: true },
   patientMobile: { type: String, required: true, trim: true },
-  
+
   // Doctor Information
+  doctorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Doctor' },
   doctorName: { type: String, required: true, trim: true },
+  doctorEmail: { type: String, trim: true, lowercase: true },
   doctorMobile: { type: String, required: true, trim: true },
-  
+
   // Appointment Details
   preferredDate: { type: Date, required: true },
   preferredTime: { type: String }, // e.g., "14:00"
   reason: { type: String, required: true, trim: true },
   symptoms: { type: String, trim: true }, // Additional symptoms field
-  urgency: { 
-    type: String, 
-    enum: ['normal', 'urgent', 'emergency'], 
-    default: 'normal' 
+  urgency: {
+    type: String,
+    enum: ['normal', 'urgent', 'emergency'],
+    default: 'normal'
   },
-  
+
   // Status Management
   status: {
     type: String,
     enum: ['pending', 'confirmed', 'rejected', 'completed', 'cancelled'],
     default: 'pending'
   },
-  
+
   // Confirmed appointment details (filled by doctor/staff)
   confirmedDate: { type: Date },
   confirmedTime: { type: String },
   doctorNotes: { type: String, trim: true },
   rejectionReason: { type: String, trim: true }, // Reason for rejection
-  
+
   // Timestamps
   requestedAt: { type: Date, default: Date.now },
   confirmedAt: { type: Date },
