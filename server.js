@@ -110,14 +110,19 @@ const AppointmentSchema = new mongoose.Schema({
   patientName: { type: String, required: true },
   patientEmail: { type: String, required: true },
   patientMobile: { type: String, required: true },
+  // Doctor Information - Make optional for manual entry
   doctorId: { type: mongoose.Schema.Types.ObjectId, ref: "Doctor" },
   doctorName: { type: String, required: true },
   doctorEmail: { type: String },
-  preferredDate: { type: String, required: true },
+  doctorMobile: { type: String }, // Added to match frontend
+
+  // Appointment Details
+  preferredDate: { type: String, required: true }, // Keep as String to avoid casting errors
   preferredTime: { type: String, required: true },
   reason: { type: String, required: true },
-  urgency: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
-  status: { type: String, enum: ['pending', 'confirmed', 'rejected', 'completed'], default: 'pending' },
+  urgency: { type: String, default: 'medium' }, // Removed strict enum for now
+  status: { type: String, default: 'pending' }, // Removed strict enum for now
+
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
