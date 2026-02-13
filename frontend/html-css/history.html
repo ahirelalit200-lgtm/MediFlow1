@@ -465,6 +465,24 @@
       console.log("🔹 Cards container HTML:", document.getElementById("cards").innerHTML.substring(0, 200) + "...");
       console.log("🔹 Cards container styles:", window.getComputedStyle(document.getElementById("cards")).display);
       console.log("🔹 Cards container visible:", document.getElementById("cards").offsetHeight > 0);
+      
+      // Check individual card styles
+      const firstCard = document.querySelector(".patient-card");
+      if (firstCard) {
+        console.log("🔹 First card styles:", window.getComputedStyle(firstCard).display);
+        console.log("🔹 First card visible:", firstCard.offsetHeight > 0);
+        console.log("🔹 First card position:", window.getComputedStyle(firstCard).position);
+        console.log("🔹 First card z-index:", window.getComputedStyle(firstCard).zIndex);
+        console.log("🔹 First card opacity:", window.getComputedStyle(firstCard).opacity);
+        
+        // Force visible styles for testing
+        firstCard.style.border = "3px solid red !important";
+        firstCard.style.background = "yellow !important";
+        firstCard.style.display = "block !important";
+        firstCard.style.visibility = "visible !important";
+        firstCard.style.opacity = "1 !important";
+        console.log("🔹 Applied test styles to first card");
+      }
     }
 
     function buildPrintableHTML(rec) {
