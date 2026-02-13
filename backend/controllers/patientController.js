@@ -219,8 +219,26 @@ exports.getMedicationSchedule = async (req, res) => {
 // ------------------ CREATE APPOINTMENT REQUEST ------------------ //
 exports.createAppointmentRequest = async (req, res) => {
   try {
-    const patient = req.patient;
+    // Monolithic server middleware sets req.patient = decoded token (id, email)
+    // Modular middleware sets req.patient = full patient object
+    // We need to handle both cases by fetching the patient if necessary.
+    let patient = req.patient;
+
+    // If patient doesn't have name (likely from monolithic middleware), fetch from DB
+    if (!patient.name || !patient.mobile) {
+      console.log("🔹 Fetching full patient details for appointment request...");
+      // Try both id and _id as token payload might differ
+      const patientId = patient.id || patient._id || patient.patientId;
+      patient = await Patient.findById(patientId);
+
+      if (!patient) {
+        return res.status(404).json({ message: "Patient not found" });
+      }
+    }
+
     const { doctorId, doctorName, doctorEmail, doctorMobile, preferredDate, preferredTime, reason, urgency = 'normal' } = req.body;
+
+    console.log("🔹 Creating appointment request for patient:", patient.name);
 
     if (!doctorName || !doctorMobile || !preferredDate || !reason) {
       return res.status(400).json({ message: "Doctor name, doctor mobile, preferred date, and reason are required" });
@@ -258,8 +276,9 @@ exports.createAppointmentRequest = async (req, res) => {
       }
     });
   } catch (err) {
-    console.error("Create Appointment Request Error:", err.message);
-    res.status(500).json({ message: "Server error" });
+    console.error("❌ Create Appointment Request Error:", err.message);
+    if (err.errors) console.error("❌ Validation Errors:", err.errors);
+    res.status(500).json({ message: "Server error", error: err.message, details: err.errors });
   }
 };
 
