@@ -611,7 +611,9 @@
           if (nameFilter) params.append("name", nameFilter);
           if (mobileFilter) params.append("mobile", mobileFilter);
           const url = `${window.API_BASE_URL}/api/prescriptions/history` + (params.toString() ? `?${params.toString()}` : "");
+          console.log("🔹 Fetching history from:", url);
           const res = await fetch(url, { headers: { "Authorization": `Bearer ${token}` } });
+          console.log("🔹 History API response status:", res.status);
           if (res.ok) {
             const json = await res.json().catch(() => null);
             let items = [];
@@ -632,6 +634,12 @@
             return;
           } else {
             console.warn("Server history fetch returned", res.status, "falling back to localStorage");
+            try {
+              const errorText = await res.text();
+              console.warn("Error response body:", errorText);
+            } catch (e) {
+              console.warn("Could not read error response:", e);
+            }
           }
         } catch (err) {
           console.warn("Server history fetch failed, falling back to localStorage:", err);
