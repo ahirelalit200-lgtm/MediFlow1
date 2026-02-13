@@ -89,23 +89,35 @@ const Prescription = mongoose.model("Prescription", PrescriptionSchema);
 // ====== Email Service Setup ======
 const nodemailer = require('nodemailer');
 
-// Create email transporter (using Gmail)
-const transporter = nodemailer.createTransporter({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
+let transporter = null;
 
-// Verify email configuration
-transporter.verify((error, success) => {
-  if (error) {
-    console.log('❌ Email server configuration error:', error);
-  } else {
-    console.log('✅ Email server is ready to send messages');
+// Only setup email if environment variables are available
+if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+  try {
+    transporter = nodemailer.createTransporter({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+
+    // Verify email configuration
+    transporter.verify((error, success) => {
+      if (error) {
+        console.log('❌ Email server configuration error:', error);
+        transporter = null; // Disable email if config fails
+      } else {
+        console.log('✅ Email server is ready to send messages');
+      }
+    });
+  } catch (error) {
+    console.log('❌ Failed to initialize email service:', error);
+    transporter = null;
   }
-});
+} else {
+  console.log('⚠️ Email credentials not provided - email functionality disabled');
+}
 
 // ====== Auth Middleware ======
 function authMiddleware(req, res, next) {
@@ -296,6 +308,24 @@ app.post("/api/prescriptions/email", authMiddleware, async (req, res) => {
       return res.status(400).json({ 
         success: false, 
         message: "Missing required fields: to, subject, prescription" 
+      });
+    }
+    
+    // Check if email service is available
+    if (!transporter) {
+      console.log("⚠️ Email service not available - falling back to simulation");
+      // Fallback to simulation if email service is not configured
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return res.status(200).json({ 
+        success: true, 
+        message: "Email sent successfully (simulated - email service not configured)",
+        details: {
+          to,
+          subject,
+          patientName: prescription.patientName,
+          simulated: true,
+          hasXray: !!(xray && xray.dataUrl)
+        }
       });
     }
     
