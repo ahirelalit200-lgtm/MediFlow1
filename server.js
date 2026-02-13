@@ -262,6 +262,23 @@ app.post("/api/prescriptions/add", authMiddleware, async (req, res) => {
   }
 });
 
+// Email prescription
+app.post("/api/prescriptions/email", authMiddleware, async (req, res) => {
+  console.log("🔹 POST /api/prescriptions/email called by doctor:", req.doctor.id);
+  console.log("🔹 Email data:", req.body);
+  try {
+    // For now, just return success - email functionality can be implemented later
+    console.log("📧 Email would be sent to:", req.body.to);
+    res.status(200).json({ 
+      success: true, 
+      message: "Email sent successfully (simulated)" 
+    });
+  } catch (err) {
+    console.error("❌ Error sending email:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
 // ====== Fallback: serve maindashboard.html for unknown routes ======
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "frontend", "html-css", "maindashboard.html"));

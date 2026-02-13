@@ -654,7 +654,7 @@
 
               // First attempt: send email immediately (direct endpoint)
               // Await up to 1200ms to ensure request is dispatched before print
-              const attempt = fetch("${window.API_BASE_URL}/api/prescriptions/email", {
+              const attempt = fetch(`${window.API_BASE_URL}/api/prescriptions/email`, {
                 method: "POST",
                 headers: Object.assign(
                   { "Content-Type": "application/json" },
@@ -1288,7 +1288,7 @@
                   xrayName: prescriptionData.xray?.name
                 });
 
-                const response = await fetch("${window.API_BASE_URL}/api/prescriptions/add", {
+                const response = await fetch(`${window.API_BASE_URL}/api/prescriptions/add`, {
                   method: "POST",
                   headers: Object.assign(
                     { "Content-Type": "application/json" },
@@ -1445,7 +1445,7 @@
                 xrayName: prescriptionData.xray?.name
               });
 
-              const response = await fetch("${window.API_BASE_URL}/api/prescriptions/add", {
+              const response = await fetch(`${window.API_BASE_URL}/api/prescriptions/add`, {
                 method: "POST",
                 headers: Object.assign(
                   { "Content-Type": "application/json" },
