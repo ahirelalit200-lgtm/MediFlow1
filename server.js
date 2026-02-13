@@ -723,8 +723,9 @@ app.post("/api/patient/appointments/request", patientAuthMiddleware, async (req,
       }
     });
   } catch (err) {
-    console.error("Request appointment error:", err);
-    res.status(500).json({ message: "Server error" });
+    console.error("❌ Request appointment error:", err);
+    console.error("❌ Validation errors:", err.errors);
+    res.status(500).json({ message: "Server error", error: err.message, details: err.errors });
   }
 });
 
