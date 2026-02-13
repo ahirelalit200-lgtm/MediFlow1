@@ -86,6 +86,20 @@ const PrescriptionSchema = new mongoose.Schema({
 
 const Prescription = mongoose.model("Prescription", PrescriptionSchema);
 
+// Patient Schema
+const PatientSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  mobile: { type: String, required: true },
+  password: { type: String, required: true },
+  age: { type: Number },
+  gender: { type: String, enum: ['male', 'female', 'other'] },
+  address: { type: String },
+  createdAt: { type: Date, default: Date.now }
+});
+
+const Patient = mongoose.model("Patient", PatientSchema);
+
 // ====== Email Service Setup ======
 const nodemailer = require('nodemailer');
 
@@ -172,6 +186,43 @@ app.post("/api/login", async (req, res) => {
     const token = jwt.sign({ id: doctor._id }, JWT_SECRET, { expiresIn: "1d" });
     res.json({ token });
   } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Patient Login
+app.post("/api/patient/auth/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const patient = await Patient.findOne({ email });
+    if (!patient) return res.status(400).json({ message: "Invalid credentials" });
+
+    const isMatch = await bcrypt.compare(password, patient.password);
+    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+
+    const token = jwt.sign(
+      { id: patient._id, email: patient.email, role: 'patient' },
+      process.env.JWT_SECRET || "fallback_secret",
+      { expiresIn: "7d" }
+    );
+
+    res.json({
+      message: "Patient login successful",
+      token,
+      patient: {
+        id: patient._id,
+        name: patient.name,
+        email: patient.email,
+        mobile: patient.mobile,
+        age: patient.age,
+        gender: patient.gender,
+        address: patient.address
+      }
+    });
+  } catch (err) {
+    console.error("Patient login error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -182,6 +233,7 @@ app.get("/api/doctor/profile", authMiddleware, async (req, res) => {
     const doctor = await Doctor.findById(req.doctor.id).select("-password");
     res.json(doctor);
   } catch (err) {
+    console.error("Get doctor profile error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
