@@ -577,6 +577,116 @@ app.delete("/api/patient/xrays/:xrayId", patientAuthMiddleware, async (req, res)
   }
 });
 
+// Get Available Doctors for Patients
+app.get("/api/doctors/profiles", async (req, res) => {
+  try {
+    console.log("🔹 GET /api/doctors/profiles called");
+    
+    // Get all doctors with their profiles (excluding passwords)
+    const doctors = await Doctor.find({}).select("-password").sort({ fullName: 1 });
+    
+    console.log("🔹 Found doctors:", doctors.length);
+
+    res.json({
+      success: true,
+      doctors: doctors.map(doctor => ({
+        id: doctor._id,
+        fullName: doctor.fullName,
+        email: doctor.email,
+        specialization: doctor.specialization,
+        qualification: doctor.qualification,
+        experience: doctor.experience,
+        registrationNumber: doctor.registrationNumber,
+        clinicName: doctor.clinicName,
+        address: doctor.address,
+        phone: doctor.phone
+      }))
+    });
+  } catch (err) {
+    console.error("Get doctors profiles error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Request Appointment (Patient)
+app.post("/api/patient/appointments/request", patientAuthMiddleware, async (req, res) => {
+  try {
+    console.log("🔹 POST /api/patient/appointments/request called by patient:", req.patient.id);
+    
+    const { doctorId, preferredDate, preferredTime, reason, urgency } = req.body;
+    
+    // Get patient details
+    const patient = await Patient.findById(req.patient.id);
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    // Get doctor details
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+      return res.status(404).json({ message: "Doctor not found" });
+    }
+
+    // Create appointment request (for now, we'll store it in a simple format)
+    // In a real system, you'd have an Appointment model
+    const appointment = {
+      id: new Date().getTime().toString(), // Generate unique ID
+      patientId: patient._id,
+      patientName: patient.name,
+      patientEmail: patient.email,
+      patientMobile: patient.mobile,
+      doctorId: doctor._id,
+      doctorName: doctor.fullName,
+      doctorEmail: doctor.email,
+      preferredDate,
+      preferredTime,
+      reason,
+      urgency,
+      status: "pending",
+      createdAt: new Date()
+    };
+
+    // For now, we'll just return success (in a real system, save to database)
+    console.log("🔹 Appointment request created:", appointment);
+
+    res.json({
+      success: true,
+      message: "Appointment request submitted successfully",
+      appointment
+    });
+  } catch (err) {
+    console.error("Request appointment error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Get Patient Appointment Status
+app.get("/api/appointments/patient/:patientId/status", patientAuthMiddleware, async (req, res) => {
+  try {
+    console.log("🔹 GET /api/appointments/patient/:patientId/status called");
+    
+    const { patientId } = req.params;
+    
+    // Validate that the patient can only access their own appointments
+    if (patientId !== req.patient.id) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    // For now, return empty appointments (in a real system, query from database)
+    // This is a placeholder implementation
+    const appointments = []; // Would fetch from Appointment model
+
+    res.json({
+      success: true,
+      appointments,
+      message: "No appointments found"
+    });
+  } catch (err) {
+    console.error("Get patient appointment status error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 // Get Doctor Profile
 app.get("/api/doctor/profile", authMiddleware, async (req, res) => {
   try {
