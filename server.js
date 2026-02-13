@@ -628,12 +628,19 @@ app.get("/api/doctors/profiles", async (req, res) => {
   }
 });
 
+// Test endpoint to verify server is working
+app.get("/api/test", (req, res) => {
+  res.json({ message: "Server is working!", timestamp: new Date() });
+});
+
 // Request Appointment (Patient)
 app.post("/api/patient/appointments/request", patientAuthMiddleware, async (req, res) => {
   try {
+    console.log("🔹 POST /api/patient/appointments/request endpoint reached");
     console.log("🔹 POST /api/patient/appointments/request called by patient:", req.patient.id);
     
     const { doctorId, preferredDate, preferredTime, reason, urgency } = req.body;
+    console.log("🔹 Request body:", { doctorId, preferredDate, preferredTime, reason, urgency });
     
     // Get patient details
     const patient = await Patient.findById(req.patient.id);
