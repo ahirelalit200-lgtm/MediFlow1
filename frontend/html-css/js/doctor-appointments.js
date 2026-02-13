@@ -181,6 +181,11 @@ function displayAppointments(appointments) {
   }
 
   const appointmentsHTML = appointments.map(appointment => {
+    // DEBUG: Check if ID exists
+    if (!appointment._id && !appointment.id) {
+      console.error("❌ Appointment missing ID:", appointment);
+    }
+    const appointmentId = appointment._id || appointment.id;
     const preferredDate = new Date(appointment.preferredDate).toLocaleDateString();
     const preferredTime = appointment.preferredTime || 'Any time';
     const requestedDate = new Date(appointment.requestedAt).toLocaleDateString();
@@ -225,23 +230,23 @@ function displayAppointments(appointments) {
         
         <div class="appointment-actions">
           ${appointment.status === 'pending' ? `
-            <button class="action-btn confirm-btn" onclick="openAppointmentModal('${appointment._id}', 'confirm')">
+            <button class="action-btn confirm-btn" onclick="openAppointmentModal('${appointmentId}', 'confirm')">
               Confirm
             </button>
-            <button class="action-btn reject-btn" onclick="openAppointmentModal('${appointment._id}', 'reject')">
+            <button class="action-btn reject-btn" onclick="openAppointmentModal('${appointmentId}', 'reject')">
               Reject
             </button>
           ` : ''}
           ${appointment.status === 'confirmed' ? `
-            <button class="action-btn complete-btn" onclick="openAppointmentModal('${appointment._id}', 'complete')">
+            <button class="action-btn complete-btn" onclick="openAppointmentModal('${appointmentId}', 'complete')">
               Mark Complete
             </button>
           ` : ''}
-          <button class="action-btn notes-btn" onclick="openAppointmentModal('${appointment._id}', 'notes')">
+          <button class="action-btn notes-btn" onclick="openAppointmentModal('${appointmentId}', 'notes')">
             ${appointment.doctorNotes ? 'Edit Notes' : 'Add Notes'}
           </button>
           
-          <button class="action-btn" style="background: #dc3545; color: white;" onclick="deleteAppointment('${appointment._id}')">
+          <button class="action-btn" style="background: #dc3545; color: white;" onclick="deleteAppointment('${appointmentId}')">
             Delete
           </button>
         </div>
@@ -319,6 +324,13 @@ function clearFilters() {
 
 // Open appointment modal
 function openAppointmentModal(appointmentId, action) {
+  console.log(`🔹 Opening modal for Appointment ID: ${appointmentId}, Action: ${action}`);
+  if (!appointmentId || appointmentId === 'undefined') {
+    console.error("❌ Error: Invalid Appointment ID passed to modal");
+    alert("Error: Cannot update this appointment. Invalid ID.");
+    return;
+  }
+
   currentAppointmentId = appointmentId; // Ensure global var is set
   const modal = document.getElementById("appointment-modal");
   const modalTitle = document.getElementById("modal-title");
