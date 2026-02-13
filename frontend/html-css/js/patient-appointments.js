@@ -110,7 +110,8 @@ async function loadDoctors() {
       throw new Error("Failed to fetch doctors");
     }
 
-    const doctors = await response.json();
+    const data = await response.json();
+    const doctors = data.doctors || [];
 
     if (!doctors || doctors.length === 0) {
       doctorsListContainer.innerHTML = `
@@ -612,7 +613,8 @@ async function checkAppointmentStatusUpdates() {
     });
 
     if (response.ok) {
-      const appointments = await response.json();
+      const data = await response.json();
+      const appointments = data.appointments || [];
 
       // Check for recent status updates (within last 24 hours)
       const recentUpdates = appointments.filter(apt => {
