@@ -285,6 +285,82 @@ app.post("/api/patient/auth/signup", async (req, res) => {
   }
 });
 
+// Patient middleware for authentication
+const patientAuthMiddleware = (req, res, next) => {
+  const token = req.header("Authorization")?.replace("Bearer ", "");
+  if (!token) return res.status(401).json({ message: "Access denied" });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "fallback_secret");
+    if (decoded.role !== 'patient') return res.status(401).json({ message: "Access denied" });
+    req.patient = decoded;
+    next();
+  } catch (err) {
+    res.status(401).json({ message: "Invalid token" });
+  }
+};
+
+// Get Patient Dashboard Stats
+app.get("/api/patient/dashboard/stats", patientAuthMiddleware, async (req, res) => {
+  try {
+    console.log("🔹 GET /api/patient/dashboard/stats called by patient:", req.patient.id);
+    
+    // Find all prescriptions for this patient
+    const prescriptions = await Prescription.find({ 
+      $or: [
+        { patientEmail: req.patient.email },
+        { patientName: { $regex: req.patient.email, $options: 'i' } }
+      ]
+    }).sort({ createdAt: -1 });
+
+    // Calculate stats
+    const totalPrescriptions = prescriptions.length;
+    const totalXrays = prescriptions.filter(p => p.xray).length;
+    const lastVisit = prescriptions.length > 0 ? prescriptions[0].createdAt : null;
+    const lastDoctor = prescriptions.length > 0 ? prescriptions[0].doctor : null;
+
+    res.json({
+      success: true,
+      stats: {
+        totalPrescriptions,
+        totalXrays,
+        lastVisit,
+        lastDoctor
+      }
+    });
+  } catch (err) {
+    console.error("Get patient dashboard stats error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Get Patient Prescriptions
+app.get("/api/patient/prescriptions", patientAuthMiddleware, async (req, res) => {
+  try {
+    console.log("🔹 GET /api/patient/prescriptions called by patient:", req.patient.id);
+    
+    const { limit = 10 } = req.query;
+    
+    // Find all prescriptions for this patient
+    const prescriptions = await Prescription.find({ 
+      $or: [
+        { patientEmail: req.patient.email },
+        { patientName: { $regex: req.patient.email, $options: 'i' } }
+      ]
+    })
+    .sort({ createdAt: -1 })
+    .limit(parseInt(limit));
+
+    res.json({
+      success: true,
+      prescriptions
+    });
+  } catch (err) {
+    console.error("Get patient prescriptions error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 // Get Doctor Profile
 app.get("/api/doctor/profile", authMiddleware, async (req, res) => {
   try {
