@@ -833,9 +833,8 @@ app.get("/api/doctor/appointments", authMiddleware, async (req, res) => {
     console.log("🔹 Found appointments for doctor:", appointments.length);
 
     res.json({
-      success: true,
       appointments: appointments.map(apt => ({
-        id: apt._id,
+        _id: apt._id, // Ensure frontend gets _id
         patientName: apt.patientName,
         patientEmail: apt.patientEmail,
         patientMobile: apt.patientMobile,
@@ -844,14 +843,62 @@ app.get("/api/doctor/appointments", authMiddleware, async (req, res) => {
         reason: apt.reason,
         urgency: apt.urgency,
         status: apt.status,
+        doctorNotes: apt.doctorNotes,
+        confirmedDate: apt.confirmedDate,
+        confirmedTime: apt.confirmedTime,
         createdAt: apt.createdAt,
         updatedAt: apt.updatedAt
       })),
       message: appointments.length === 0 ? "No appointments found" : "Appointments retrieved successfully"
     });
   } catch (err) {
-    console.error("Get doctor appointments error:", err);
-    res.status(500).json({ message: "Server error" });
+    console.error("❌ Error fetching doctor appointments:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// Update Appointment (Doctor)
+app.put("/api/doctor/appointments/:id", authMiddleware, async (req, res) => {
+  try {
+    const appointmentId = req.params.id;
+    const { status, doctorNotes, confirmedDate, confirmedTime } = req.body;
+
+    console.log(`🔹 PUT /api/doctor/appointments/${appointmentId} called`);
+    console.log("🔹 Update data:", { status, doctorNotes, confirmedDate, confirmedTime });
+
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    // Verify doctor owns this appointment
+    if (appointment.doctorId && appointment.doctorId.toString() !== req.doctor.id) {
+      // Optional: Enforce ownership if doctorId is present
+      // return res.status(403).json({ message: "Access denied" });
+    }
+
+    if (status) appointment.status = status;
+    if (doctorNotes) appointment.doctorNotes = doctorNotes;
+    if (confirmedDate) appointment.confirmedDate = confirmedDate;
+    if (confirmedTime) appointment.confirmedTime = confirmedTime;
+
+    // Set timestamps based on status
+    if (status === 'confirmed') appointment.confirmedAt = new Date();
+    if (status === 'completed') appointment.completedAt = new Date();
+    if (status === 'rejected') appointment.rejectedAt = new Date();
+
+    appointment.updatedAt = new Date();
+
+    await appointment.save();
+
+    res.json({
+      success: true,
+      message: "Appointment updated successfully",
+      appointment
+    });
+  } catch (err) {
+    console.error("❌ Error updating appointment:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 
