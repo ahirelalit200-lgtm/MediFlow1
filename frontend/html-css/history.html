@@ -663,6 +663,13 @@
             });
             console.log("🔹 Normalized items:", normalized);
             console.log("🔹 Normalized count:", normalized.length);
+            if (normalized.length > 0) {
+              console.log("🔹 Sample normalized item date:", {
+                rawDate: normalized[0].raw?.date,
+                rawCreatedAt: normalized[0].raw?.createdAt,
+                parsedDate: normalized[0].date
+              });
+            }
             console.log("🔹 Calling renderCards with:", normalized);
             renderCards(normalized);
             return;
