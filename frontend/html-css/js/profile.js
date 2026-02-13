@@ -10,26 +10,53 @@ document.addEventListener("DOMContentLoaded", () => {
   // Helper: normalize email for consistent storage/lookup
   const normalizeEmail = (e) => (e || "").toLowerCase().trim();
 
-  // Load saved profile if present
-  const savedProfile = JSON.parse(localStorage.getItem("doctorProfile") || "null");
+  // Load saved profile from server if token exists
+  const loadProfileFromServer = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
-  // Prefill form if local data exists
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/doctors/me`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const profile = json.doctor;
+        if (profile) {
+          localStorage.setItem("doctorProfile", JSON.stringify(profile));
+          prefillForm(profile);
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching profile from server:", err);
+    }
+  };
+
+  const prefillForm = (data) => {
+    if (!data) return;
+    if (document.getElementById("name")) document.getElementById("name").value = data.fullName || data.name || "";
+    if (document.getElementById("email")) document.getElementById("email").value = data.email || "";
+    if (document.getElementById("specialization")) document.getElementById("specialization").value = data.specialization || "";
+    if (document.getElementById("clinicName")) document.getElementById("clinicName").value = data.clinicName || "";
+    if (document.getElementById("address")) document.getElementById("address").value = data.address || "";
+    if (document.getElementById("contact")) document.getElementById("contact").value = data.phone || data.contact || "";
+    if (document.getElementById("timings")) document.getElementById("timings").value = data.timings || "";
+    if (document.getElementById("experience")) document.getElementById("experience").value = data.experience || "";
+    if (document.getElementById("degree")) document.getElementById("degree").value = data.degree || "";
+    if (document.getElementById("RegistrationNo")) document.getElementById("RegistrationNo").value = data.RegistrationNo || "";
+  };
+
+  // 1) Prefill from localStorage immediately
+  const savedProfile = JSON.parse(localStorage.getItem("doctorProfile") || "null");
   if (savedProfile) {
-    document.getElementById("name").value = savedProfile.fullName || savedProfile.name || "";
-    document.getElementById("email").value = savedProfile.email || "";
-    document.getElementById("specialization").value = savedProfile.specialization || "";
-    document.getElementById("clinicName").value = savedProfile.clinicName || "";
-    document.getElementById("address").value = savedProfile.address || "";
-    document.getElementById("contact").value = savedProfile.phone || savedProfile.contact || "";
-    document.getElementById("timings").value = savedProfile.timings || "";
-    document.getElementById("experience").value = savedProfile.experience || "";
-    document.getElementById("degree").value = savedProfile.degree || "";
-    document.getElementById("RegistrationNo").value = savedProfile.RegistrationNo || "";
+    prefillForm(savedProfile);
   } else {
-    // Try to fill email from localStorage email (from signup)
     const email = localStorage.getItem("email");
     if (email) document.getElementById("email").value = email;
   }
+
+  // 2) Then fetch fresh data from server
+  loadProfileFromServer();
 
   // Submit handler
   profileForm.addEventListener("submit", async (e) => {
@@ -77,8 +104,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/doctor/profile`, {
-        method: "PUT",
+      const res = await fetch(`${API_BASE_URL}/api/doctors/profile`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           ...(token ? { "Authorization": `Bearer ${token}` } : {})
