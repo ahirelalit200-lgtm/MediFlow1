@@ -356,7 +356,11 @@
       console.log("🔹 Rendering", list.length, "items");
 
       const grouped = groupByPatient(list);
-      grouped.forEach(group => {
+      console.log("🔹 Grouped by patient:", grouped);
+      console.log("🔹 Number of patient groups:", grouped.length);
+      
+      grouped.forEach((group, index) => {
+        console.log("🔹 Processing group", index, ":", group);
         const count = group.records.length;
         const last = group.lastDate ? formatDate(group.lastDate) : "-";
 
@@ -413,7 +417,9 @@
           if (e.key === "Enter" || e.key === " ") { e.preventDefault(); header.click(); }
         });
 
+        console.log("🔹 Appending card to DOM for patient:", group.patientName);
         document.getElementById("cards").appendChild(card);
+        console.log("🔹 Card appended successfully");
 
         const rows = card.querySelectorAll("tbody tr[data-idx]");
         rows.forEach(row => {
@@ -454,6 +460,8 @@
           }
         }
       });
+      
+      console.log("🔹 Finished rendering. Cards container now has:", document.getElementById("cards").children.length, "children");
     }
 
     function buildPrintableHTML(rec) {
@@ -754,6 +762,8 @@
         const checked = target && typeof target.checked === 'boolean' ? target.checked : false;
         document.querySelectorAll('input.rec-select:not(:disabled)').forEach((cb) => { if (cb instanceof HTMLInputElement) cb.checked = checked; });
       });
+      
+      console.log("🔹 Finished rendering. Cards container now has:", document.getElementById("cards").children.length, "children");
     }
 
     if (deleteAllBtn) {
