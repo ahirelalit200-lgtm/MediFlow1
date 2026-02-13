@@ -654,7 +654,11 @@
               console.log("Sending email request to server...");
 
               // First attempt: send email immediately (direct endpoint)
-              // Await up to 1200ms to ensure request is dispatched before print
+              // Wait for server response (with a timeout) so we can show clear success/failure.
+              const emailAbort = new AbortController();
+              const emailTimeoutMs = 8000;
+              const emailTimeoutId = setTimeout(() => emailAbort.abort(), emailTimeoutMs);
+
               const attempt = fetch(`${window.API_BASE_URL}/api/prescriptions/email`, {
                 method: "POST",
                 headers: Object.assign(
@@ -662,27 +666,31 @@
                   token ? { "Authorization": `Bearer ${token}` } : {}
                 ),
                 body: JSON.stringify(payload),
-                keepalive: true
+                keepalive: true,
+                signal: emailAbort.signal
               }).then(async res => {
                 console.log(" Email API response status:", res.status);
                 try {
                   const data = await res.json().catch(() => ({}));
                   console.log(" Email API response data:", data);
                   // remember for post-print toast
-                  window.__emailSentStatus = { sent: !!data.sent, status: res.status, message: data.message || data.error };
+                  const sent = (typeof data.success === "boolean") ? data.success : !!data.sent;
+                  window.__emailSentStatus = { sent, status: res.status, message: data.message || data.error };
                 } catch (_) { }
                 return res;
               }).catch(err => {
-                console.error(" Email API request failed:", err?.message || err);
-                window.__emailSentStatus = { sent: false, status: 0, message: String(err?.message || err) };
+                const msg = (err && err.name === "AbortError")
+                  ? `Email request timed out after ${emailTimeoutMs}ms`
+                  : (err?.message || err);
+                console.error(" Email API request failed:", msg);
+                window.__emailSentStatus = { sent: false, status: 0, message: String(msg) };
                 throw err;
+              }).finally(() => {
+                clearTimeout(emailTimeoutId);
               });
 
-              // Race with a timeout so we don't block UI too long
-              await Promise.race([
-                attempt,
-                new Promise(resolve => setTimeout(resolve, 1200))
-              ]);
+              // Block briefly (up to timeout) to reliably capture success/failure in logs/UI.
+              await attempt;
 
               // Schedule a retry in background if first failed
               attempt.catch(() => {
