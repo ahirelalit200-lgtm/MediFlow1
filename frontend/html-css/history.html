@@ -307,7 +307,16 @@
         if (p.timestamp && !isNaN(Number(p.timestamp))) date = new Date(Number(p.timestamp));
         else if (p.createdAt) date = new Date(p.createdAt);
         else if (dateVal) date = new Date(dateVal);
-      } catch (_e) {}
+        else if (p._id) {
+          // Try to extract date from MongoDB ObjectId (timestamp is embedded in first 4 bytes)
+          const timestamp = parseInt(p._id.toString().substring(0, 8), 16);
+          if (!isNaN(timestamp)) date = new Date(timestamp * 1000);
+        }
+        // If still no date, use current date
+        if (!date || isNaN(date.getTime())) date = new Date();
+      } catch (_e) {
+        date = new Date(); // Fallback to current date
+      }
 
       const meds = Array.isArray(medArr) ? medArr.map(m => {
         if (m && typeof m === 'object') return { name: m.name || m.medicine || "", dosage: m.dosage || "", duration: m.duration || "", measure: m.measure || "", instruction: m.instruction || "" };
