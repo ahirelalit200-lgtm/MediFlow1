@@ -340,13 +340,20 @@
     }
 
     function renderCards(list) {
+      console.log("🔹 renderCards called with:", list);
       const cards = document.getElementById("cards");
+      if (!cards) {
+        console.error("🔹 Cards container not found!");
+        return;
+      }
       cards.innerHTML = "";
       __lastNormalizedList = Array.isArray(list) ? list : [];
       if (!Array.isArray(list) || list.length === 0) {
+        console.log("🔹 No items to render, showing empty state");
         cards.innerHTML = `<div class="empty-state">No records found</div>`;
         return;
       }
+      console.log("🔹 Rendering", list.length, "items");
 
       const grouped = groupByPatient(list);
       grouped.forEach(group => {
@@ -622,6 +629,9 @@
               if (mobileFilter && !pMobile.includes(mobileFilter)) return false;
               return true;
             });
+            console.log("🔹 Normalized items:", normalized);
+            console.log("🔹 Normalized count:", normalized.length);
+            console.log("🔹 Calling renderCards with:", normalized);
             renderCards(normalized);
             return;
           } else {
