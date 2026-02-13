@@ -304,20 +304,48 @@ const patientAuthMiddleware = (req, res, next) => {
 app.get("/api/patient/dashboard/stats", patientAuthMiddleware, async (req, res) => {
   try {
     console.log("🔹 GET /api/patient/dashboard/stats called by patient:", req.patient.id);
+    console.log("🔹 Patient email:", req.patient.email);
     
-    // Find all prescriptions for this patient
+    // First, get the patient's details to try multiple matching strategies
+    const patient = await Patient.findById(req.patient.id);
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    console.log("🔹 Patient details:", { name: patient.name, email: patient.email, mobile: patient.mobile });
+
+    // Find all prescriptions for this patient using multiple matching strategies
     const prescriptions = await Prescription.find({ 
       $or: [
-        { patientEmail: req.patient.email },
-        { patientName: { $regex: req.patient.email, $options: 'i' } }
+        { patientEmail: patient.email },
+        { patientName: patient.name },
+        { mobile: patient.mobile },
+        { patientName: { $regex: patient.name, $options: 'i' } }
       ]
     }).sort({ createdAt: -1 });
+
+    console.log("🔹 Found prescriptions:", prescriptions.length);
+    if (prescriptions.length > 0) {
+      console.log("🔹 First prescription:", {
+        patientEmail: prescriptions[0].patientEmail,
+        patientName: prescriptions[0].patientName,
+        mobile: prescriptions[0].mobile,
+        createdAt: prescriptions[0].createdAt
+      });
+    }
 
     // Calculate stats
     const totalPrescriptions = prescriptions.length;
     const totalXrays = prescriptions.filter(p => p.xray).length;
     const lastVisit = prescriptions.length > 0 ? prescriptions[0].createdAt : null;
     const lastDoctor = prescriptions.length > 0 ? prescriptions[0].doctor : null;
+
+    console.log("🔹 Calculated stats:", {
+      totalPrescriptions,
+      totalXrays,
+      lastVisit,
+      lastDoctor
+    });
 
     res.json({
       success: true,
@@ -341,15 +369,25 @@ app.get("/api/patient/prescriptions", patientAuthMiddleware, async (req, res) =>
     
     const { limit = 10 } = req.query;
     
-    // Find all prescriptions for this patient
+    // Get patient details for better matching
+    const patient = await Patient.findById(req.patient.id);
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    // Find all prescriptions for this patient using multiple matching strategies
     const prescriptions = await Prescription.find({ 
       $or: [
-        { patientEmail: req.patient.email },
-        { patientName: { $regex: req.patient.email, $options: 'i' } }
+        { patientEmail: patient.email },
+        { patientName: patient.name },
+        { mobile: patient.mobile },
+        { patientName: { $regex: patient.name, $options: 'i' } }
       ]
     })
     .sort({ createdAt: -1 })
     .limit(parseInt(limit));
+
+    console.log("🔹 Found prescriptions for patient:", prescriptions.length);
 
     res.json({
       success: true,
