@@ -656,6 +656,37 @@ app.get("/api/test", (req, res) => {
   res.json({ message: "Server is working!", timestamp: new Date() });
 });
 
+// DEBUG ENDPOINT: Test appointment creation manually
+app.post("/api/debug/appointment-schema", async (req, res) => {
+  try {
+    console.log("🔹 DEBUG: Testing appointment creation...");
+    const dummyAppointment = new Appointment({
+      patientId: new mongoose.Types.ObjectId(),
+      patientName: "Debug Patient",
+      patientEmail: "debug@example.com",
+      patientMobile: "1234567890",
+      doctorName: "Debug Doctor",
+      doctorMobile: "0987654321",
+      preferredDate: new Date(),
+      preferredTime: "10:00",
+      reason: "Debug Reason",
+      status: "pending"
+    });
+
+    // Validate without saving
+    await dummyAppointment.validate();
+    console.log("🔹 DEBUG: Validation successful");
+    res.json({ success: true, message: "Schema validation passed" });
+  } catch (err) {
+    console.error("❌ DEBUG: Validation failed:", err);
+    res.status(500).json({
+      message: "Validation failed",
+      error: err.message,
+      details: err.errors
+    });
+  }
+});
+
 // Request Appointment (Patient)
 app.post("/api/patient/appointments/request", patientAuthMiddleware, async (req, res) => {
   try {
