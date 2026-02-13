@@ -325,14 +325,33 @@ app.get("/api/patient/dashboard/stats", patientAuthMiddleware, async (req, res) 
     console.log("🔹 Patient details:", { name: patient.name, email: patient.email, mobile: patient.mobile });
 
     // Find all prescriptions for this patient using multiple matching strategies
+    console.log("🔹 Searching for prescriptions with patient data:", {
+      email: patient.email,
+      name: patient.name,
+      mobile: patient.mobile
+    });
+
     const prescriptions = await Prescription.find({ 
       $or: [
         { patientEmail: patient.email },
         { patientName: patient.name },
         { mobile: patient.mobile },
-        { patientName: { $regex: patient.name, $options: 'i' } }
+        { patientName: { $regex: patient.name, $options: 'i' } },
+        // Try case-insensitive email match
+        { patientEmail: { $regex: patient.email, $options: 'i' } },
+        // Try partial name match
+        { patientName: { $regex: patient.name.split(' ')[0], $options: 'i' } }
       ]
     }).sort({ createdAt: -1 });
+
+    console.log("🔹 Search query results:", prescriptions.length, "prescriptions found");
+    
+    // If still no prescriptions, let's see what prescriptions exist in the database
+    if (prescriptions.length === 0) {
+      console.log("🔹 No prescriptions found. Checking existing prescriptions in database...");
+      const allPrescriptions = await Prescription.find({}).limit(5).select('patientName patientEmail mobile createdAt doctor');
+      console.log("🔹 Sample prescriptions in database:", allPrescriptions);
+    }
 
     console.log("🔹 Found prescriptions:", prescriptions.length);
     if (prescriptions.length > 0) {
