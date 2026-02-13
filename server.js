@@ -66,6 +66,26 @@ const MedicineSchema = new mongoose.Schema({
 
 const Medicine = mongoose.model("Medicine", MedicineSchema);
 
+const PrescriptionSchema = new mongoose.Schema({
+  patientName: { type: String, required: true },
+  mobile: String,
+  patientEmail: String,
+  address: String,
+  sex: String,
+  age: Number,
+  treatmentType: String,
+  medicines: [mongoose.Schema.Types.Mixed],
+  notes: String,
+  treatment: String,
+  doctor: String,
+  xray: mongoose.Schema.Types.Mixed,
+  xrayAnalysis: mongoose.Schema.Types.Mixed,
+  followUpDate: Date,
+  doctorId: { type: mongoose.Schema.Types.ObjectId, ref: "Doctor", required: true }
+});
+
+const Prescription = mongoose.model("Prescription", PrescriptionSchema);
+
 // ====== Auth Middleware ======
 function authMiddleware(req, res, next) {
   const authHeader = req.headers["authorization"];
@@ -204,6 +224,40 @@ app.post("/api/medicines", authMiddleware, async (req, res) => {
     res.status(201).json(medicine);
   } catch (err) {
     console.error("❌ Error saving medicine:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// ====== Prescription Routes ======
+
+// Add new prescription
+app.post("/api/prescriptions/add", authMiddleware, async (req, res) => {
+  console.log("🔹 POST /api/prescriptions/add called by doctor:", req.doctor.id);
+  console.log("🔹 Prescription data:", req.body);
+  try {
+    const prescription = new Prescription({
+      patientName: req.body.patientName,
+      mobile: req.body.mobile,
+      patientEmail: req.body.patientEmail,
+      address: req.body.address,
+      sex: req.body.sex,
+      age: req.body.age,
+      treatmentType: req.body.treatmentType,
+      medicines: req.body.medicines,
+      notes: req.body.notes,
+      treatment: req.body.treatment,
+      doctor: req.body.doctor,
+      xray: req.body.xray,
+      xrayAnalysis: req.body.xrayAnalysis,
+      followUpDate: req.body.followUpDate,
+      doctorId: req.doctor.id
+    });
+    
+    await prescription.save();
+    console.log("✅ Prescription saved successfully:", prescription);
+    res.status(201).json(prescription);
+  } catch (err) {
+    console.error("❌ Error saving prescription:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
