@@ -810,7 +810,10 @@
                         dosage: m.dosage || "",
                         duration: m.duration || "",
                         measure: m.dosageAmount || "",
-                        instruction: [m.morning, m.afternoon, m.night].filter(v => v && v !== "none").join("/") || ""
+                        instruction: [m.morning, m.afternoon, m.night]
+                          .filter(v => v && v !== "none")
+                          .map(v => v === "before" ? "जेवण आधी" : (v === "after" ? "जेवण नंतर" : v))
+                          .join("/") || ""
                       }));
                     }
                   }
