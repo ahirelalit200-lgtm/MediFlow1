@@ -305,6 +305,7 @@
       let date = null;
       try {
         if (p.timestamp && !isNaN(Number(p.timestamp))) date = new Date(Number(p.timestamp));
+        else if (p.createdAt) date = new Date(p.createdAt);
         else if (dateVal) date = new Date(dateVal);
       } catch (_e) {}
 
@@ -475,13 +476,8 @@
         console.log("🔹 First card z-index:", window.getComputedStyle(firstCard).zIndex);
         console.log("🔹 First card opacity:", window.getComputedStyle(firstCard).opacity);
         
-        // Force visible styles for testing
-        firstCard.style.border = "3px solid red !important";
-        firstCard.style.background = "yellow !important";
-        firstCard.style.display = "block !important";
-        firstCard.style.visibility = "visible !important";
-        firstCard.style.opacity = "1 !important";
-        console.log("🔹 Applied test styles to first card");
+        // Remove test styles - cards are working!
+        console.log("🔹 Cards are working properly - removing test styles");
       }
     }
 
@@ -641,6 +637,13 @@
           if (res.ok) {
             const json = await res.json().catch(() => null);
             console.log("🔹 Raw API response:", json);
+      if (json.items && json.items.length > 0) {
+        console.log("🔹 Sample item date fields:", {
+          date: json.items[0].date,
+          createdAt: json.items[0].createdAt,
+          timestamp: json.items[0].timestamp
+        });
+      }
             let items = [];
             if (json && Array.isArray(json)) items = json;
             else if (json && Array.isArray(json.items)) items = json.items;
