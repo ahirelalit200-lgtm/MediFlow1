@@ -413,6 +413,37 @@ app.get("/api/prescriptions/history", authMiddleware, async (req, res) => {
   }
 });
 
+// Analytics API - Get prescriptions for analytics
+app.get("/api/analytics/prescriptions", authMiddleware, async (req, res) => {
+  console.log("🔹 GET /api/analytics/prescriptions called by doctor:", req.doctor.id);
+  
+  try {
+    const { limit = 1000 } = req.query;
+    
+    // Fetch prescriptions for this doctor only
+    const prescriptions = await Prescription.find({ doctorId: req.doctor.id })
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit))
+      .lean();
+    
+    console.log(`📊 Analytics: Found ${prescriptions.length} prescriptions for doctor ${req.doctor.id}`);
+    
+    res.status(200).json({
+      success: true,
+      prescriptions: prescriptions,
+      total: prescriptions.length
+    });
+    
+  } catch (err) {
+    console.error("❌ Error fetching analytics prescriptions:", err);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to fetch analytics data", 
+      error: err.message 
+    });
+  }
+});
+
 // ====== Fallback: serve maindashboard.html for unknown routes ======
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "frontend", "html-css", "maindashboard.html"));
