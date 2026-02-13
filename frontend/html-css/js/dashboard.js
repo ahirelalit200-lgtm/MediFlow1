@@ -139,12 +139,14 @@ function logout() {
 // Navigation convenience if used by UI
 function navigateTo(page) {
   const routes = {
-    dashboard: "dashboard.html",
+    dashboard: "doctor-dashboard.html",
     prescription: "prescription.html",
     history: "history.html",
     xray: "xray.html",
     profile: "profile.html",
     medicine: "medicine.html",
+    appointments: "doctor-appointments.html",
+    analytics: "analytics.html",
     signup: "signup.html",
     login: "index.html"
   };

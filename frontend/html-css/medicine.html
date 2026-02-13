@@ -147,12 +147,12 @@
     </div>
     <nav>
       <ul>
-        <li onclick="location.href='index.html'">Home</li>
+        <li onclick="navigateTo('dashboard')">Home</li>
         <li onclick="navigateTo('history')">History</li>
         <li onclick="navigateTo('appointments')">Appointments</li>
         <li onclick="navigateTo('analytics')">Analytics</li>
         <li onclick="navigateTo('xray')">X-Ray</li>
-
+        <li onclick="navigateTo('prescription')">Prescription</li>
       </ul>
     </nav>
     <div class="header-right" id="auth-buttons">
@@ -234,6 +234,7 @@
       if (page === "signup") { window.location.href = "signup.html"; }
       else if (page === "profile") { window.location.href = "profile.html"; }
       else if (page === "prescription") { window.location.href = "prescription.html"; }
+      else if (page === "dashboard") { window.location.href = "doctor-dashboard.html"; }
       else if (page === "history") { window.location.href = "history.html"; }
       else if (page === "appointments") { window.location.href = "doctor-appointments.html"; }
       else if (page === "analytics") { window.location.href = "analytics.html"; }
