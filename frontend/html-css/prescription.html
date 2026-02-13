@@ -662,7 +662,7 @@
               const emailTimeoutMs = 8000;
               const emailTimeoutId = setTimeout(() => emailAbort.abort(), emailTimeoutMs);
 
-              const attempt = fetch(`${window.API_BASE_URL}/api/prescriptions/email`, {
+              const attempt = fetch(`${window.API_BASE_URL}/api/prescriptions/email?_cb=${Date.now()}`, {
                 method: "POST",
                 headers: Object.assign(
                   { "Content-Type": "application/json" },
@@ -708,7 +708,7 @@
                   };
                   
                   try {
-                    const retryResponse = await fetch(`${window.API_BASE_URL}/api/prescriptions/email`, {
+                    const retryResponse = await fetch(`${window.API_BASE_URL}/api/prescriptions/email?_cb=${Date.now()}`, {
                       method: "POST",
                       headers: Object.assign(
                         { "Content-Type": "application/json" },
