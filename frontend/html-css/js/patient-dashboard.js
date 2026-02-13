@@ -110,8 +110,8 @@ async function loadDashboardStats() {
         document.getElementById("last-visit").textContent = "N/A";
       }
     } else {
-      console.log("DEBUG Frontend - No lastVisit data received");
-      document.getElementById("last-visit").textContent = "N/A";
+      // No previous visits - this is normal for new patients
+      document.getElementById("last-visit").textContent = "No visits yet";
     }
 
     // Show last doctor
@@ -120,7 +120,7 @@ async function loadDashboardStats() {
       lastDoctorElement.textContent = stats.lastDoctor;
       lastDoctorElement.style.fontSize = "1.2rem";
     } else {
-      lastDoctorElement.textContent = "None";
+      lastDoctorElement.textContent = "No doctors yet";
     }
 
   } catch (error) {
