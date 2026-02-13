@@ -309,18 +309,18 @@ app.post("/api/patient/auth/signup", async (req, res) => {
 const patientAuthMiddleware = (req, res, next) => {
   const token = req.header("Authorization")?.replace("Bearer ", "");
   console.log("🔹 Patient auth middleware - token received:", token ? "Yes" : "No");
-  
+
   if (!token) return res.status(401).json({ message: "Access denied" });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "fallback_secret");
     console.log("🔹 Patient auth middleware - decoded token:", { id: decoded.id, email: decoded.email, role: decoded.role });
-    
+
     if (decoded.role !== 'patient') {
       console.log("🔹 Patient auth middleware - role mismatch:", decoded.role);
       return res.status(401).json({ message: "Access denied" });
     }
-    
+
     req.patient = decoded;
     console.log("🔹 Patient auth middleware - authentication successful");
     next();
@@ -335,7 +335,7 @@ app.get("/api/patient/dashboard/stats", patientAuthMiddleware, async (req, res) 
   try {
     console.log("🔹 GET /api/patient/dashboard/stats called by patient:", req.patient.id);
     console.log("🔹 Patient email:", req.patient.email);
-    
+
     // First, get the patient's details to try multiple matching strategies
     const patient = await Patient.findById(req.patient.id);
     if (!patient) {
@@ -351,7 +351,7 @@ app.get("/api/patient/dashboard/stats", patientAuthMiddleware, async (req, res) 
       mobile: patient.mobile
     });
 
-    const prescriptions = await Prescription.find({ 
+    const prescriptions = await Prescription.find({
       $or: [
         { patientEmail: patient.email },
         { patientName: patient.name },
@@ -365,7 +365,7 @@ app.get("/api/patient/dashboard/stats", patientAuthMiddleware, async (req, res) 
     }).sort({ createdAt: -1 });
 
     console.log("🔹 Search query results:", prescriptions.length, "prescriptions found");
-    
+
     // If still no prescriptions, let's see what prescriptions exist in the database
     if (prescriptions.length === 0) {
       console.log("🔹 No prescriptions found. Checking existing prescriptions in database...");
@@ -420,9 +420,9 @@ app.get("/api/patient/dashboard/stats", patientAuthMiddleware, async (req, res) 
 app.get("/api/patient/prescriptions", patientAuthMiddleware, async (req, res) => {
   try {
     console.log("🔹 GET /api/patient/prescriptions called by patient:", req.patient.id);
-    
+
     const { limit = 10 } = req.query;
-    
+
     // Get patient details for better matching
     const patient = await Patient.findById(req.patient.id);
     if (!patient) {
@@ -430,7 +430,7 @@ app.get("/api/patient/prescriptions", patientAuthMiddleware, async (req, res) =>
     }
 
     // Find all prescriptions for this patient using multiple matching strategies
-    const prescriptions = await Prescription.find({ 
+    const prescriptions = await Prescription.find({
       $or: [
         { patientEmail: patient.email },
         { patientName: patient.name },
@@ -438,8 +438,8 @@ app.get("/api/patient/prescriptions", patientAuthMiddleware, async (req, res) =>
         { patientName: { $regex: patient.name, $options: 'i' } }
       ]
     })
-    .sort({ createdAt: -1 })
-    .limit(parseInt(limit));
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit));
 
     console.log("🔹 Found prescriptions for patient:", prescriptions.length);
 
@@ -457,7 +457,7 @@ app.get("/api/patient/prescriptions", patientAuthMiddleware, async (req, res) =>
 app.get("/api/patient/auth/profile", patientAuthMiddleware, async (req, res) => {
   try {
     console.log("🔹 GET /api/patient/auth/profile called by patient:", req.patient.id);
-    
+
     const patient = await Patient.findById(req.patient.id).select("-password");
     if (!patient) {
       return res.status(404).json({ message: "Patient not found" });
@@ -486,9 +486,9 @@ app.get("/api/patient/auth/profile", patientAuthMiddleware, async (req, res) => 
 app.put("/api/patient/auth/profile", patientAuthMiddleware, async (req, res) => {
   try {
     console.log("🔹 PUT /api/patient/auth/profile called by patient:", req.patient.id);
-    
+
     const { name, mobile, age, gender, address } = req.body;
-    
+
     // Validate input
     const updateData = {};
     if (name) updateData.name = name;
@@ -531,9 +531,9 @@ app.put("/api/patient/auth/profile", patientAuthMiddleware, async (req, res) => 
 app.get("/api/patient/xrays", patientAuthMiddleware, async (req, res) => {
   try {
     console.log("🔹 GET /api/patient/xrays called by patient:", req.patient.id);
-    
+
     // Find all prescriptions with X-rays for this patient
-    const prescriptions = await Prescription.find({ 
+    const prescriptions = await Prescription.find({
       $or: [
         { patientEmail: req.patient.email },
         { patientName: { $regex: req.patient.email, $options: 'i' } }
@@ -566,11 +566,11 @@ app.get("/api/patient/xrays", patientAuthMiddleware, async (req, res) => {
 app.delete("/api/patient/xrays/:xrayId", patientAuthMiddleware, async (req, res) => {
   try {
     console.log("🔹 DELETE /api/patient/xrays/:xrayId called by patient:", req.patient.id);
-    
+
     const { xrayId } = req.params;
-    
+
     // Find the prescription with this X-ray
-    const prescription = await Prescription.findOne({ 
+    const prescription = await Prescription.findOne({
       _id: xrayId,
       $or: [
         { patientEmail: req.patient.email },
@@ -601,10 +601,10 @@ app.delete("/api/patient/xrays/:xrayId", patientAuthMiddleware, async (req, res)
 app.get("/api/doctors/profiles", async (req, res) => {
   try {
     console.log("🔹 GET /api/doctors/profiles called");
-    
+
     // Get all doctors with their profiles (excluding passwords)
     const doctors = await Doctor.find({}).select("-password").sort({ fullName: 1 });
-    
+
     console.log("🔹 Found doctors:", doctors.length);
 
     res.json({
@@ -638,10 +638,10 @@ app.post("/api/patient/appointments/request", patientAuthMiddleware, async (req,
   try {
     console.log("🔹 POST /api/patient/appointments/request endpoint reached");
     console.log("🔹 POST /api/patient/appointments/request called by patient:", req.patient.id);
-    
+
     const { doctorId, preferredDate, preferredTime, reason, urgency } = req.body;
     console.log("🔹 Request body:", { doctorId, preferredDate, preferredTime, reason, urgency });
-    
+
     // Get patient details
     const patient = await Patient.findById(req.patient.id);
     if (!patient) {
@@ -696,9 +696,9 @@ app.post("/api/patient/appointments/request", patientAuthMiddleware, async (req,
 app.get("/api/appointments/patient/:patientId/status", patientAuthMiddleware, async (req, res) => {
   try {
     console.log("🔹 GET /api/appointments/patient/:patientId/status called");
-    
+
     const { patientId } = req.params;
-    
+
     // Validate that the patient can only access their own appointments
     if (patientId !== req.patient.id) {
       return res.status(403).json({ message: "Access denied" });
@@ -723,7 +723,7 @@ app.get("/api/appointments/patient/:patientId/status", patientAuthMiddleware, as
 app.get("/api/doctor/appointments", authMiddleware, async (req, res) => {
   try {
     console.log("🔹 GET /api/doctor/appointments called by doctor:", req.doctor.id);
-    
+
     // Fetch appointments for this doctor from database
     const appointments = await Appointment.find({ doctorId: req.doctor.id })
       .sort({ createdAt: -1 });
@@ -757,23 +757,23 @@ app.get("/api/doctor/appointments", authMiddleware, async (req, res) => {
 app.put("/api/doctor/appointments/:appointmentId/status", authMiddleware, async (req, res) => {
   try {
     console.log("🔹 PUT /api/doctor/appointments/:appointmentId/status called by doctor:", req.doctor.id);
-    
+
     const { appointmentId } = req.params;
     const { status } = req.body; // expected: 'confirmed', 'rejected', 'completed'
-    
+
     // Validate status
     const validStatuses = ['pending', 'confirmed', 'rejected', 'completed'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ message: "Invalid status" });
     }
-    
+
     // Find and update the appointment
     const appointment = await Appointment.findOneAndUpdate(
-      { 
+      {
         _id: appointmentId,
         doctorId: req.doctor.id // Ensure doctor can only update their own appointments
       },
-      { 
+      {
         status: status,
         updatedAt: new Date()
       },
@@ -837,7 +837,7 @@ app.get("/api/medicines", authMiddleware, async (req, res) => {
       console.error("❌ Medicine model is undefined");
       return res.status(500).json({ message: "Medicine model not initialized" });
     }
-    
+
     const medicines = await Medicine.find({ doctorId: req.doctor.id });
     console.log("✅ Found medicines:", medicines.length);
     res.json(medicines);
@@ -857,17 +857,17 @@ app.post("/api/medicines", authMiddleware, async (req, res) => {
       console.error("❌ Medicine model is undefined");
       return res.status(500).json({ message: "Medicine model not initialized" });
     }
-    
+
     const { name, dosageAmount, unit, morning, afternoon, night, code } = req.body;
-    
+
     if (!name || !code) {
       console.error("❌ Missing required fields:", { name, code });
       return res.status(400).json({ message: "Missing required fields: name and code are required" });
     }
-    
+
     // Log received data for debugging
     console.log("🔹 Received medicine data:", { name, dosageAmount, unit, morning, afternoon, night, code });
-    
+
     const medicine = new Medicine({
       name,
       dosageAmount,
@@ -878,12 +878,38 @@ app.post("/api/medicines", authMiddleware, async (req, res) => {
       code,
       doctorId: req.doctor.id
     });
-    
+
     await medicine.save();
     console.log("✅ Medicine saved successfully:", medicine);
     res.status(201).json(medicine);
   } catch (err) {
     console.error("❌ Error saving medicine:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// Delete medicine
+app.delete("/api/medicines/:code", authMiddleware, async (req, res) => {
+  console.log("🔹 DELETE /api/medicines called by doctor:", req.doctor.id);
+  const { code } = req.params;
+  try {
+    if (typeof Medicine === 'undefined') {
+      return res.status(500).json({ message: "Medicine model not initialized" });
+    }
+
+    const result = await Medicine.findOneAndDelete({
+      code,
+      doctorId: req.doctor.id
+    });
+
+    if (!result) {
+      return res.status(404).json({ message: "Medicine not found" });
+    }
+
+    console.log("✅ Medicine deleted successfully:", code);
+    res.json({ message: "Medicine deleted successfully", code });
+  } catch (err) {
+    console.error("❌ Error deleting medicine:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
@@ -912,7 +938,7 @@ app.post("/api/prescriptions/add", authMiddleware, async (req, res) => {
       followUpDate: req.body.followUpDate,
       doctorId: req.doctor.id
     });
-    
+
     await prescription.save();
     console.log("✅ Prescription saved successfully:", prescription);
     res.status(201).json(prescription);
@@ -926,25 +952,25 @@ app.post("/api/prescriptions/add", authMiddleware, async (req, res) => {
 app.post("/api/prescriptions/email", authMiddleware, async (req, res) => {
   console.log("🔹 POST /api/prescriptions/email called by doctor:", req.doctor.id);
   console.log("🔹 Email data:", req.body);
-  
+
   try {
     const { to, subject, html, text, prescription, xray, xrayAnalysis } = req.body;
-    
+
     if (!to || !subject || !prescription) {
       console.error("❌ Missing required email fields:", { to, subject, hasPrescription: !!prescription });
-      return res.status(400).json({ 
-        success: false, 
-        message: "Missing required fields: to, subject, prescription" 
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields: to, subject, prescription"
       });
     }
-    
+
     // Check if email service is available
     if (!transporter) {
       console.log("⚠️ Email service not available - falling back to simulation");
       // Fallback to simulation if email service is not configured
       await new Promise(resolve => setTimeout(resolve, 1000));
-      return res.status(200).json({ 
-        success: true, 
+      return res.status(200).json({
+        success: true,
         message: "Email sent successfully (simulated - email service not configured)",
         details: {
           to,
@@ -955,13 +981,13 @@ app.post("/api/prescriptions/email", authMiddleware, async (req, res) => {
         }
       });
     }
-    
+
     console.log("📧 Sending real email to:", to);
     console.log("  Subject:", subject);
     console.log("  Prescription:", prescription.patientName || "Unknown patient");
     console.log("  Has X-ray:", !!(xray && xray.dataUrl));
     console.log("  Has X-ray Analysis:", !!(xrayAnalysis && xrayAnalysis.success));
-    
+
     // Prepare email options
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -970,16 +996,16 @@ app.post("/api/prescriptions/email", authMiddleware, async (req, res) => {
       text: text,
       html: html
     };
-    
+
     // Send the email
     const info = await transporter.sendMail(mailOptions);
-    
+
     console.log("✅ Email sent successfully!");
     console.log("  Message ID:", info.messageId);
     console.log("  Response:", info.response);
-    
-    res.status(200).json({ 
-      success: true, 
+
+    res.status(200).json({
+      success: true,
       message: "Email sent successfully",
       details: {
         to,
@@ -991,10 +1017,10 @@ app.post("/api/prescriptions/email", authMiddleware, async (req, res) => {
     });
   } catch (err) {
     console.error("❌ Error sending email:", err);
-    res.status(500).json({ 
-      success: false, 
-      message: "Failed to send email", 
-      error: err.message 
+    res.status(500).json({
+      success: false,
+      message: "Failed to send email",
+      error: err.message
     });
   }
 });
@@ -1002,13 +1028,13 @@ app.post("/api/prescriptions/email", authMiddleware, async (req, res) => {
 // Get prescription history for a doctor
 app.get("/api/prescriptions/history", authMiddleware, async (req, res) => {
   console.log("🔹 GET /api/prescriptions/history called by doctor:", req.doctor.id);
-  
+
   try {
     const { name, mobile } = req.query;
-    
+
     // Build query for this doctor's prescriptions
     let query = { doctorId: req.doctor.id };
-    
+
     // Add filters if provided
     if (name) {
       query.patientName = { $regex: name, $options: "i" };
@@ -1016,26 +1042,26 @@ app.get("/api/prescriptions/history", authMiddleware, async (req, res) => {
     if (mobile) {
       query.mobile = { $regex: mobile, $options: "i" };
     }
-    
+
     // Fetch prescriptions, sorted by creation date (newest first)
     const prescriptions = await Prescription.find(query)
       .sort({ createdAt: -1 })
       .lean();
-    
+
     console.log(`📋 Found ${prescriptions.length} prescriptions for doctor ${req.doctor.id}`);
-    
+
     res.status(200).json({
       success: true,
       items: prescriptions,
       total: prescriptions.length
     });
-    
+
   } catch (err) {
     console.error("❌ Error fetching prescription history:", err);
-    res.status(500).json({ 
-      success: false, 
-      message: "Failed to fetch prescription history", 
-      error: err.message 
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch prescription history",
+      error: err.message
     });
   }
 });
@@ -1043,30 +1069,30 @@ app.get("/api/prescriptions/history", authMiddleware, async (req, res) => {
 // Analytics API - Get prescriptions for analytics
 app.get("/api/analytics/prescriptions", authMiddleware, async (req, res) => {
   console.log("🔹 GET /api/analytics/prescriptions called by doctor:", req.doctor.id);
-  
+
   try {
     const { limit = 1000 } = req.query;
-    
+
     // Fetch prescriptions for this doctor only
     const prescriptions = await Prescription.find({ doctorId: req.doctor.id })
       .sort({ createdAt: -1 })
       .limit(parseInt(limit))
       .lean();
-    
+
     console.log(`📊 Analytics: Found ${prescriptions.length} prescriptions for doctor ${req.doctor.id}`);
-    
+
     res.status(200).json({
       success: true,
       prescriptions: prescriptions,
       total: prescriptions.length
     });
-    
+
   } catch (err) {
     console.error("❌ Error fetching analytics prescriptions:", err);
-    res.status(500).json({ 
-      success: false, 
-      message: "Failed to fetch analytics data", 
-      error: err.message 
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch analytics data",
+      error: err.message
     });
   }
 });
