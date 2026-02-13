@@ -652,6 +652,9 @@
               } catch (_) { }
 
               console.log("Sending email request to server...");
+              console.log("🔹 Email API URL:", `${window.API_BASE_URL}/api/prescriptions/email`);
+              console.log("🔹 Payload size:", JSON.stringify(payload).length, "characters");
+              console.log("🔹 Payload keys:", Object.keys(payload));
 
               // First attempt: send email immediately (direct endpoint)
               // Wait for server response (with a timeout) so we can show clear success/failure.
@@ -690,27 +693,41 @@
               });
 
               // Block briefly (up to timeout) to reliably capture success/failure in logs/UI.
-              await attempt;
-
-              // Schedule a retry in background if first failed
-              attempt.catch(() => {
-                setTimeout(() => {
-                  fetch(`${window.API_BASE_URL}/api/prescriptions/email`, {
-                    method: "POST",
-                    headers: Object.assign(
-                      { "Content-Type": "application/json" },
-                      token ? { "Authorization": `Bearer ${token}` } : {}
-                    ),
-                    body: JSON.stringify(payload),
-                    keepalive: true
-                  }).then(async res => {
-                    try {
-                      const data = await res.json().catch(() => ({}));
-                      window.__emailSentStatus = { sent: !!data.sent, status: res.status, message: data.message || data.error };
-                    } catch (_) { }
-                  }).catch(() => { });
-                }, 4000);
-              });
+              try {
+                await attempt;
+              } catch (err) {
+                console.error("🔹 Email attempt failed:", err?.message || err);
+                
+                // If payload has X-ray and failed, try without X-ray (might be too large)
+                if (payload.xray && payload.xray.dataUrl) {
+                  console.log("🔹 Retrying email without X-ray (payload might be too large)...");
+                  const smallPayload = {
+                    ...payload,
+                    xray: undefined,
+                    xrayAnalysis: undefined
+                  };
+                  
+                  try {
+                    const retryResponse = await fetch(`${window.API_BASE_URL}/api/prescriptions/email`, {
+                      method: "POST",
+                      headers: Object.assign(
+                        { "Content-Type": "application/json" },
+                        token ? { "Authorization": `Bearer ${token}` } : {}
+                      ),
+                      body: JSON.stringify(smallPayload)
+                    });
+                    
+                    console.log("🔹 Retry response status:", retryResponse.status);
+                    const retryData = await retryResponse.json().catch(() => ({}));
+                    console.log("🔹 Retry response data:", retryData);
+                    
+                    const sent = (typeof retryData.success === "boolean") ? retryData.success : !!retryData.sent;
+                    window.__emailSentStatus = { sent, status: retryResponse.status, message: retryData.message || retryData.error };
+                  } catch (retryErr) {
+                    console.error("🔹 Email retry also failed:", retryErr?.message || retryErr);
+                  }
+                }
+              }
             } catch (_) { /* ignore email errors */ }
           }
 
