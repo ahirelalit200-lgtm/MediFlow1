@@ -60,6 +60,8 @@ const MedicineSchema = new mongoose.Schema({
   morning: { type: String, default: "none" },
   afternoon: { type: String, default: "none" },
   night: { type: String, default: "none" },
+  dosage: String,
+  duration: String,
   code: { type: String, required: true },
   doctorId: { type: mongoose.Schema.Types.ObjectId, ref: "Doctor", required: true }
 });

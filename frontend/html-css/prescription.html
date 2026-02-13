@@ -685,7 +685,7 @@
                 await attempt;
               } catch (err) {
                 console.error("🔹 Email attempt failed:", err?.message || err);
-                
+
                 // If payload has X-ray and failed, try without X-ray (might be too large)
                 if (payload.xray && payload.xray.dataUrl) {
                   console.log("🔹 Retrying email without X-ray (payload might be too large)...");
@@ -694,7 +694,7 @@
                     xray: undefined,
                     xrayAnalysis: undefined
                   };
-                  
+
                   try {
                     const retryResponse = await fetch(`${window.API_BASE_URL}/api/prescriptions/email?_cb=${Date.now()}`, {
                       method: "POST",
@@ -704,11 +704,11 @@
                       ),
                       body: JSON.stringify(smallPayload)
                     });
-                    
+
                     console.log("🔹 Retry response status:", retryResponse.status);
                     const retryData = await retryResponse.json().catch(() => ({}));
                     console.log("🔹 Retry response data:", retryData);
-                    
+
                     const sent = (typeof retryData.success === "boolean") ? retryData.success : !!retryData.sent;
                     window.__emailSentStatus = { sent, status: retryResponse.status, message: retryData.message || retryData.error };
                   } catch (retryErr) {
@@ -807,8 +807,8 @@
                       return meds.map(m => ({
                         code: m.code,
                         name: m.name,
-                        dosage: "",
-                        duration: "",
+                        dosage: m.dosage || "",
+                        duration: m.duration || "",
                         measure: m.dosageAmount || "",
                         instruction: [m.morning, m.afternoon, m.night].filter(v => v && v !== "none").join("/") || ""
                       }));
