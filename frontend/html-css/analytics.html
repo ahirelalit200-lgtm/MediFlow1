@@ -970,24 +970,31 @@
         });
 
         if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            allPrescriptions = data.prescriptions || [];
-            console.log(" Loaded prescriptions from analytics API:", allPrescriptions.length);
-            // Apply filters immediately after loading data
-            applyFilters();
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const data = await response.json();
+            if (data.success) {
+              allPrescriptions = data.prescriptions || [];
+              console.log(" Loaded prescriptions from analytics API:", allPrescriptions.length);
+              // Apply filters immediately after loading data
+              applyFilters();
+            } else {
+              console.warn("Analytics API returned error, using local storage");
+              loadLocalPrescriptions();
+              applyFilters();
+            }
           } else {
-            console.warn("Analytics API returned error, using local storage");
+            console.warn("Analytics API returned non-JSON response, using local storage");
             loadLocalPrescriptions();
             applyFilters();
           }
         } else {
-          console.warn("Failed to fetch from analytics API, using local storage");
+          console.warn(`Analytics API returned ${response.status}, using local storage`);
           loadLocalPrescriptions();
           applyFilters();
         }
       } catch (err) {
-        console.error("Error fetching prescriptions from analytics API:", err);
+        console.warn("Analytics API not available, using local storage:", err.message);
         loadLocalPrescriptions();
         applyFilters();
       }
