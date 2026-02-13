@@ -227,6 +227,64 @@ app.post("/api/patient/auth/login", async (req, res) => {
   }
 });
 
+// Patient Signup
+app.post("/api/patient/auth/signup", async (req, res) => {
+  const { name, email, mobile, password, age, gender, address } = req.body;
+
+  try {
+    // Check if patient already exists
+    const existingPatient = await Patient.findOne({ email });
+    if (existingPatient) {
+      return res.status(400).json({ message: "Patient with this email already exists" });
+    }
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create new patient
+    const patient = new Patient({
+      name,
+      email,
+      mobile,
+      password: hashedPassword,
+      age,
+      gender,
+      address
+    });
+
+    await patient.save();
+
+    // Create JWT token
+    const token = jwt.sign(
+      { id: patient._id, email: patient.email, role: 'patient' },
+      process.env.JWT_SECRET || "fallback_secret",
+      { expiresIn: "7d" }
+    );
+
+    res.status(201).json({
+      message: "Patient signup successful",
+      token,
+      patient: {
+        id: patient._id,
+        name: patient.name,
+        email: patient.email,
+        mobile: patient.mobile,
+        age: patient.age,
+        gender: patient.gender,
+        address: patient.address
+      }
+    });
+  } catch (err) {
+    console.error("Patient signup error:", err);
+    if (err.code === 11000) {
+      // Duplicate key error
+      return res.status(400).json({ message: "Patient with this email already exists" });
+    }
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 // Get Doctor Profile
 app.get("/api/doctor/profile", authMiddleware, async (req, res) => {
   try {
