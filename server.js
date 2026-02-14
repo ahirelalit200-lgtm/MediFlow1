@@ -1021,11 +1021,15 @@ app.post("/api/medicines", authMiddleware, async (req, res) => {
       return res.status(400).json({ message: "Missing required fields: name and code are required" });
     }
 
+    // specific trim to ensure clean data
+    const cleanCode = String(code).trim();
+    const cleanName = String(name).trim();
+
     // Log received data for debugging
-    console.log("🔹 Received medicine data:", { name, dosageAmount, unit, morning, afternoon, night, code, dosage, duration });
+    console.log("🔹 Received medicine data:", { name: cleanName, dosageAmount, unit, morning, afternoon, night, code: cleanCode, dosage, duration });
 
     // Compound key: code + name + doctorId
-    const filter = { code, name, doctorId: req.doctor.id };
+    const filter = { code: cleanCode, name: cleanName, doctorId: req.doctor.id };
     const update = {
       dosageAmount,
       unit,
@@ -1108,9 +1112,9 @@ app.get("/api/medicines/code/:code", authMiddleware, async (req, res) => {
       return res.status(500).json({ message: "Medicine model not initialized" });
     }
 
-    // Find ALL medicines with this code for this doctor
+    // Find ALL medicines with this code for this doctor (Case-Insensitive)
     const meds = await Medicine.find({
-      code: String(code).trim(),
+      code: { $regex: new RegExp(`^${String(code).trim()}$`, "i") },
       doctorId: req.doctor.id
     });
 

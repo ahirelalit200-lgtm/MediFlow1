@@ -355,12 +355,12 @@
       rows.forEach(row => {
         const inputs = row.querySelectorAll("input, select");
         medicines.push({
-          code: inputs[0].value,
-          name: inputs[1].value,
-          dosage: inputs[2].value,
-          duration: inputs[3].value,
-          measure: inputs[4].value,
-          instruction: inputs[5].value,
+          code: inputs[0].value.trim(),
+          name: inputs[1].value.trim(),
+          dosage: inputs[2].value.trim(),
+          duration: inputs[3].value.trim(),
+          measure: inputs[4].value.trim(),
+          instruction: inputs[5].value.trim(),
         });
       });
 
