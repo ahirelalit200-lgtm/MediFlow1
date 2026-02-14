@@ -1024,9 +1024,9 @@ app.post("/api/medicines", authMiddleware, async (req, res) => {
     // Log received data for debugging
     console.log("🔹 Received medicine data:", { name, dosageAmount, unit, morning, afternoon, night, code, dosage, duration });
 
-    const filter = { code, doctorId: req.doctor.id };
+    // Compound key: code + name + doctorId
+    const filter = { code, name, doctorId: req.doctor.id };
     const update = {
-      name,
       dosageAmount,
       unit,
       morning,

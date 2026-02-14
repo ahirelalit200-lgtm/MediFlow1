@@ -277,15 +277,37 @@
     async function removeRow(btn) {
       const row = btn.closest("tr");
       const codeInput = row.querySelectorAll("input")[0];
+      const nameInput = row.querySelectorAll("input")[1];
       const code = codeInput ? codeInput.value.trim() : "";
+      const id = btn.getAttribute("data-id");
 
-      if (code) {
-        if (!confirm(`Are you sure you want to permanently delete medicine with code "${code}"?`)) {
+      if (code || id) {
+        if (!confirm(`Are you sure you want to permanently delete this medicine?`)) {
           return;
         }
 
         const token = localStorage.getItem("token");
-        if (token) {
+        if (token && id) {
+          // Delete by ID (New way)
+          try {
+            const response = await fetch(`${window.API_BASE_URL}/api/medicines/id/${id}`, {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            });
+
+            if (response.ok) {
+              console.log("Medicine deleted from server by ID");
+            } else {
+              console.warn("Server deletion failed");
+            }
+          } catch (err) {
+            console.warn("Failed to delete medicine from server:", err);
+          }
+        } else if (token && code) {
+          // Fallback (Old way) - Warn user this might delete duplicates
+          console.warn("Deleting by code (legacy) - might affect duplicates");
           try {
             const response = await fetch(`${window.API_BASE_URL}/api/medicines/${encodeURIComponent(code)}`, {
               method: "DELETE",
@@ -309,7 +331,14 @@
         const storageKey = getStorageKey();
         try {
           let list = JSON.parse(localStorage.getItem(storageKey) || "[]");
-          list = list.filter(m => m.code !== code);
+          // If we have an ID, filter by ID (if local list has IDs)
+          // Otherwise filter by code + name match
+          if (id) {
+            list = list.filter(m => m._id !== id);
+          } else {
+            // Fallback: match code AND name
+            list = list.filter(m => !(m.code === code && m.name === nameInput.value));
+          }
           localStorage.setItem(storageKey, JSON.stringify(list));
         } catch (e) {
           console.warn("Error updating local storage after deletion", e);
@@ -375,6 +404,8 @@
           }
         });
         alert("Medicines saved to server!");
+        // Reload to get IDs
+        setTimeout(() => loadSavedMedicinesAndShow(), 1000);
       } else {
         alert("Medicines saved locally.");
       }
@@ -412,6 +443,8 @@
       tableBody.innerHTML = "";
       (medicines || []).forEach(med => {
         const row = document.createElement("tr");
+        const deleteBtnAttr = med._id ? `data-id="${med._id}"` : "";
+
         row.innerHTML = `
           <td><input type="text" value="${med.code || ""}" required></td>
           <td><input type="text" value="${med.name || ""}" required></td>
@@ -424,7 +457,7 @@
               <option value="जेवण नंतर" ${(med.instruction == "जेवण नंतर") ? "selected" : ""}>जेवण नंतर</option>
             </select>
           </td>
-          <td><button type="button" class="remove-btn" onclick="removeRow(this)">X</button></td>
+          <td><button type="button" class="remove-btn" onclick="removeRow(this)" ${deleteBtnAttr}>X</button></td>
         `;
         tableBody.appendChild(row);
       });
@@ -456,7 +489,9 @@
             const serverItems = Array.isArray(json) ? json : (Array.isArray(json.medicines) ? json.medicines : []);
 
             // Map server model -> UI model
+            // IMPORTANT: Capture _id
             const mapped = serverItems.map(m => ({
+              _id: m._id,
               code: m.code,
               name: m.name,
               dosage: m.dosage || "",
@@ -468,20 +503,17 @@
                 .join("/") || ""
             }));
 
-            // Merge by code, prefer server values for dosage/duration if they exist
-            const byCode = new Map();
-            // Start with server items
-            mapped.forEach(m => byCode.set(m.code, m));
-            // Layer local items on top, but keep server dosage/duration if non-empty
-            localList.forEach(m => {
-              const existing = byCode.get(m.code);
-              const merged = Object.assign({}, existing || {}, m);
-              if (existing && existing.dosage) merged.dosage = existing.dosage;
-              if (existing && existing.duration) merged.duration = existing.duration;
-              byCode.set(m.code, merged);
-            });
-            renderTableFromList(Array.from(byCode.values()));
-            return;
+            // We do NOT cancel out duplicates by code anymore, because user wants multiple meds per code.
+            // But we might want to merge local changes? 
+            // For simplicity and correctness with the new "multiple per code" rule, 
+            // relying on SERVER as truth is safer. 
+            // Merging localList is tricky if codes are not unique identifiers.
+
+            // If server has items, use them. 
+            if (mapped.length > 0) {
+              renderTableFromList(mapped);
+              return;
+            }
           }
         } catch (err) {
           // fall back to local only
