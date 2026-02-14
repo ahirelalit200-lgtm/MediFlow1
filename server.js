@@ -1003,7 +1003,7 @@ app.get("/api/medicines", authMiddleware, async (req, res) => {
   }
 });
 
-// Add new medicine
+// Add or Update medicine
 app.post("/api/medicines", authMiddleware, async (req, res) => {
   console.log("🔹 POST /api/medicines called by doctor:", req.doctor.id);
   console.log("🔹 Medicine data:", req.body);
@@ -1024,22 +1024,27 @@ app.post("/api/medicines", authMiddleware, async (req, res) => {
     // Log received data for debugging
     console.log("🔹 Received medicine data:", { name, dosageAmount, unit, morning, afternoon, night, code, dosage, duration });
 
-    const medicine = new Medicine({
+    const filter = { code, doctorId: req.doctor.id };
+    const update = {
       name,
       dosageAmount,
       unit,
       morning,
       afternoon,
       night,
-      code,
       dosage,
-      duration,
-      doctorId: req.doctor.id
+      duration
+    };
+
+    // Use findOneAndUpdate with upsert: true
+    const medicine = await Medicine.findOneAndUpdate(filter, update, {
+      new: true,
+      upsert: true,
+      setDefaultsOnInsert: true
     });
 
-    await medicine.save();
-    console.log("✅ Medicine saved successfully:", medicine);
-    res.status(201).json(medicine);
+    console.log("✅ Medicine saved/updated successfully:", medicine);
+    res.status(200).json(medicine);
   } catch (err) {
     console.error("❌ Error saving medicine:", err);
     res.status(500).json({ message: "Server error", error: err.message });
