@@ -5,6 +5,7 @@ const doctorController = require("../controllers/doctorController");
 
 // Create or Update doctor profile
 router.post("/profile", doctorController.saveProfile);
+router.put("/profile", doctorController.saveProfile);
 
 // Get profile by email
 router.get("/profile/:email", doctorController.getProfileByEmail);

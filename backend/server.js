@@ -99,6 +99,7 @@ try {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/doctors", doctorRoutes); // plural — frontend expects this
+app.use("/api/doctor", doctorRoutes); // singular — for profile.js PUT /api/doctor/profile
 app.use("/api/prescriptions", prescriptionRoutes);
 app.use("/api/patient/auth", patientAuthRoutes);
 app.use("/api/patient", patientRoutes);
