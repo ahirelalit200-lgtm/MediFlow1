@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Test Registration No. Save</title>
+    <script>
+        async function testProfileUpdate() {
+            const token = localStorage.getItem("token");
+            const email = localStorage.getItem("email") || "test@example.com";
+
+            console.log("Token:", token);
+            console.log("Email:", email);
+
+            const payload = {
+                email: email,
+                fullName: "Test Doctor",
+                specialization: "Cardiology",
+                clinicName: "Test Clinic",
+                address: "123 Test St",
+                phone: "1234567890",
+                timings: "9 AM - 5 PM",
+                experience: "10 years",
+                degree: "MBBS",
+                RegistrationNo: "REG-TEST-12345"
+            };
+
+            console.log("Sending payload:", payload);
+
+            try {
+                const response = await fetch("http://localhost:5000/api/doctor/profile", {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                console.log("Response status:", response.status);
+                const data = await response.json();
+                console.log("Response data:", data);
+
+                if (response.ok) {
+                    document.getElementById("result").innerHTML =
+                        "<h3 style='color: green'>✅ SUCCESS!</h3>" +
+                        "<pre>" + JSON.stringify(data, null, 2) + "</pre>" +
+                        "<p>Registration No: " + (data.doctor?.RegistrationNo || data.RegistrationNo || "NOT FOUND") + "</p>";
+                } else {
+                    document.getElementById("result").innerHTML =
+                        "<h3 style='color: red'>❌ FAILED</h3>" +
+                        "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
+                }
+            } catch (err) {
+                console.error("Error:", err);
+                document.getElementById("result").innerHTML =
+                    "<h3 style='color: red'>❌ ERROR</h3>" +
+                    "<p>" + err.message + "</p>";
+            }
+        }
+    </script>
+</head>
+
+<body style="font-family: Arial; padding: 20px;">
+    <h1>Test Registration No. Save</h1>
+    <p>This will test if the PUT /api/doctor/profile endpoint works correctly.</p>
+    <button onclick="testProfileUpdate()" style="padding: 10px 20px; font-size: 16px;">
+        Test Profile Update
+    </button>
+    <div id="result" style="margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 5px;"></div>
+
+    <h3>Instructions:</h3>
+    <ol>
+        <li>Make sure you're logged in first (go to login page)</li>
+        <li>Come back to this page</li>
+        <li>Click the "Test Profile Update" button</li>
+        <li>Check the console (F12) for detailed logs</li>
+    </ol>
+</body>
+
+</html>
