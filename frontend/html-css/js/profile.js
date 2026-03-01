@@ -1,7 +1,8 @@
 // frontend/html-css/js/profile.js
 
 // Fallback API URL in case config.js doesn't load properly
-const API_BASE_URL = window.API_BASE_URL || "https://mediflow-api-8796.onrender.com";
+// Use global API URL from config.js; fallback to local for safety if not defined
+const BASE_API_URL = window.API_BASE_URL || "http://localhost:5000";
 
 document.addEventListener("DOMContentLoaded", () => {
   const profileForm = document.getElementById("profileForm");
@@ -16,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!token) return;
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/doctor/profile`, {
+      const res = await fetch(`${BASE_API_URL}/api/doctor/profile`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
@@ -104,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/doctor/profile`, {
+      const res = await fetch(`${BASE_API_URL}/api/doctor/profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
