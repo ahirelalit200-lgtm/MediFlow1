@@ -239,9 +239,10 @@
             if (!res.ok) continue;
 
             const json = await res.json();
-            profileData = json && json.doctor ? json.doctor : json;
+            let fetchedProfile = json && json.doctor ? json.doctor : json;
 
-            if (profileData && typeof profileData === "object" && (profileData.fullName || profileData.name)) {
+            if (fetchedProfile && typeof fetchedProfile === "object" && (fetchedProfile.fullName || fetchedProfile.name)) {
+              profileData = fetchedProfile;
               localStorage.setItem("doctorProfile", JSON.stringify(profileData));
               break;
             }
@@ -267,7 +268,12 @@
         }
       }
 
-      // 3. If still no profile or incomplete profile
+      // 3. Normalize profileData if it still has a nested doctor property (from old saves)
+      if (profileData && profileData.doctor) {
+        profileData = profileData.doctor;
+      }
+
+      // 4. Validate profile
       if (!profileData || (!profileData.fullName && !profileData.name)) {
         alert("Please complete your profile details first.");
         window.location.href = "profile-setup.html";

@@ -121,7 +121,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // Save the profile to localStorage for dashboard use
-      localStorage.setItem("doctorProfile", JSON.stringify(json));
+      const profileToSave = json.doctor || json;
+      localStorage.setItem("doctorProfile", JSON.stringify(profileToSave));
       localStorage.setItem("email", email);
 
       alert("Profile saved successfully! Redirecting to dashboard...");
