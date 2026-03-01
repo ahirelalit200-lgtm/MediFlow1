@@ -1,5 +1,5 @@
 // Application Configuration
-const API_BASE_URL = "https://mediflow-api-8796.onrender.com";
+const API_BASE_URL = "http://localhost:5000";
 
 // Set global API URL for all files
 if (typeof window !== "undefined") {
