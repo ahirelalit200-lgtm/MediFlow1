@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (document.getElementById("timings")) document.getElementById("timings").value = data.timings || "";
     if (document.getElementById("experience")) document.getElementById("experience").value = data.experience || "";
     if (document.getElementById("degree")) document.getElementById("degree").value = data.degree || "";
-    if (document.getElementById("RegistrationNo")) document.getElementById("RegistrationNo").value = data.RegistrationNo || "";
+    if (document.getElementById("RegistrationNo")) document.getElementById("RegistrationNo").value = data.registrationNo || data.RegistrationNo || "";
   };
 
   // 1) Prefill from localStorage immediately
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const timings = document.getElementById("timings").value.trim();
     const experience = document.getElementById("experience").value.trim();
     const degree = document.getElementById("degree").value.trim();
-    const RegistrationNo = document.getElementById("RegistrationNo").value.trim();
+    const registrationNo = document.getElementById("RegistrationNo").value.trim();
 
     if (!fullName || !email) {
       alert("Please enter Full Name and Email.");
@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
       timings,
       experience,
       degree,
-      RegistrationNo
+      registrationNo
     };
 
     // Only use JWT token - email fallback won't work with auth middleware

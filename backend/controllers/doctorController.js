@@ -17,7 +17,7 @@ function normalize(body = {}) {
     timings: (body.timings || "").toString().trim(),
     experience: (body.experience || "").toString().trim(),
     degree: (body.degree || "").toString().trim(),
-    RegistrationNo: (body.RegistrationNo || body.registrationNo || "").toString().trim()
+    registrationNo: (body.registrationNo || body.RegistrationNo || "").toString().trim()
   };
 }
 
@@ -44,7 +44,7 @@ exports.saveProfile = async (req, res) => {
           timings: data.timings,
           experience: data.experience,
           degree: data.degree,
-          RegistrationNo: data.RegistrationNo
+          registrationNo: data.registrationNo
         }
       },
       { new: true, upsert: true, runValidators: true }

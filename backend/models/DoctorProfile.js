@@ -12,7 +12,7 @@ const DoctorProfileSchema = new mongoose.Schema(
     timings: { type: String, trim: true },
     experience: { type: String, trim: true },
     degree: { type: String, trim: true },
-    RegistrationNo: { type: String, trim: true }
+    registrationNo: { type: String, trim: true }
   },
   { timestamps: true }
 );

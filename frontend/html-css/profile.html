@@ -295,7 +295,7 @@
       document.getElementById("emailHeader").innerText = profileData.email || email;
 
       // Handle all possible property name variations (database vs localStorage vs legacy)
-      const regNo = profileData.RegistrationNo || profileData.registrationNo || profileData.regNo || "-";
+      const regNo = profileData.registrationNo || profileData.RegistrationNo || profileData.regNo || "-";
       document.getElementById("RegistrationNo").innerText = "Registration No.: " + regNo;
 
       const initials = (profileData.fullName || profileData.name || "D").charAt(0).toUpperCase();
