@@ -27,20 +27,25 @@ mongoose
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Permissive CORS with Private Network Access support
+// 1. Handle Private Network Access (PNA) preflight (Vercel -> Localhost)
+// This MUST come before any other CORS middleware
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Private-Network', 'true');
+  if (req.method === 'OPTIONS' && req.headers['access-control-request-private-network']) {
+    res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    return res.sendStatus(204);
+  }
+  next();
+});
+
+// 2. Standard CORS middleware
 app.use(cors({
   origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
 }));
-
-// Handle Private Network Access (PNA) preflight (Vercel -> Localhost)
-app.use((req, res, next) => {
-  if (req.headers['access-control-request-private-network']) {
-    res.setHeader('Access-Control-Allow-Private-Network', 'true');
-  }
-  next();
-});
 
 // Debugging middleware - logs request metadata and body (temporary)
 app.use((req, res, next) => {
