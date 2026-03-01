@@ -280,11 +280,16 @@
         return;
       }
 
+      // Debug logging to help identify why data might be missing
+      console.log("Loaded Profile Data:", profileData);
+
       // Fill UI
       document.getElementById("fullNameHeader").innerText = profileData.fullName || profileData.name || "Doctor";
       document.getElementById("emailHeader").innerText = profileData.email || email;
-      document.getElementById("RegistrationNo").innerText =
-        "Registration No.: " + (profileData.registrationNo || profileData.RegistrationNo || "-");
+
+      // Handle all possible property name variations (database vs localStorage vs legacy)
+      const regNo = profileData.RegistrationNo || profileData.registrationNo || profileData.regNo || "-";
+      document.getElementById("RegistrationNo").innerText = "Registration No.: " + regNo;
 
       const initials = (profileData.fullName || profileData.name || "D").charAt(0).toUpperCase();
       document.getElementById("avatar").innerText = initials;

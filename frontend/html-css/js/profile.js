@@ -123,6 +123,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Save the profile to localStorage for dashboard use
       const profileToSave = json.doctor || json;
+
+      // Clear any legacy keys to avoid confusion
+      localStorage.removeItem("doctorProfiles");
       localStorage.setItem("doctorProfile", JSON.stringify(profileToSave));
       localStorage.setItem("email", email);
 
