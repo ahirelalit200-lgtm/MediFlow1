@@ -7,634 +7,122 @@
     <title>Prescription System - Main Dashboard</title>
     <link rel="stylesheet" href="css/styles.css">
 
-    <style>
-        /* Reset and Base Styling */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: "Segoe UI", sans-serif;
-            background: linear-gradient(to right, #f7fbff, #e5f3ff);
-            color: #1a1a1a;
-            min-height: 100vh;
-        }
-
-        /* Navbar */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 60px;
-            background-color: #ffffff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.5rem;
-            color: #00a4e4;
-            font-weight: 600;
-        }
-
-        /* Hero Section */
-        .hero {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 80px 60px;
-            text-align: center;
-            color: #1a1a1a;
-        }
-
-        .hero-text {
-            max-width: 800px;
-            margin-bottom: 60px;
-        }
-
-        .hero-text h1 {
-            font-size: 3.2rem;
-            margin-bottom: 20px;
-            color: #1a1a1a;
-        }
-
-        .highlight {
-            color: #29a9f8;
-        }
-
-        .hero-text p {
-            font-size: 1.1rem;
-            color: #4f4f4f;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-
-        /* Login Options */
-        .login-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 40px;
-            max-width: 800px;
-            width: 100%;
-            margin-bottom: 60px;
-        }
-
-        .login-card {
-            background-color: #ffffff;
-            padding: 40px 30px;
-            border-radius: 20px;
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-        }
-
-        .doctor-card {
-            border-left: 4px solid #29a9f8;
-        }
-
-        .doctor-card:hover {
-            border-left-color: #7b61ff;
-        }
-
-        .patient-card {
-            border-left: 4px solid #7b61ff;
-        }
-
-        .patient-card:hover {
-            border-left-color: #29a9f8;
-        }
-
-        .login-icon {
-            font-size: 3.5rem;
-            margin-bottom: 20px;
-            display: block;
-        }
-
-        .doctor-card .login-icon {
-            color: #29a9f8;
-        }
-
-        .patient-card .login-icon {
-            color: #7b61ff;
-        }
-
-        .login-card h2 {
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-            color: #1a1a1a;
-            font-weight: 600;
-        }
-
-        .login-card p {
-            font-size: 0.95rem;
-            color: #4f4f4f;
-            line-height: 1.5;
-            margin-bottom: 25px;
-        }
-
-        .login-btn {
-            background-color: #29a9f8;
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 25px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-        }
-
-        .login-btn:hover {
-            background-color: #7b61ff;
-            transform: translateY(-2px);
-        }
-
-        .patient-card .login-btn {
-            background-color: #7b61ff;
-        }
-
-        .patient-card .login-btn:hover {
-            background-color: #29a9f8;
-        }
-
-        /* Features Section */
-        .features {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 80px 60px;
-            border-radius: 25px;
-            margin: 60px 0;
-            max-width: 1200px;
-            width: 100%;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .features::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-            opacity: 0.3;
-        }
-
-        .features-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .features-header {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-
-        .features h2 {
-            font-size: 2.8rem;
-            margin-bottom: 20px;
-            color: #ffffff;
-            font-weight: 700;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .features-subtitle {
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.9);
-            max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 40px;
-            margin-top: 50px;
-        }
-
-        .feature-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 40px 30px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.6s;
-        }
-
-        .feature-card:hover::before {
-            left: 100%;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-        }
-
-        .feature-icon-wrapper {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 25px;
-            background: linear-gradient(135deg, #29a9f8, #7b61ff);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            box-shadow: 0 4px 20px rgba(41, 169, 248, 0.3);
-        }
-
-        .feature-card .feature-icon {
-            font-size: 2.2rem;
-            color: #ffffff;
-            z-index: 1;
-        }
-
-        .feature-card h3 {
-            font-size: 1.4rem;
-            margin-bottom: 15px;
-            color: #1a1a1a;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .feature-card p {
-            color: #4f4f4f;
-            line-height: 1.7;
-            font-size: 1rem;
-            margin-bottom: 20px;
-        }
-
-        .feature-stats {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
-        }
-
-        .stat-item {
-            text-align: center;
-            flex: 1;
-        }
-
-        .stat-number {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #29a9f8;
-            display: block;
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Enhanced feature cards with specific colors */
-        .feature-card:nth-child(1) .feature-icon-wrapper {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
-        }
-
-        .feature-card:nth-child(2) .feature-icon-wrapper {
-            background: linear-gradient(135deg, #4ecdc4, #44a08d);
-            box-shadow: 0 4px 20px rgba(78, 205, 196, 0.3);
-        }
-
-        .feature-card:nth-child(3) .feature-icon-wrapper {
-            background: linear-gradient(135deg, #45b7d1, #96c93d);
-            box-shadow: 0 4px 20px rgba(69, 183, 209, 0.3);
-        }
-
-        .feature-card:nth-child(4) .feature-icon-wrapper {
-            background: linear-gradient(135deg, #f093fb, #f5576c);
-            box-shadow: 0 4px 20px rgba(240, 147, 251, 0.3);
-        }
-
-        .feature-card:nth-child(5) .feature-icon-wrapper {
-            background: linear-gradient(135deg, #4facfe, #00f2fe);
-            box-shadow: 0 4px 20px rgba(79, 172, 254, 0.3);
-        }
-
-        .feature-card:nth-child(6) .feature-icon-wrapper {
-            background: linear-gradient(135deg, #43e97b, #38f9d7);
-            box-shadow: 0 4px 20px rgba(67, 233, 123, 0.3);
-        }
-
-        .theme-toggle-btn {
-            background-color: #ffffff;
-            border: 2px solid #e0e0e0;
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            margin-right: 15px;
-        }
-
-        .theme-toggle-btn:hover {
-            background-color: #29a9f8;
-            border-color: #29a9f8;
-            transform: scale(1.05);
-        }
-
-        .theme-icon {
-            font-size: 1.2rem;
-            transition: transform 0.3s ease;
-        }
-
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            .navbar {
-                flex-direction: column;
-                gap: 10px;
-                padding: 15px 30px;
-            }
-
-            .hero {
-                padding: 60px 30px;
-            }
-
-            .hero-text h1 {
-                font-size: 2.5rem;
-            }
-
-            .login-options {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .features {
-                padding: 60px 30px;
-                margin: 30px 20px;
-            }
-
-            .features h2 {
-                font-size: 2.2rem;
-            }
-
-            .features-subtitle {
-                font-size: 1rem;
-            }
-
-            .feature-grid {
-                grid-template-columns: 1fr;
-                gap: 30px;
-                margin-top: 40px;
-            }
-
-            .feature-card {
-                padding: 30px 25px;
-            }
-
-            .feature-icon-wrapper {
-                width: 70px;
-                height: 70px;
-            }
-
-            .feature-card .feature-icon {
-                font-size: 2rem;
-            }
-
-            .feature-card h3 {
-                font-size: 1.2rem;
-            }
-
-            .feature-stats {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .stat-item {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 10px 0;
-                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            }
-
-            .stat-item:last-child {
-                border-bottom: none;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .features {
-                padding: 40px 20px;
-                margin: 20px 10px;
-            }
-
-            .features h2 {
-                font-size: 1.8rem;
-            }
-
-            .feature-card {
-                padding: 25px 20px;
-            }
-
-            .feature-icon-wrapper {
-                width: 60px;
-                height: 60px;
-            }
-
-            .feature-card .feature-icon {
-                font-size: 1.8rem;
-            }
-        }
-    </style>
 </head>
 
-<body>
-    <!-- Navbar -->
-    <div class="navbar">
+<body class="landing-page">
+    <header class="navbar">
         <div class="logo">
-            <img src="assets/care.png" alt="Logo" height="40" />
-            <span>Medi<strong>Flow</strong></span>
+            <img src="assets/care.png" alt="Logo" height="45" />
+            <span style="font-size: 1.5rem;">Medi<strong>Flow</strong></span>
         </div>
-        <div class="header-right">
-            <div class="header-right" id="auth-buttons"></div>
-            <span style="color: #4f4f4f; font-size: 0.9rem;">Empowering Healthcare Through Digital Innovation</span>
+        <div class="header-right" style="gap: 1.5rem;">
+            <span style="color: var(--text-muted); font-size: 0.9rem; font-weight: 500;"
+                class="hide-mobile">Next-Generation Clinical Intelligence</span>
+            <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark Mode">
+                <span class="theme-icon" id="theme-icon">🌙</span>
+            </button>
         </div>
-    </div>
+    </header>
 
-    <!-- Hero Section -->
-    <div class="hero">
-        <div class="hero-text">
-            <h1>Welcome to <span class="highlight">Prescription System</span></h1>
-            <p>Comprehensive healthcare management platform designed for modern medical practices. Secure, efficient,
-                and user-friendly solutions for doctors and patients.</p>
-        </div>
+    <main class="content-wrapper" style="max-width: 1400px; padding-top: 4rem;">
+        <section class="hero" style="text-align: center; margin-bottom: 5rem;">
+            <div
+                style="display: inline-block; padding: 0.5rem 1.5rem; background: var(--bg-secondary); border-radius: 2rem; color: var(--accent-primary); font-weight: 600; font-size: 0.9rem; margin-bottom: 2rem; box-shadow: var(--shadow-sm);">
+                ✨ Integrated Health Management Ecosystem
+            </div>
+            <h1
+                style="font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1.1; margin-bottom: 1.5rem; letter-spacing: -0.04em;">
+                Empowering <span
+                    style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Clinical
+                    Excellence</span> <br>through Digital Innovation
+            </h1>
+            <p
+                style="font-size: 1.25rem; color: var(--text-muted); max-width: 800px; margin: 0 auto 3rem auto; line-height: 1.6;">
+                A comprehensive medical ecosystem designed for modern practitioners. Secure, intelligent, and
+                human-centric solutions for superior patient outcomes.
+            </p>
+        </section>
 
-        <!-- Login Options -->
-        <div class="login-options">
-            <div class="login-card doctor-card" onclick="redirectToDoctor()">
-                <span class="login-icon"></span>
-                <h2>Doctor Portal</h2>
-                <p>Access patient records, create prescriptions, manage appointments, and track comprehensive medical
-                    history with advanced tools.</p>
-                <button class="login-btn">Access Doctor Portal</button>
+        <section class="profile-grid"
+            style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2.5rem; margin-bottom: 6rem; max-width: 1100px; margin-inline: auto;">
+            <div class="feature-card"
+                style="padding: 3.5rem 2.5rem; text-align: center; border-top: 5px solid var(--accent-primary);"
+                onclick="redirectToDoctor()">
+                <div class="profile-avatar"
+                    style="margin: 0 auto 2rem auto; width: 90px; height: 90px; font-size: 2.5rem; background: var(--bg-secondary);">
+                    🩺</div>
+                <h2 style="font-size: 1.75rem; margin-bottom: 1rem;">Practitioner Portal</h2>
+                <p style="margin-bottom: 2rem; color: var(--text-muted);">Manage prescriptions, radiological analysis,
+                    and clinical workflows with AI-assisted tools.</p>
+                <button class="book-btn" style="width: 100%; padding: 1rem;">Professional Access</button>
             </div>
 
-            <div class="login-card patient-card" onclick="redirectToPatient()">
-                <span class="login-icon"></span>
-                <h2>Patient Portal</h2>
-                <p>View your prescriptions, medical history, upcoming appointments, and communicate securely with your
-                    healthcare providers.</p>
-                <button class="login-btn">Access Patient Portal</button>
+            <div class="feature-card"
+                style="padding: 3.5rem 2.5rem; text-align: center; border-top: 5px solid var(--accent-secondary);"
+                onclick="redirectToPatient()">
+                <div class="profile-avatar"
+                    style="margin: 0 auto 2rem auto; width: 90px; height: 90px; font-size: 2.5rem; background: var(--bg-secondary);">
+                    👤</div>
+                <h2 style="font-size: 1.75rem; margin-bottom: 1rem;">Patient Universe</h2>
+                <p style="margin-bottom: 2rem; color: var(--text-muted);">Secure access to digital health records,
+                    pharmacy integrations, and longitudinal history.</p>
+                <button class="book-btn"
+                    style="width: 100%; padding: 1rem; background: var(--accent-secondary);">Personal Health
+                    Access</button>
             </div>
-        </div>
+        </section>
 
-        <!-- Features Section -->
-        <div class="features">
-            <div class="features-content">
-                <div class="features-header">
-                    <h2>Why Choose Our Platform?</h2>
-                    <p class="features-subtitle">Experience the future of healthcare management with our comprehensive,
-                        secure, and intelligent platform designed for modern medical practices.</p>
+        <section class="feature-card"
+            style="background: var(--bg-secondary); border: none; padding: 5rem 3rem; margin-bottom: 6rem; cursor: default;">
+            <div style="text-align: center; margin-bottom: 4rem;">
+                <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Clinical Intelligence System</h2>
+                <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto;">Advanced
+                    technology stack designed to stabilize and scale modern medical practices.</p>
+            </div>
+
+            <div class="profile-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2.5rem;">
+                <div style="display: flex; gap: 1.5rem; align-items: flex-start;">
+                    <div
+                        style="padding: 1rem; background: white; border-radius: 1rem; box-shadow: var(--shadow-sm); font-size: 1.5rem;">
+                        🛡️</div>
+                    <div>
+                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Clinical Data Shield</h4>
+                        <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.5;">Enterprise-grade
+                            vault architecture with zero-trust security and end-to-end medical encryption.</p>
+                    </div>
                 </div>
-
-                <div class="feature-grid">
-                    <div class="feature-card">
-                        <h3>Enterprise Security</h3>
-                        <p>HIPAA-compliant infrastructure with end-to-end encryption, multi-factor authentication, and
-                            advanced threat protection ensuring complete data security.</p>
-                        <div class="feature-stats">
-                            <div class="stat-item">
-                                <span class="stat-number">256-bit</span>
-                                <span class="stat-label">Encryption</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-number">99.9%</span>
-                                <span class="stat-label">Uptime</span>
-                            </div>
-                        </div>
+                <div style="display: flex; gap: 1.5rem; align-items: flex-start;">
+                    <div
+                        style="padding: 1rem; background: white; border-radius: 1rem; box-shadow: var(--shadow-sm); font-size: 1.5rem;">
+                        🤖</div>
+                    <div>
+                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Diagnostic Insight AI</h4>
+                        <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.5;">Neural-assisted
+                            radiological interpretation and precision clinical decision support system.</p>
                     </div>
-
-                    <div class="feature-card">
-
-                        <h3>Cross-Platform Access</h3>
-                        <p>Seamlessly access your medical data across all devices with our responsive design and native
-                            mobile applications for iOS and Android.</p>
-                        <div class="feature-stats">
-                            <div class="stat-item">
-                                <span class="stat-number">5+</span>
-                                <span class="stat-label">Platforms</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-number">24/7</span>
-                                <span class="stat-label">Access</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="feature-card">
-                        <h3>Lightning Performance</h3>
-                        <p>Optimized cloud infrastructure delivers sub-second response times for critical medical
-                            information access and real-time collaboration.</p>
-                        <div class="feature-stats">
-                            <div class="stat-item">
-                                <span class="stat-number">&lt;0.5s</span>
-                                <span class="stat-label">Load Time</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-number">CDN</span>
-                                <span class="stat-label">Global</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="feature-card">
-                        <h3>AI-Powered Insights</h3>
-                        <p>Advanced machine learning algorithms provide intelligent diagnosis assistance, drug
-                            interaction alerts, and predictive health analytics.</p>
-                        <div class="feature-stats">
-                            <div class="stat-item">
-                                <span class="stat-number">95%</span>
-                                <span class="stat-label">Accuracy</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-number">Smart</span>
-                                <span class="stat-label">Analysis</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="feature-card">
-                        <h3>Clinical Integration</h3>
-                        <p>Seamlessly integrate with existing hospital systems, lab equipment, and third-party medical
-                            devices for comprehensive patient care.</p>
-                        <div class="feature-stats">
-                            <div class="stat-item">
-                                <span class="stat-number">50+</span>
-                                <span class="stat-label">Integrations</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-number">HL7</span>
-                                <span class="stat-label">Standard</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="feature-card">
-                        <h3>Advanced Analytics</h3>
-                        <p>Comprehensive reporting and analytics dashboard with customizable metrics, trend analysis,
-                            and population health insights.</p>
-                        <div class="feature-stats">
-                            <div class="stat-item">
-                                <span class="stat-number">Real-time</span>
-                                <span class="stat-label">Reports</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-number">Custom</span>
-                                <span class="stat-label">Dashboards</span>
-                            </div>
-                        </div>
+                </div>
+                <div style="display: flex; gap: 1.5rem; align-items: flex-start;">
+                    <div
+                        style="padding: 1rem; background: white; border-radius: 1rem; box-shadow: var(--shadow-sm); font-size: 1.5rem;">
+                        📈</div>
+                    <div>
+                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Clinical Analytics</h4>
+                        <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.5;">Real-time health
+                            longitudinal tracking and population-level medical insight visualization.</p>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="footer">
-            <p>&copy; 2024 Prescription System. All rights reserved. | Secure Healthcare Management Platform</p>
-        </div>
-    </div>
+        <footer style="text-align: center; padding: 4rem 0; border-top: 1px solid var(--border-color);">
+            <div class="logo" style="justify-content: center; margin-bottom: 1.5rem; opacity: 0.6;">
+                <img src="assets/care.png" alt="Logo" height="30" />
+                <span>Medi<strong>Flow</strong></span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">&copy; 2024 MediFlow Clinical Intelligence Systems.
+                All professional standards maintained.</p>
+        </footer>
+    </main>
 
     <script>
         // Theme management functions

@@ -8,405 +8,7 @@
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="css/chatbot.css" />
   <script src="js/config.js"></script>
-  <style>
-    .appointments-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-
-    .page-header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    .page-header h1 {
-      color: #333;
-      margin-bottom: 0.5rem;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .stat-card {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      border-left: 4px solid #4CAF50;
-    }
-
-    .stat-number {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #4CAF50;
-      margin-bottom: 0.5rem;
-    }
-
-    .stat-label {
-      color: #666;
-      font-size: 0.9rem;
-    }
-
-    .filters {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      margin-bottom: 2rem;
-      display: flex;
-      gap: 1rem;
-      align-items: end;
-      flex-wrap: wrap;
-    }
-
-    .filter-group {
-      flex: 1;
-      min-width: 150px;
-    }
-
-    .filter-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      color: #333;
-      font-weight: 500;
-    }
-
-    .filter-group select,
-    .filter-group input {
-      width: 100%;
-      padding: 0.75rem;
-      border: 2px solid #e1e5e9;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-
-    .filter-btn {
-      background: #4CAF50;
-      color: white;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 500;
-      height: fit-content;
-    }
-
-    .appointments-grid {
-      display: grid;
-      gap: 1.5rem;
-    }
-
-    .appointment-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 1rem;
-    }
-
-    .patient-info h3 {
-      color: #333;
-      margin-bottom: 0.5rem;
-    }
-
-    .patient-info p {
-      color: #666;
-      margin: 0.25rem 0;
-      font-size: 0.9rem;
-    }
-
-    .appointment-badges {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      align-items: flex-end;
-    }
-
-    .detail-row {
-      margin-bottom: 0.5rem;
-      font-size: 0.9rem;
-    }
-
-    .detail-row strong {
-      color: #333;
-    }
-
-    .appointment-card {
-      background: white;
-      border-radius: 10px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      border-left: 5px solid #4CAF50;
-    }
-
-    .appointment-card.urgent {
-      border-left-color: #FF9800;
-    }
-
-    .appointment-card.emergency {
-      border-left-color: #F44336;
-    }
-
-    .appointment-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: start;
-      margin-bottom: 1rem;
-    }
-
-    .patient-info h3 {
-      color: #333;
-      margin-bottom: 0.25rem;
-    }
-
-    .patient-info p {
-      color: #666;
-      font-size: 0.9rem;
-      margin: 0.25rem 0;
-    }
-
-    .appointment-meta {
-      text-align: right;
-    }
-
-    .status-badge {
-      display: inline-block;
-      padding: 0.25rem 0.75rem;
-      border-radius: 15px;
-      font-size: 0.8rem;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-    }
-
-    .status-pending {
-      background: #fff3cd;
-      color: #856404;
-    }
-
-    .status-confirmed {
-      background: #d4edda;
-      color: #155724;
-    }
-
-    .status-rejected {
-      background: #f8d7da;
-      color: #721c24;
-    }
-
-    .status-completed {
-      background: #d1ecf1;
-      color: #0c5460;
-    }
-
-    .urgency-badge {
-      display: inline-block;
-      padding: 0.25rem 0.75rem;
-      border-radius: 15px;
-      font-size: 0.8rem;
-      font-weight: 500;
-    }
-
-    .urgency-normal {
-      background: #e3f2fd;
-      color: #1976d2;
-    }
-
-    .urgency-urgent {
-      background: #fff3e0;
-      color: #f57c00;
-    }
-
-    .urgency-emergency {
-      background: #ffebee;
-      color: #d32f2f;
-    }
-
-    .appointment-details {
-      margin: 1rem 0;
-    }
-
-    .appointment-details h4 {
-      color: #333;
-      margin-bottom: 0.5rem;
-    }
-
-    .appointment-details p {
-      color: #666;
-      line-height: 1.5;
-    }
-
-    .appointment-actions {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .action-btn {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      transition: transform 0.2s;
-    }
-
-    .action-btn:hover {
-      transform: translateY(-1px);
-    }
-
-    .confirm-btn {
-      background: #4CAF50;
-      color: white;
-    }
-
-    .reject-btn {
-      background: #F44336;
-      color: white;
-    }
-
-    .complete-btn {
-      background: #2196F3;
-      color: white;
-    }
-
-    .notes-btn {
-      background: #FF9800;
-      color: white;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 3rem;
-      color: #666;
-    }
-
-    .error {
-      background: #fee;
-      color: #c33;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-
-    .no-appointments {
-      text-align: center;
-      padding: 3rem;
-      color: #666;
-    }
-
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-    }
-
-    .modal-content {
-      background-color: white;
-      margin: 5% auto;
-      padding: 2rem;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 500px;
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-
-    .close {
-      color: #aaa;
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .close:hover {
-      color: #000;
-    }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      color: #333;
-      font-weight: 500;
-    }
-
-    .form-group input,
-    .form-group textarea {
-      width: 100%;
-      padding: 0.75rem;
-      border: 2px solid #e1e5e9;
-      border-radius: 8px;
-      font-size: 14px;
-      box-sizing: border-box;
-    }
-
-    .form-group textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-
-    .modal-actions {
-      display: flex;
-      gap: 1rem;
-      justify-content: flex-end;
-      margin-top: 1.5rem;
-    }
-
-    .save-btn {
-      background: #4CAF50;
-      color: white;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 500;
-    }
-
-    .theme-toggle-btn {
-      background-color: #ffffff;
-      border: 2px solid #e0e0e0;
-      border-radius: 50%;
-      width: 45px;
-      height: 45px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-      margin-right: 15px;
-    }
-
-    .theme-toggle-btn:hover {
-      background-color: #29a9f8;
-      border-color: #29a9f8;
-      transform: scale(1.05);
-    }
-
-    .theme-icon {
-      font-size: 1.2rem;
-      transition: transform 0.3s ease;
-    }
-  </style>
+</head>
 </head>
 
 <body>
@@ -420,7 +22,6 @@
       <ul>
         <li onclick="navigateTo('dashboard')">Home</li>
         <li onclick="navigateTo('history')">History</li>
-
         <li onclick="navigateTo('analytics')">Analytics</li>
         <li onclick="navigateTo('xray')">X-Ray</li>
         <li onclick="navigateTo('medicine')">Add Medicine</li>
@@ -430,93 +31,114 @@
       <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark Mode">
         <span class="theme-icon" id="theme-icon">🌙</span>
       </button>
-      <!-- Will be filled by JS -->
     </div>
   </header>
 
-  <div class="appointments-container">
-    <!-- Page Header -->
-    <div class="page-header">
-      <h1>Appointment Requests</h1>
-      <p>Manage patient appointment requests and scheduling</p>
-    </div>
+  <main class="content-wrapper">
+    <div class="form-container" style="max-width: 1200px;">
+      <div class="profile-header"
+        style="justify-content: space-between; border-bottom: none; margin-bottom: 2rem; padding-bottom: 0;">
+        <div class="profile-info">
+          <h1>Appointment Requests</h1>
+          <p>Streamline patient scheduling and consultation management</p>
+        </div>
+      </div>
 
-    <!-- Statistics -->
-    <div class="stats-grid" id="stats-grid">
-      <div class="stat-card">
-        <div class="stat-number" id="total-appointments">-</div>
-        <div class="stat-label">Total Requests</div>
+      <!-- Statistics -->
+      <div class="profile-grid" id="stats-grid"
+        style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 3rem;">
+        <div class="feature-card" style="text-align: center; border-bottom: 4px solid var(--accent-primary);">
+          <div style="font-size: 1.75rem; font-weight: 800; color: var(--accent-primary); margin-bottom: 0.5rem;"
+            id="total-appointments">-</div>
+          <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 600;">Total Requests</div>
+        </div>
+        <div class="feature-card" style="text-align: center; border-bottom: 4px solid #f59e0b;">
+          <div style="font-size: 1.75rem; font-weight: 800; color: #f59e0b; margin-bottom: 0.5rem;"
+            id="pending-appointments">-</div>
+          <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 600;">Pending</div>
+        </div>
+        <div class="feature-card" style="text-align: center; border-bottom: 4px solid var(--success);">
+          <div style="font-size: 1.75rem; font-weight: 800; color: var(--success); margin-bottom: 0.5rem;"
+            id="confirmed-appointments">-</div>
+          <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 600;">Confirmed</div>
+        </div>
+        <div class="feature-card" style="text-align: center; border-bottom: 4px solid var(--danger);">
+          <div style="font-size: 1.75rem; font-weight: 800; color: var(--danger); margin-bottom: 0.5rem;"
+            id="urgent-appointments">-</div>
+          <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 600;">Urgent Cases</div>
+        </div>
+        <div class="feature-card" style="text-align: center; border-bottom: 4px solid var(--accent-primary);">
+          <div style="font-size: 1.75rem; font-weight: 800; color: var(--accent-primary); margin-bottom: 0.5rem;"
+            id="today-appointments">-</div>
+          <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 600;">Today</div>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-number" id="pending-appointments">-</div>
-        <div class="stat-label">Pending</div>
+
+      <!-- Filters -->
+      <section
+        style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 3rem;">
+        <div class="profile-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+          <div class="form-group">
+            <label>Status</label>
+            <select id="status-filter">
+              <option value="">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="rejected">Rejected</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Urgency</label>
+            <select id="urgency-filter">
+              <option value="">All Urgency</option>
+              <option value="normal">Normal</option>
+              <option value="urgent">Urgent</option>
+              <option value="emergency">Emergency</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>From Date</label>
+            <input type="date" id="start-date" />
+          </div>
+          <div class="form-group">
+            <label>To Date</label>
+            <input type="date" id="end-date" />
+          </div>
+        </div>
+        <div class="header-right" style="justify-content: flex-end; margin-top: 1rem; gap: 1rem;">
+          <button class="book-btn" onclick="applyFilters()">Apply Filters</button>
+          <button class="book-btn" style="background: transparent; color: var(--text-secondary);"
+            onclick="clearFilters()">Clear</button>
+        </div>
+      </section>
+
+      <!-- Loading/Error States -->
+      <div id="loading" class="loading"
+        style="display: none; text-align: center; padding: 3rem; color: var(--text-muted);">
+        <p>Fetching clinician schedules...</p>
       </div>
-      <div class="stat-card">
-        <div class="stat-number" id="confirmed-appointments">-</div>
-        <div class="stat-label">Confirmed</div>
+      <div id="error" class="error"
+        style="display: none; background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 1rem; border-radius: var(--radius-md); text-align: center; margin-bottom: 2rem;">
       </div>
-      <div class="stat-card">
-        <div class="stat-number" id="urgent-appointments">-</div>
-        <div class="stat-label">Urgent/Emergency</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number" id="today-appointments">-</div>
-        <div class="stat-label">Today</div>
+
+      <!-- Appointments List -->
+      <div id="appointments-list" class="profile-grid" style="grid-template-columns: 1fr;">
+        <!-- Appointment requests will be loaded here -->
       </div>
     </div>
-
-    <!-- Filters -->
-    <div class="filters">
-      <div class="filter-group">
-        <label for="status-filter">Status</label>
-        <select id="status-filter">
-          <option value="">All Status</option>
-          <option value="pending">Pending</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="rejected">Rejected</option>
-          <option value="completed">Completed</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label for="urgency-filter">Urgency</label>
-        <select id="urgency-filter">
-          <option value="">All Urgency</option>
-          <option value="normal">Normal</option>
-          <option value="urgent">Urgent</option>
-          <option value="emergency">Emergency</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label for="start-date">From Date</label>
-        <input type="date" id="start-date" />
-      </div>
-      <div class="filter-group">
-        <label for="end-date">To Date</label>
-        <input type="date" id="end-date" />
-      </div>
-      <button class="filter-btn" onclick="applyFilters()">Apply Filters</button>
-      <button class="filter-btn" style="background: #6c757d;" onclick="clearFilters()">Clear</button>
-    </div>
-
-    <!-- Loading/Error States -->
-    <div id="loading" class="loading" style="display: none;">
-      Loading appointment requests...
-    </div>
-
-    <div id="error" class="error" style="display: none;"></div>
-
-    <!-- Appointments List -->
-    <div id="appointments-list" class="appointments-grid">
-      <!-- Appointment requests will be loaded here -->
-    </div>
-  </div>
+  </main>
 
   <!-- Appointment Action Modal -->
-  <div id="appointment-modal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="modal-title">Update Appointment</h3>
-        <span class="close" onclick="closeModal()">&times;</span>
+  <div id="appointment-modal" class="modal-backdrop"
+    style="display:none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center;">
+    <div class="form-container" style="max-width: 500px; margin: 0;">
+      <div class="profile-header" style="justify-content: space-between; margin-bottom: 2rem;">
+        <div class="profile-info">
+          <h1 id="modal-title">Update Appointment</h1>
+        </div>
+        <button class="book-btn" onclick="closeModal()"
+          style="background: transparent; color: var(--text-secondary); padding: 0.5rem;">✕</button>
       </div>
 
       <form id="appointment-form">
@@ -535,12 +157,14 @@
 
         <div class="form-group">
           <label for="doctor-notes">Notes (Optional)</label>
-          <textarea id="doctor-notes" placeholder="Add any notes or instructions..."></textarea>
+          <textarea id="doctor-notes" placeholder="Add any clinical notes or instructions..."
+            style="min-height: 100px;"></textarea>
         </div>
 
-        <div class="modal-actions">
-          <button type="submit" class="save-btn" id="save-btn">Save</button>
-          <button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
+        <div class="header-right" style="justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+          <button type="button" class="book-btn" style="background: var(--bg-tertiary); color: var(--text-primary);"
+            onclick="closeModal()">Cancel</button>
+          <button type="submit" class="book-btn" id="save-btn">Save Changes</button>
         </div>
       </form>
     </div>

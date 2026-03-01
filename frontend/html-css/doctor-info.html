@@ -1,71 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Doctor Information</title>
   <link rel="stylesheet" href="css/styles.css" />
-  <style>
-    .info-container {
-      max-width: 600px;
-      margin: 60px auto;
-      background-color: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .info-container h2 {
-      text-align: center;
-      color: #1976d2;
-      margin-bottom: 25px;
-    }
-
-    .info-container form {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    .info-container input,
-    .info-container textarea {
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-
-    .info-container button {
-      background-color: #1976d2;
-      color: #fff;
-      padding: 12px;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .info-container button:hover {
-      background-color: #125cb1;
-    }
-  </style>
 </head>
+
 <body>
+  <main class="content-wrapper"
+    style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem;">
+    <div class="form-container" style="max-width: 600px; margin: 0; width: 100%;">
+      <div class="profile-header"
+        style="text-align: center; border-bottom: none; margin-bottom: 2.5rem; padding-bottom: 0;">
+        <div class="profile-info" style="width: 100%;">
+          <div class="profile-avatar" style="margin: 0 auto 1.5rem auto; width: 80px; height: 80px; font-size: 2rem;">🩺
+          </div>
+          <h1>Complete Your Clinical Profile</h1>
+          <p>Please provide your professional details to set up your clinical workspace.</p>
+        </div>
+      </div>
 
-  <div class="info-container">
-    <h2>Complete Your Profile</h2>
-    <form id="doctor-info-form">
-      <input type="text" id="fullName" placeholder="Full Name" required />
-      <input type="text" id="specialization" placeholder="Specialization (e.g., Dentist, Cardiologist)" required />
-      <input type="text" id="clinicName" placeholder="Clinic / Hospital Name" required />
-      <textarea id="address" placeholder="Clinic Address" rows="3" required></textarea>
-      <input type="text" id="phone" placeholder="Phone Number" required />
-      <input type="text" id="timings" placeholder="Available Timings (e.g., 9AM - 1PM)" />
-      <input type="text" id="experience" placeholder="Experience / Degree (optional)" />
+      <form id="doctor-info-form">
+        <div class="form-group">
+          <label for="fullName">Full Professional Name</label>
+          <input type="text" id="fullName" placeholder="e.g. Dr. John Smith" required />
+        </div>
+        <div class="profile-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label for="specialization">Primary Specialization</label>
+            <input type="text" id="specialization" placeholder="e.g. Oral Surgeon" required />
+          </div>
+          <div class="form-group">
+            <label for="phone">Professional Contact</label>
+            <input type="text" id="phone" placeholder="e.g. +91 9876543210" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="clinicName">Clinic / Institution Name</label>
+          <input type="text" id="clinicName" placeholder="e.g. Smile Dental Care" required />
+        </div>
+        <div class="form-group">
+          <label for="address">Full Clinic Address</label>
+          <textarea id="address" placeholder="Enter complete practice location" rows="3" required
+            style="resize: vertical;"></textarea>
+        </div>
+        <div class="profile-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label for="timings">Operational Hours</label>
+            <input type="text" id="timings" placeholder="e.g. 10:00 AM - 06:00 PM" />
+          </div>
+          <div class="form-group">
+            <label for="experience">Experience / Credentials</label>
+            <input type="text" id="experience" placeholder="e.g. MDS, 12+ Years" />
+          </div>
+        </div>
 
-      <button type="submit">Save Info & Continue</button>
-    </form>
-  </div>
+        <div style="margin-top: 2rem;">
+          <button type="submit" class="book-btn"
+            style="width: 100%; padding: 1rem; font-size: 1.1rem; box-shadow: var(--shadow-sm);">Initialize Professional
+            Workspace</button>
+        </div>
+      </form>
+    </div>
+  </main>
 
   <script>
     // Auto-fill name from localStorage if available
@@ -115,4 +114,5 @@
     });
   </script>
 </body>
+
 </html>

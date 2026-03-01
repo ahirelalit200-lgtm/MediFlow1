@@ -172,8 +172,9 @@ function displayAppointments(appointments) {
 
   if (appointments.length === 0) {
     grid.innerHTML = `
-      <div class="no-appointments">
-        <h3>No appointment requests found</h3>
+      <div style="text-align: center; padding: 4rem; color: var(--text-muted); border: 2px dashed var(--border-color); border-radius: var(--radius-lg); width: 100%;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">📅</div>
+        <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">No appointment requests found</h3>
         <p>No patients have requested appointments matching the current filters.</p>
       </div>
     `;
@@ -181,74 +182,67 @@ function displayAppointments(appointments) {
   }
 
   const appointmentsHTML = appointments.map(appointment => {
-    // DEBUG: Check if ID exists
-    if (!appointment._id && !appointment.id) {
-      console.error("❌ Appointment missing ID:", appointment);
-    }
     const appointmentId = appointment._id || appointment.id;
     const preferredDate = new Date(appointment.preferredDate).toLocaleDateString();
     const preferredTime = appointment.preferredTime || 'Any time';
     const requestedDate = new Date(appointment.requestedAt).toLocaleDateString();
 
+    let urgencyColor = 'var(--accent-primary)';
+    if (appointment.urgency === 'urgent') urgencyColor = '#f59e0b';
+    if (appointment.urgency === 'emergency') urgencyColor = 'var(--danger)';
+
     return `
-      <div class="appointment-card ${appointment.urgency}">
-        <div class="appointment-header">
-          <div class="patient-info">
-            <h3>${appointment.patientName}</h3>
-            <p><strong>Mobile:</strong> ${appointment.patientMobile}</p>
-            <p><strong>Email:</strong> ${appointment.patientEmail}</p>
-            <p><strong>Requested:</strong> ${requestedDate}</p>
+      <div class="feature-card" style="border-left: 4px solid ${urgencyColor}; cursor: default; margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem;">
+          <div style="flex: 1; min-width: 250px;">
+            <h3 style="color: var(--text-primary); margin-bottom: 0.5rem; font-size: 1.25rem;">${appointment.patientName}</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">
+              <p><strong>Mobile:</strong> ${appointment.patientMobile}</p>
+              <p><strong>Email:</strong> ${appointment.patientEmail}</p>
+              <p><strong>Requested on:</strong> ${requestedDate}</p>
+            </div>
           </div>
-          <div class="appointment-meta">
-            <div class="status-badge status-${appointment.status}">
-              ${appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
+          <div style="text-align: right; min-width: 150px;">
+            <span class="badge" style="background: var(--bg-tertiary); color: var(--accent-primary); padding: 0.25rem 0.75rem; border-radius: 999px; font-weight: 600; font-size: 0.75rem; text-transform: uppercase;">${appointment.status}</span>
+            <div style="margin-top: 0.5rem;">
+              <span class="badge" style="background: ${urgencyColor}15; color: ${urgencyColor}; padding: 0.25rem 0.75rem; border-radius: 999px; font-weight: 600; font-size: 0.75rem; text-transform: uppercase;">${appointment.urgency}</span>
             </div>
-            <br>
-            <div class="urgency-badge urgency-${appointment.urgency}">
-              ${appointment.urgency.charAt(0).toUpperCase() + appointment.urgency.slice(1)}
+            <div style="margin-top: 1rem; font-size: 0.875rem; color: var(--text-primary);">
+              <p><strong>Preferred Slot:</strong></p>
+              <p style="color: var(--accent-primary); font-weight: 600;">${preferredDate} at ${preferredTime}</p>
             </div>
-            <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #666;">
-              <strong>Preferred:</strong><br>
-              ${preferredDate}<br>
-              ${preferredTime}
-            </p>
           </div>
         </div>
         
-        <div class="appointment-details">
-          <h4>Reason for Visit:</h4>
-          <p>${appointment.reason}</p>
+        <div style="margin: 1.5rem 0; padding: 1rem; background: var(--bg-tertiary); border-radius: var(--radius-md);">
+          <h4 style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Reason for Visit</h4>
+          <p style="color: var(--text-primary); font-size: 0.9375rem;">${appointment.reason}</p>
+          
           ${appointment.doctorNotes ? `
-            <h4>Doctor Notes:</h4>
-            <p>${appointment.doctorNotes}</p>
+            <h4 style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin: 1rem 0 0.5rem;">Doctor's Observations</h4>
+            <p style="color: var(--text-primary); font-size: 0.9375rem;">${appointment.doctorNotes}</p>
           ` : ''}
+          
           ${appointment.confirmedDate ? `
-            <h4>Confirmed Appointment:</h4>
-            <p>${new Date(appointment.confirmedDate).toLocaleDateString()} at ${appointment.confirmedTime || 'TBD'}</p>
+            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color); display: flex; align-items: center; gap: 0.5rem; color: var(--success); font-weight: 700;">
+              <span>✅ Verified Appointment:</span>
+              <span>${new Date(appointment.confirmedDate).toLocaleDateString()} at ${appointment.confirmedTime || 'TBD'}</span>
+            </div>
           ` : ''}
         </div>
         
-        <div class="appointment-actions">
+        <div class="header-right" style="gap: 0.75rem; flex-wrap: wrap;">
           ${appointment.status === 'pending' ? `
-            <button class="action-btn confirm-btn" onclick="openAppointmentModal('${appointmentId}', 'confirm')">
-              Confirm
-            </button>
-            <button class="action-btn reject-btn" onclick="openAppointmentModal('${appointmentId}', 'reject')">
-              Reject
-            </button>
+            <button class="book-btn" onclick="openAppointmentModal('${appointmentId}', 'confirm')">Confirm</button>
+            <button class="book-btn" style="background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger);" onclick="openAppointmentModal('${appointmentId}', 'reject')">Reject</button>
           ` : ''}
           ${appointment.status === 'confirmed' ? `
-            <button class="action-btn complete-btn" onclick="openAppointmentModal('${appointmentId}', 'complete')">
-              Mark Complete
-            </button>
+            <button class="book-btn" style="background: var(--success);" onclick="openAppointmentModal('${appointmentId}', 'complete')">Mark Complete</button>
           ` : ''}
-          <button class="action-btn notes-btn" onclick="openAppointmentModal('${appointmentId}', 'notes')">
-            ${appointment.doctorNotes ? 'Edit Notes' : 'Add Notes'}
+          <button class="book-btn" style="background: var(--bg-tertiary); color: var(--text-primary);" onclick="openAppointmentModal('${appointmentId}', 'notes')">
+            ${appointment.doctorNotes ? 'Edit Clinical Notes' : 'Add Clinical Notes'}
           </button>
-          
-          <button class="action-btn" style="background: #dc3545; color: white;" onclick="deleteAppointment('${appointmentId}')">
-            Delete
-          </button>
+          <button class="book-btn" style="background: transparent; color: var(--danger); border: 1px solid transparent;" onclick="deleteAppointment('${appointmentId}')">Delete</button>
         </div>
       </div>
     `;

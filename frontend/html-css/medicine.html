@@ -8,134 +8,6 @@
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="css/chatbot.css" />
   <script src="js/config.js"></script>
-  <style>
-    .medicine-container {
-      max-width: 1100px;
-      margin: 40px auto;
-      padding: 20px;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    }
-
-    h2,
-    h3 {
-      text-align: center;
-      color: #1976d2;
-      margin-bottom: 20px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-
-    th,
-    td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: center;
-    }
-
-    th {
-      background-color: #f0f4f8;
-    }
-
-    input,
-    select {
-      padding: 6px;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      width: 100%;
-    }
-
-    button {
-      background-color: #1976d2;
-      color: #fff;
-      border: none;
-      padding: 8px 14px;
-      font-size: 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      margin: 5px;
-    }
-
-    button:hover {
-      background-color: #125cb1;
-    }
-
-    .remove-btn {
-      background-color: #ff5252;
-    }
-
-    .remove-btn:hover {
-      background-color: #e03b3b;
-    }
-
-    #preview {
-      margin-top: 30px;
-      padding: 15px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      background: #f9f9f9;
-    }
-
-    #preview h3 {
-      margin-bottom: 15px;
-      color: #444;
-    }
-
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 20px;
-      background: #ffffff;
-      color: #fff;
-    }
-
-    .navbar .logo span {
-      font-size: 20px;
-      font-weight: bold;
-    }
-
-    .navbar ul {
-      list-style: none;
-      display: flex;
-      gap: 20px;
-    }
-
-    .navbar ul li {
-      cursor: pointer;
-    }
-
-    .theme-toggle-btn {
-      background-color: #ffffff;
-      border: 2px solid #e0e0e0;
-      border-radius: 50%;
-      width: 45px;
-      height: 45px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-      margin-right: 15px;
-    }
-
-    .theme-toggle-btn:hover {
-      background-color: #29a9f8;
-      border-color: #29a9f8;
-      transform: scale(1.05);
-    }
-
-    .theme-icon {
-      font-size: 1.2rem;
-      transition: transform 0.3s ease;
-    }
-  </style>
 </head>
 
 <body>
@@ -152,7 +24,6 @@
         <li onclick="navigateTo('appointments')">Appointments</li>
         <li onclick="navigateTo('analytics')">Analytics</li>
         <li onclick="navigateTo('xray')">X-Ray</li>
-
       </ul>
     </nav>
     <div class="header-right" id="auth-buttons">
@@ -162,57 +33,64 @@
     </div>
   </header>
 
-  <div class="medicine-container">
-    <h2>Manage Medicines</h2>
+  <div class="content-wrapper">
+    <div class="form-container" style="max-width: 1200px;">
+      <h1 style="text-align: center; margin-bottom: 2rem; color: var(--text-primary);">Inventory Management</h1>
 
-    <table id="medicine-table">
-      <thead>
-        <tr>
-          <th>Code</th>
-          <th>Medicine Name</th>
-          <th>Dosage (e.g. 1-0-1)</th>
-          <th>Duration (days)</th>
-          <th>Measure</th>
-          <th>Instruction</th>
-          <th>Remove</th>
-        </tr>
-      </thead>
-      <tbody id="medicine-table-body">
-        <tr>
-          <td><input type="text" placeholder="Code" required></td>
-          <td><input type="text" placeholder="Medicine name" required></td>
-          <td><input type="text" placeholder="1-0-1" required></td>
-          <td><input type="text" placeholder="3 days" required></td>
-          <td><input type="number" placeholder="6" required></td>
-          <td>
-            <select required>
-              <option value="जेवण आधी">जेवण आधी</option>
-              <option value="जेवण नंतर">जेवण नंतर</option>
-            </select>
-          </td>
-          <td><button type="button" class="remove-btn" onclick="removeRow(this)">X</button></td>
-        </tr>
-      </tbody>
-    </table>
-
-    <button onclick="addRow()">Add Medicine</button>
-    <button onclick="saveMedicines()">Save Medicines</button>
-
-    <div id="preview" style="display:none;">
-      <h3>Preview Medicines</h3>
-      <table>
+      <table class="professional-table" id="medicine-table">
         <thead>
           <tr>
             <th>Code</th>
             <th>Medicine Name</th>
-            <th>Dosage</th>
-            <th>Duration</th>
+            <th>Dosage (e.g. 1-0-1)</th>
+            <th>Duration (days)</th>
             <th>Measure</th>
             <th>Instruction</th>
+            <th style="width: 50px;"></th>
           </tr>
         </thead>
-        <tbody id="preview-body"></tbody>
+        <tbody id="medicine-table-body">
+          <tr>
+            <td><input type="text" placeholder="Code" required></td>
+            <td><input type="text" placeholder="Medicine name" required></td>
+            <td><input type="text" placeholder="1-0-1" required></td>
+            <td><input type="text" placeholder="3 days" required></td>
+            <td><input type="number" placeholder="6" required></td>
+            <td>
+              <select required>
+                <option value="जेवण आधी">जेवण आधी</option>
+                <option value="जेवण नंतर">जेवण नंतर</option>
+              </select>
+            </td>
+            <td><button type="button" class="book-btn" style="background: var(--danger); padding: 0.25rem 0.5rem;"
+                onclick="removeRow(this)">✕</button></td>
+          </tr>
+        </tbody>
       </table>
+
+      <div class="header-right" style="justify-content: center; gap: 1rem; width: 100%;">
+        <button class="book-btn" onclick="addRow()"
+          style="background: var(--bg-tertiary); color: var(--text-primary);">Add Row</button>
+        <button class="book-btn" onclick="saveMedicines()">Save All Inventory</button>
+      </div>
+
+      <div id="preview"
+        style="display:none; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
+        <h3 style="margin-bottom: 1.5rem; color: var(--text-secondary);">Inventory Preview</h3>
+        <table class="professional-table">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Medicine Name</th>
+              <th>Dosage</th>
+              <th>Duration</th>
+              <th>Measure</th>
+              <th>Instruction</th>
+            </tr>
+          </thead>
+          <tbody id="preview-body"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -269,7 +147,7 @@
             <option value="जेवण नंतर">जेवण नंतर</option>
           </select>
         </td>
-        <td><button type="button" class="remove-btn" onclick="removeRow(this)">X</button></td>
+        <td><button type="button" class="book-btn" style="background: var(--danger); padding: 0.25rem 0.5rem;" onclick="removeRow(this)">✕</button></td>
       `;
       tableBody.appendChild(row);
     }
@@ -457,7 +335,7 @@
               <option value="जेवण नंतर" ${(med.instruction == "जेवण नंतर") ? "selected" : ""}>जेवण नंतर</option>
             </select>
           </td>
-          <td><button type="button" class="remove-btn" onclick="removeRow(this)" ${deleteBtnAttr}>X</button></td>
+          <td><button type="button" class="book-btn" style="background: var(--danger); padding: 0.25rem 0.5rem;" onclick="removeRow(this)" ${deleteBtnAttr}>✕</button></td>
         `;
         tableBody.appendChild(row);
       });

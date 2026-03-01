@@ -8,675 +8,9 @@
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="css/chatbot.css" />
   <script src="js/config.js"></script>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: "Segoe UI", sans-serif;
-      background: linear-gradient(to right, #f7fbff, #e5f3ff);
-      color: #1a1a1a;
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-    }
-
-    .container {
-      max-width: 1600px;
-      margin: 0 auto;
-      padding: 40px 30px;
-    }
-
-    .page-header {
-      text-align: center;
-      margin-bottom: 50px;
-      animation: fadeInDown 0.6s ease-out;
-    }
-
-    .page-header h2 {
-      color: #1a1a1a;
-      font-size: 3rem;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-
-    .page-header p {
-      color: #4f4f4f;
-      font-size: 1.1rem;
-      font-weight: 400;
-      line-height: 1.6;
-    }
-
-    @keyframes fadeInDown {
-      from {
-        opacity: 0;
-        transform: translateY(-30px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes scaleIn {
-      from {
-        opacity: 0;
-        transform: scale(0.9);
-      }
-
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-
-    .analytics-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 25px;
-      margin-bottom: 40px;
-    }
-
-    .stat-card {
-      background: #ffffff;
-      color: #1a1a1a;
-      padding: 35px;
-      border-radius: 20px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      position: relative;
-      overflow: hidden;
-      animation: fadeInUp 0.6s ease-out;
-      animation-fill-mode: both;
-    }
-
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 5px;
-      background: #29a9f8;
-    }
-
-    .stat-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-    }
-
-    .stat-card:nth-child(1) {
-      animation-delay: 0.1s;
-    }
-
-    .stat-card:nth-child(2) {
-      animation-delay: 0.2s;
-    }
-
-    .stat-card:nth-child(3) {
-      animation-delay: 0.3s;
-    }
-
-    .stat-card:nth-child(4) {
-      animation-delay: 0.4s;
-    }
-
-    .stat-card.blue::before {
-      background: #29a9f8;
-    }
-
-    .stat-card.green::before {
-      background: #56ab2f;
-    }
-
-    .stat-card.orange::before {
-      background: #f093fb;
-    }
-
-    .stat-card.purple::before {
-      background: #7b61ff;
-    }
-
-    .stat-card.teal::before {
-      background: #20c997;
-    }
-
-    .stat-card .icon {
-      width: 60px;
-      height: 60px;
-      border-radius: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      margin-bottom: 20px;
-      background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
-    }
-
-    .stat-card.blue .icon {
-      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-    }
-
-    .stat-card.green .icon {
-      background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-    }
-
-    .stat-card.orange .icon {
-      background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
-    }
-
-    .stat-card.purple .icon {
-      background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
-    }
-
-    .stat-card.teal .icon {
-      background: linear-gradient(135deg, #d4f4dd 0%, #a7f3d0 100%);
-    }
-
-    .stat-card h3 {
-      font-size: 0.9rem;
-      margin-bottom: 15px;
-      opacity: 0.7;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .stat-card .number {
-      font-size: 3rem;
-      font-weight: 800;
-      margin-bottom: 8px;
-      color: #1a1a1a;
-    }
-
-    .stat-card.blue .number {
-      color: #29a9f8;
-    }
-
-    .stat-card.green .number {
-      color: #56ab2f;
-    }
-
-    .stat-card.orange .number {
-      color: #f093fb;
-    }
-
-    .stat-card.purple .number {
-      color: #7b61ff;
-    }
-
-    .stat-card.teal .number {
-      color: #20c997;
-    }
-
-    .stat-card .label {
-      font-size: 0.95rem;
-      opacity: 0.6;
-      font-weight: 500;
-    }
-
-    .chart-section {
-      background: #ffffff;
-      padding: 40px;
-      border-radius: 20px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-      margin-bottom: 30px;
-      animation: scaleIn 0.6s ease-out;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .chart-section:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
-    }
-
-    .chart-section h3 {
-      color: #1a1a1a;
-      margin-bottom: 30px;
-      font-size: 1.6rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .chart-section h3::before {
-      content: '';
-      width: 5px;
-      height: 30px;
-      background: #29a9f8;
-      border-radius: 10px;
-    }
-
-    .chart-container {
-      position: relative;
-      height: 220px;
-      margin-bottom: 20px;
-    }
-
-    .bar-chart {
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      height: 180px;
-      gap: 30px;
-      padding: 20px 40px;
-    }
-
-    .bar {
-      width: 60px;
-      max-width: 80px;
-      background: linear-gradient(to top, #29a9f8, #7b61ff);
-      border-radius: 12px 12px 0 0;
-      position: relative;
-      transition: all 0.3s ease;
-      min-height: 20px;
-      box-shadow: 0 4px 15px rgba(41, 169, 248, 0.3);
-      animation: growUp 0.8s ease-out;
-      animation-fill-mode: both;
-    }
-
-    @keyframes growUp {
-      from {
-        transform: scaleY(0);
-        opacity: 0;
-      }
-
-      to {
-        transform: scaleY(1);
-        opacity: 1;
-      }
-    }
-
-    .bar:hover {
-      background: linear-gradient(to top, #1e88e5, #29a9f8);
-      transform: translateY(-3px);
-      box-shadow: 0 8px 25px rgba(41, 169, 248, 0.5);
-    }
-
-    .bar-label {
-      position: absolute;
-      bottom: -25px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 0.85rem;
-      color: #4f4f4f;
-      white-space: nowrap;
-    }
-
-    .bar-value {
-      position: absolute;
-      top: -25px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-weight: bold;
-      color: #1a1a1a;
-      font-size: 0.9rem;
-    }
-
-    .recent-patients {
-      background: #ffffff;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-    }
-
-    .recent-patients h3 {
-      color: #1a1a1a;
-      margin-bottom: 20px;
-      font-size: 1.5rem;
-    }
-
-    .patient-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-
-    .patient-table th {
-      background-color: #f1f6fb;
-      color: #1a1a1a;
-      padding: 12px;
-      text-align: left;
-      font-weight: 600;
-      border-bottom: 2px solid #29a9f8;
-    }
-
-    .patient-table td {
-      padding: 12px;
-      border-bottom: 1px solid #e0e0e0;
-      color: #4f4f4f;
-    }
-
-    .patient-table tr:hover {
-      background-color: #f7fbff;
-    }
-
-    .filter-section {
-      background: #ffffff;
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-      margin-bottom: 40px;
-      animation: fadeInUp 0.6s ease-out;
-    }
-
-    .filter-toggle-btn {
-      background-color: #29a9f8;
-      color: white;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 25px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-
-    .filter-toggle-btn:hover {
-      background-color: #7b61ff;
-    }
-
-    .filter-inputs {
-      display: none;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 25px;
-      align-items: end;
-      margin-top: 20px;
-    }
-
-    .filter-inputs.show {
-      display: grid;
-    }
-
-    .filter-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .filter-group label {
-      font-weight: 600;
-      color: #1a1a1a;
-      font-size: 0.9rem;
-    }
-
-    .filter-group select,
-    .filter-group input {
-      padding: 12px 16px;
-      border: 2px solid #e0e0e0;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      transition: all 0.3s ease;
-      background: #f8f9fa;
-      width: 100%;
-    }
-
-    .filter-group select:focus,
-    .filter-group input:focus {
-      outline: none;
-      border-color: #667eea;
-      background: #ffffff;
-      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-    }
-
-    .filter-actions {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .btn-primary {
-      background-color: #29a9f8;
-      color: white;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 25px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      flex: 1;
-    }
-
-    .btn-primary:hover {
-      background-color: #7b61ff;
-    }
-
-    .btn-secondary {
-      background: #6c757d;
-      color: white;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 25px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      flex: 1;
-    }
-
-    .btn-secondary:hover {
-      background: #5a6268;
-    }
-
-    /* Charts Row Layout */
-    .charts-row {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 30px;
-      margin-bottom: 30px;
-    }
-
-    .chart-section.full-width {
-      grid-column: 1 / -1;
-    }
-
-    .chart-section.half-width {
-      grid-column: span 1;
-    }
-
-    .no-data {
-      text-align: center;
-      padding: 40px;
-      color: #4f4f4f;
-      font-size: 1.1rem;
-    }
-
-    .pie-chart-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 40px;
-      flex-wrap: wrap;
-    }
-
-    .pie-chart {
-      width: 200px;
-      height: 200px;
-      border-radius: 50%;
-      position: relative;
-    }
-
-    .legend {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .legend-color {
-      width: 20px;
-      height: 20px;
-      border-radius: 4px;
-    }
-
-    .legend-text {
-      font-size: 0.9rem;
-      color: #4f4f4f;
-    }
-
-
-    /* Table Wrapper */
-    .table-wrapper {
-      overflow-x: auto;
-      border-radius: 12px;
-      margin-top: 20px;
-    }
-
-    .recent-patients {
-      background: #ffffff;
-      padding: 40px;
-      border-radius: 20px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-      animation: scaleIn 0.6s ease-out;
-    }
-
-    .recent-patients h3 {
-      color: #1a1a1a;
-      margin-bottom: 10px;
-      font-size: 1.6rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .patient-table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-    }
-
-    .patient-table th {
-      background-color: #29a9f8;
-      color: #ffffff;
-      padding: 16px;
-      text-align: left;
-      font-weight: 600;
-      font-size: 0.95rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .patient-table th:first-child {
-      border-radius: 12px 0 0 0;
-    }
-
-    .patient-table th:last-child {
-      border-radius: 0 12px 0 0;
-    }
-
-    .patient-table td {
-      padding: 16px;
-      border-bottom: 1px solid #e0e0e0;
-      color: #4f4f4f;
-      font-size: 0.95rem;
-    }
-
-    .patient-table tbody tr {
-      transition: all 0.3s ease;
-    }
-
-    .patient-table tbody tr:hover {
-      background-color: #f7fbff;
-      transform: scale(1.01);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    }
-
-    .patient-table tbody tr:last-child td:first-child {
-      border-radius: 0 0 0 12px;
-    }
-
-    .patient-table tbody tr:last-child td:last-child {
-      border-radius: 0 0 12px 0;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 1024px) {
-      .charts-row {
-        grid-template-columns: 1fr;
-      }
-
-      .chart-section.half-width {
-        grid-column: 1 / -1;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        padding: 20px 15px;
-      }
-
-      .page-header h2 {
-        font-size: 2rem;
-      }
-
-      .page-header p {
-        font-size: 0.95rem;
-      }
-
-      .stat-card {
-        padding: 25px;
-      }
-
-      .stat-card .number {
-        font-size: 2.5rem;
-      }
-
-      .chart-section {
-        padding: 25px;
-      }
-
-      .filter-section {
-        padding: 20px;
-        grid-template-columns: 1fr;
-      }
-
-      .filter-actions {
-        flex-direction: column;
-      }
-
-      .btn-primary,
-      .btn-secondary {
-        width: 100%;
-      }
-
-      .analytics-grid {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      }
-
-      .recent-patients {
-        padding: 25px;
-      }
-
-    }
-  </style>
+</head>
 
 <body>
-
   <!-- Navbar -->
   <header class="navbar">
     <div class="logo">
@@ -686,688 +20,710 @@
     <nav>
       <ul>
         <li onclick="navigateTo('dashboard')">Home</li>
-
         <li onclick="navigateTo('appointments')">Appointments</li>
-        <li onclick="navigateTo('analytics')">Analytics</li>
+        <li onclick="navigateTo('history')">History</li>
         <li onclick="navigateTo('xray')">X-Ray</li>
         <li onclick="navigateTo('medicine')">Add Medicine</li>
       </ul>
     </nav>
-    <div class="header-right" id="auth-buttons"></div>
+    <div class="header-right" id="auth-buttons">
+      <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark Mode">
+        <span class="theme-icon" id="theme-icon">🌙</span>
+      </button>
+    </div>
   </header>
 
-  <div class="container">
-    <div class="page-header">
-      <h2> Patient Analytics Dashboard</h2>
-      <p>Comprehensive insights into your practice performance</p>
-    </div>
-
-    <!-- Filter Section -->
-    <div class="filter-section">
-      <button class="filter-toggle-btn" onclick="toggleFilters()">
-        Show Filters
-      </button>
-
-      <div class="filter-inputs" id="filterInputs">
-        <div class="filter-group">
-          <label for="dateRange">Quick Range</label>
-          <select id="dateRange">
-            <option value="7">Last 7 Days</option>
-            <option value="30" selected>Last 30 Days</option>
-            <option value="90">Last 90 Days</option>
-            <option value="365">Last Year</option>
-            <option value="all">All Time</option>
-          </select>
+  <main class="content-wrapper">
+    <div class="form-container" style="max-width: 1400px;">
+      <div class="profile-header"
+        style="justify-content: space-between; border-bottom: none; margin-bottom: 2rem; padding-bottom: 0;">
+        <div class="profile-info">
+          <h1>Patient Analytics Dashboard</h1>
+          <p>Comprehensive clinical insights and practice performance metrics</p>
         </div>
-
-        <div class="filter-group">
-          <label for="startDate">From Date</label>
-          <input type="date" id="startDate" />
-        </div>
-
-        <div class="filter-group">
-          <label for="endDate">To Date</label>
-          <input type="date" id="endDate" />
-        </div>
-
-        <div class="filter-actions">
-          <button class="btn-primary" onclick="applyFilters()"> Apply</button>
-          <button class="btn-secondary" onclick="resetFilters()"> Reset</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Statistics Cards -->
-    <div class="analytics-grid">
-      <div class="stat-card blue">
-
-        <h3>Total Patients</h3>
-        <div class="number" id="totalPatients">0</div>
-        <div class="label">Unique patients treated</div>
-      </div>
-
-      <div class="stat-card green">
-
-        <h3>Total Prescriptions</h3>
-        <div class="number" id="totalPrescriptions">0</div>
-        <div class="label">Prescriptions issued</div>
-      </div>
-
-      <div class="stat-card orange">
-
-        <h3>This Month</h3>
-        <div class="number" id="monthlyPatients">0</div>
-        <div class="label">Patients this month</div>
-      </div>
-
-      <div class="stat-card purple">
-
-        <h3>Average Per Day</h3>
-        <div class="number" id="avgPerDay">0</div>
-        <div class="label">Patients per day</div>
-      </div>
-
-      <div class="stat-card teal">
-
-        <h3>Patient Types</h3>
-        <div class="number" id="patientTypes">0</div>
-        <div class="label">Different conditions</div>
-      </div>
-    </div>
-
-    <!-- Two Column Layout for Charts -->
-    <div class="charts-row">
-      <!-- Prescriptions Over Time -->
-      <div class="chart-section half-width">
-        <h3> Prescriptions Over Time</h3>
-        <div class="chart-container">
-          <div class="bar-chart" id="prescriptionChart"></div>
+        <div class="header-right">
+          <button class="book-btn" onclick="toggleFilters()"
+            style="background: var(--bg-tertiary); color: var(--text-primary);">Configure Report</button>
         </div>
       </div>
 
-      <!-- Demographics and Age Side by Side -->
-      <div class="chart-section half-width">
-        <h3> Patient Demographics</h3>
-        <div class="pie-chart-container">
-          <div>
-            <canvas id="genderPieChart" width="200" height="200"></canvas>
+      <!-- Filter Section -->
+      <section id="filterInputs"
+        style="display: none; background: var(--bg-tertiary); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem;">
+        <div class="profile-grid">
+          <div class="form-group">
+            <label>Reporting Period</label>
+            <select id="dateRange">
+              <option value="7">Last 7 Days</option>
+              <option value="30" selected>Last 30 Days</option>
+              <option value="90">Last 90 Days</option>
+              <option value="365">Last Year</option>
+              <option value="all">All Time</option>
+            </select>
           </div>
-          <div class="legend" id="genderLegend"></div>
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" id="startDate" />
+          </div>
+          <div class="form-group">
+            <label>End Date</label>
+            <input type="date" id="endDate" />
+          </div>
+        </div>
+        <div class="header-right" style="justify-content: flex-end; margin-top: 1rem; gap: 1rem;">
+          <button class="book-btn" onclick="applyFilters()">Generate Insight</button>
+          <button class="book-btn" style="background: transparent; color: var(--text-secondary);"
+            onclick="resetFilters()">Reset</button>
+        </div>
+      </section>
+
+      <!-- Statistics Cards -->
+      <div class="profile-grid"
+        style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 3rem;">
+        <div class="feature-card" style="text-align: center; border-bottom: 4px solid var(--accent-primary);">
+          <div
+            style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+            Total Patients</div>
+          <div style="font-size: 2.25rem; font-weight: 800; color: var(--text-primary);" id="totalPatients">0</div>
+          <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem;">Validated unique caseload</p>
+        </div>
+        <div class="feature-card" style="text-align: center; border-bottom: 4px solid var(--success);">
+          <div
+            style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+            Prescriptions</div>
+          <div style="font-size: 2.25rem; font-weight: 800; color: var(--text-primary);" id="totalPrescriptions">0</div>
+          <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem;">Standard clinical outcomes</p>
+        </div>
+        <div class="feature-card" style="text-align: center; border-bottom: 4px solid #f59e0b;">
+          <div
+            style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+            Active This Month</div>
+          <div style="font-size: 2.25rem; font-weight: 800; color: var(--text-primary);" id="monthlyPatients">0</div>
+          <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem;">Current cycle engagement</p>
+        </div>
+        <div class="feature-card" style="text-align: center; border-bottom: 4px solid var(--clinical-blue);">
+          <div
+            style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+            Daily Average</div>
+          <div style="font-size: 2.25rem; font-weight: 800; color: var(--text-primary);" id="avgPerDay">0</div>
+          <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem;">Optimized workflow speed</p>
+        </div>
+        <div class="feature-card" style="text-align: center; border-bottom: 4px solid var(--accent-primary);">
+          <div
+            style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+            Conditions</div>
+          <div style="font-size: 2.25rem; font-weight: 800; color: var(--text-primary);" id="patientTypes">0</div>
+          <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem;">Diagnostic variety</p>
         </div>
       </div>
-    </div>
 
-    <div class="charts-row">
-      <div class="chart-section half-width">
-        <h3> Age Distribution</h3>
-        <div class="chart-container">
-          <div class="bar-chart" id="ageChart"></div>
+      <!-- Two Column Layout for Charts -->
+      <div class="profile-grid"
+        style="grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+        <!-- Prescriptions Over Time -->
+        <div class="feature-card" style="padding: 2rem; cursor: default;">
+          <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+            <span
+              style="display: block; width: 4px; height: 1.5rem; background: var(--accent-primary); border-radius: 2px;"></span>
+            Clinical Activity Trends
+          </h3>
+          <div class="chart-container">
+            <div class="bar-chart" id="prescriptionChart"></div>
+          </div>
+        </div>
+
+        <!-- Demographics -->
+        <div class="feature-card" style="padding: 2rem; cursor: default;">
+          <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+            <span
+              style="display: block; width: 4px; height: 1.5rem; background: var(--success); border-radius: 2px;"></span>
+            Patient Demographics
+          </h3>
+          <div class="pie-chart-container">
+            <canvas id="genderPieChart" width="220" height="220"></canvas>
+            <div class="legend" id="genderLegend"></div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Treatment Types - Full Width Row -->
-    <div class="charts-row">
-      <div class="chart-section full-width">
-        <h3> Treatment Types Distribution</h3>
-        <div class="chart-container">
-          <div class="bar-chart" id="treatmentTypeChart"></div>
+      <div class="profile-grid"
+        style="grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+        <!-- Conditions -->
+        <div class="feature-card" style="padding: 2rem; cursor: default;">
+          <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+            <span style="display: block; width: 4px; height: 1.5rem; background: #f59e0b; border-radius: 2px;"></span>
+            Top Medical Conditions
+          </h3>
+          <div class="chart-container">
+            <div class="bar-chart" id="conditionsChart"></div>
+          </div>
+        </div>
+
+        <!-- Age Groups -->
+        <div class="feature-card" style="padding: 2rem; cursor: default;">
+          <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+            <span
+              style="display: block; width: 4px; height: 1.5rem; background: var(--clinical-blue); border-radius: 2px;"></span>
+            Age Distribution Analysis
+          </h3>
+          <div class="pie-chart-container">
+            <canvas id="agePieChart" width="220" height="220"></canvas>
+            <div class="legend" id="ageLegend"></div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Recent Patients Table -->
-    <div class="recent-patients">
-      <h3>Recent Patients</h3>
-      <div class="table-wrapper">
-        <table class="patient-table">
+      <!-- Recent Patients Table -->
+      <div class="feature-card" style="padding: 2rem; cursor: default;">
+        <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+          <span
+            style="display: block; width: 4px; height: 1.5rem; background: var(--accent-primary); border-radius: 2px;"></span>
+          Recent Clinical Records
+        </h3>
+        <table class="professional-table" id="recentPatientsTableContainer">
           <thead>
             <tr>
-              <th>Patient Name</th>
+              <th>Patient Identity</th>
               <th>Age</th>
               <th>Gender</th>
-              <th>Date</th>
-              <th>Medicines</th>
+              <th>Visitation Date</th>
+              <th>Medication Count</th>
             </tr>
           </thead>
-          <tbody id="recentPatientsTable">
-            <tr>
-              <td colspan="5" class="no-data">Loading patient data...</td>
-            </tr>
-          </tbody>
+          <tbody id="recentPatientsTable"></tbody>
         </table>
       </div>
     </div>
-  </div>
+    </div>
 
-  <script>
-    // Theme management functions - Force light theme
-    function initializeTheme() {
-      // Force light theme for consistency
-      const theme = 'light';
-      setTheme(theme);
-      updateThemeIcon(theme);
-    }
-
-    function setTheme(theme) {
-      // Always remove dark theme attribute
-      document.body.removeAttribute('data-theme');
-      localStorage.setItem('theme', 'light');
-    }
-
-    function toggleTheme() {
-      // Keep theme always light - disable toggle
-      setTheme('light');
-      updateThemeIcon('light');
-    }
-
-    function updateThemeIcon(theme) {
-      const icon = document.getElementById('theme-icon');
-      if (icon) {
-        icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    <script>
+      // Theme management functions - Force light theme
+      function initializeTheme() {
+        // Force light theme for consistency
+        const theme = 'light';
+        setTheme(theme);
+        updateThemeIcon(theme);
       }
-    }
 
-    // Initialize theme on page load
-    initializeTheme();
-
-    let allPrescriptions = [];
-    let filteredPrescriptions = [];
-
-    // Toggle filter visibility
-    function toggleFilters() {
-      const filterInputs = document.getElementById("filterInputs");
-      const toggleBtn = document.querySelector(".filter-toggle-btn");
-
-      if (filterInputs.classList.contains("show")) {
-        filterInputs.classList.remove("show");
-        toggleBtn.innerHTML = "Show Filters";
-      } else {
-        filterInputs.classList.add("show");
-        toggleBtn.innerHTML = " Hide Filters";
+      function setTheme(theme) {
+        // Always remove dark theme attribute
+        document.body.removeAttribute('data-theme');
+        localStorage.setItem('theme', 'light');
       }
-    }
 
-    // Auth buttons
-    function renderAuthButtons() {
-      const div = document.getElementById("auth-buttons");
-      if (!div) return;
-      const displayName = (JSON.parse(localStorage.getItem("doctorProfile") || "null")?.fullName) || localStorage.getItem("doctorName");
-      const email = localStorage.getItem("email");
-      if (displayName || email) {
-        div.innerHTML = ``;
-      } else {
-        div.innerHTML = `<button class="book-btn" onclick="location.href='signup.html'">Login</button>`;
+      function toggleTheme() {
+        // Keep theme always light - disable toggle
+        setTheme('light');
+        updateThemeIcon('light');
       }
-    }
 
-    function navigateTo(page) {
-      if (page === "signup") { window.location.href = "signup.html"; }
-      else if (page === "profile") { window.location.href = "profile.html"; }
-      else if (page === "prescription") { window.location.href = "prescription.html"; }
-      else if (page === "dashboard") { window.location.href = "doctor-dashboard.html"; }
-      else if (page === "history") { window.location.href = "history.html"; }
-      else if (page === "appointments") { window.location.href = "doctor-appointments.html"; }
-      else if (page === "xray") { window.location.href = "xray.html"; }
-      else if (page === "medicine") { window.location.href = "medicine.html"; }
-    }
-
-    function logout() {
-      try { localStorage.setItem("global_logout", String(Date.now())); } catch (e) { }
-      localStorage.removeItem("email");
-      localStorage.removeItem("token");
-      localStorage.removeItem("loggedIn");
-      localStorage.removeItem("doctorName");
-      localStorage.removeItem("doctorProfile");
-      window.location.href = "index.html";
-    }
-
-    renderAuthButtons();
-
-    // Cross-tab logout listener
-    window.addEventListener("storage", function (e) {
-      if (e && e.key === "global_logout") {
-        const hasAuth = localStorage.getItem("email") || localStorage.getItem("token");
-        if (hasAuth) {
-          localStorage.removeItem("email");
-          localStorage.removeItem("token");
-          localStorage.removeItem("loggedIn");
-          localStorage.removeItem("doctorName");
-          localStorage.removeItem("doctorProfile");
+      function updateThemeIcon(theme) {
+        const icon = document.getElementById('theme-icon');
+        if (icon) {
+          icon.textContent = theme === 'dark' ? '☀️' : '🌙';
         }
+      }
+
+      // Initialize theme on page load
+      initializeTheme();
+
+      let allPrescriptions = [];
+      let filteredPrescriptions = [];
+
+      // Toggle filter visibility
+      function toggleFilters() {
+        const filterInputs = document.getElementById("filterInputs");
+        const toggleBtn = document.querySelector(".filter-toggle-btn");
+
+        if (filterInputs.classList.contains("show")) {
+          filterInputs.classList.remove("show");
+          toggleBtn.innerHTML = "Show Filters";
+        } else {
+          filterInputs.classList.add("show");
+          toggleBtn.innerHTML = " Hide Filters";
+        }
+      }
+
+      // Auth buttons
+      function renderAuthButtons() {
+        const div = document.getElementById("auth-buttons");
+        if (!div) return;
+        const displayName = (JSON.parse(localStorage.getItem("doctorProfile") || "null")?.fullName) || localStorage.getItem("doctorName");
+        const email = localStorage.getItem("email");
+        if (displayName || email) {
+          div.innerHTML = ``;
+        } else {
+          div.innerHTML = `<button class="book-btn" onclick="location.href='signup.html'">Login</button>`;
+        }
+      }
+
+      function navigateTo(page) {
+        if (page === "signup") { window.location.href = "signup.html"; }
+        else if (page === "profile") { window.location.href = "profile.html"; }
+        else if (page === "prescription") { window.location.href = "prescription.html"; }
+        else if (page === "dashboard") { window.location.href = "doctor-dashboard.html"; }
+        else if (page === "history") { window.location.href = "history.html"; }
+        else if (page === "appointments") { window.location.href = "doctor-appointments.html"; }
+        else if (page === "xray") { window.location.href = "xray.html"; }
+        else if (page === "medicine") { window.location.href = "medicine.html"; }
+      }
+
+      function logout() {
+        try { localStorage.setItem("global_logout", String(Date.now())); } catch (e) { }
+        localStorage.removeItem("email");
+        localStorage.removeItem("token");
+        localStorage.removeItem("loggedIn");
+        localStorage.removeItem("doctorName");
+        localStorage.removeItem("doctorProfile");
         window.location.href = "index.html";
       }
-    });
 
-    // Fetch prescriptions from backend using dedicated analytics API
-    async function fetchPrescriptions() {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          // Silent fallback to local storage if no token
-          loadLocalPrescriptions();
-          applyFilters();
-          return;
-        }
+      renderAuthButtons();
 
-        // Use dedicated analytics endpoint
-        const response = await fetch(`${window.API_BASE_URL}/api/analytics/prescriptions?limit=1000`, {
-          headers: {
-            "Authorization": `Bearer ${token}`
+      // Cross-tab logout listener
+      window.addEventListener("storage", function (e) {
+        if (e && e.key === "global_logout") {
+          const hasAuth = localStorage.getItem("email") || localStorage.getItem("token");
+          if (hasAuth) {
+            localStorage.removeItem("email");
+            localStorage.removeItem("token");
+            localStorage.removeItem("loggedIn");
+            localStorage.removeItem("doctorName");
+            localStorage.removeItem("doctorProfile");
           }
-        });
+          window.location.href = "index.html";
+        }
+      });
 
-        if (response.ok) {
-          const contentType = response.headers.get("content-type");
-          if (contentType && contentType.includes("application/json")) {
-            const data = await response.json();
-            if (data.success) {
-              allPrescriptions = data.prescriptions || [];
-              console.log(" Loaded prescriptions from analytics API:", allPrescriptions.length);
-              // Apply filters immediately after loading data
-              applyFilters();
+      // Fetch prescriptions from backend using dedicated analytics API
+      async function fetchPrescriptions() {
+        try {
+          const token = localStorage.getItem("token");
+          if (!token) {
+            // Silent fallback to local storage if no token
+            loadLocalPrescriptions();
+            applyFilters();
+            return;
+          }
+
+          // Use dedicated analytics endpoint
+          const response = await fetch(`${window.API_BASE_URL}/api/analytics/prescriptions?limit=1000`, {
+            headers: {
+              "Authorization": `Bearer ${token}`
+            }
+          });
+
+          if (response.ok) {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+              const data = await response.json();
+              if (data.success) {
+                allPrescriptions = data.prescriptions || [];
+                console.log(" Loaded prescriptions from analytics API:", allPrescriptions.length);
+                // Apply filters immediately after loading data
+                applyFilters();
+              } else {
+                console.warn("Analytics API returned error, using local storage");
+                loadLocalPrescriptions();
+                applyFilters();
+              }
             } else {
-              console.warn("Analytics API returned error, using local storage");
+              console.warn("Analytics API returned non-JSON response, using local storage");
               loadLocalPrescriptions();
               applyFilters();
             }
           } else {
-            console.warn("Analytics API returned non-JSON response, using local storage");
+            console.warn(`Analytics API returned ${response.status}, using local storage`);
             loadLocalPrescriptions();
             applyFilters();
           }
-        } else {
-          console.warn(`Analytics API returned ${response.status}, using local storage`);
+        } catch (err) {
+          console.warn("Analytics API not available, using local storage:", err.message);
           loadLocalPrescriptions();
           applyFilters();
         }
-      } catch (err) {
-        console.warn("Analytics API not available, using local storage:", err.message);
-        loadLocalPrescriptions();
+      }
+
+      // Fallback to local storage
+      function loadLocalPrescriptions() {
+        const email = (localStorage.getItem("email") || "").toLowerCase().trim();
+        const storageKey = email ? `history_user_${email}` : "history";
+        const localHistory = JSON.parse(localStorage.getItem(storageKey) || "[]");
+        allPrescriptions = localHistory.map(entry => entry.prescription).filter(Boolean);
+        console.debug("Loaded prescriptions from local storage:", allPrescriptions.length);
+      }
+
+      // Apply date filters
+      function applyFilters() {
+        const dateRange = document.getElementById("dateRange").value;
+        const startDate = document.getElementById("startDate").value;
+        const endDate = document.getElementById("endDate").value;
+
+        let filtered = [...allPrescriptions];
+
+        // Apply date range filter
+        if (dateRange !== "all") {
+          const days = parseInt(dateRange);
+          const cutoffDate = new Date();
+          cutoffDate.setDate(cutoffDate.getDate() - days);
+
+          filtered = filtered.filter(p => {
+            const pDate = new Date(p.date || p.createdAt || Date.now());
+            return pDate >= cutoffDate;
+          });
+        }
+
+        // Apply custom date range
+        if (startDate) {
+          const start = new Date(startDate);
+          filtered = filtered.filter(p => {
+            const pDate = new Date(p.date || p.createdAt || Date.now());
+            return pDate >= start;
+          });
+        }
+
+        if (endDate) {
+          const end = new Date(endDate);
+          end.setHours(23, 59, 59, 999);
+          filtered = filtered.filter(p => {
+            const pDate = new Date(p.date || p.createdAt || Date.now());
+            return pDate <= end;
+          });
+        }
+
+        filteredPrescriptions = filtered;
+        updateAnalytics();
+      }
+
+      function resetFilters() {
+        document.getElementById("dateRange").value = "30";
+        document.getElementById("startDate").value = "";
+        document.getElementById("endDate").value = "";
         applyFilters();
       }
-    }
 
-    // Fallback to local storage
-    function loadLocalPrescriptions() {
-      const email = (localStorage.getItem("email") || "").toLowerCase().trim();
-      const storageKey = email ? `history_user_${email}` : "history";
-      const localHistory = JSON.parse(localStorage.getItem(storageKey) || "[]");
-      allPrescriptions = localHistory.map(entry => entry.prescription).filter(Boolean);
-      console.debug("Loaded prescriptions from local storage:", allPrescriptions.length);
-    }
-
-    // Apply date filters
-    function applyFilters() {
-      const dateRange = document.getElementById("dateRange").value;
-      const startDate = document.getElementById("startDate").value;
-      const endDate = document.getElementById("endDate").value;
-
-      let filtered = [...allPrescriptions];
-
-      // Apply date range filter
-      if (dateRange !== "all") {
-        const days = parseInt(dateRange);
-        const cutoffDate = new Date();
-        cutoffDate.setDate(cutoffDate.getDate() - days);
-
-        filtered = filtered.filter(p => {
-          const pDate = new Date(p.date || p.createdAt || Date.now());
-          return pDate >= cutoffDate;
-        });
+      // Update all analytics
+      function updateAnalytics() {
+        updateStatCards();
+        updatePrescriptionChart();
+        updateGenderChart();
+        updateAgeChart();
+        updateTreatmentTypeChart();
+        updateRecentPatientsTable();
       }
 
-      // Apply custom date range
-      if (startDate) {
-        const start = new Date(startDate);
-        filtered = filtered.filter(p => {
+      // Update stat cards
+      function updateStatCards() {
+        const uniquePatients = new Set(filteredPrescriptions.map(p => p.patientName?.toLowerCase())).size;
+        const totalPrescriptions = filteredPrescriptions.length;
+
+        // This month
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const monthlyCount = filteredPrescriptions.filter(p => {
           const pDate = new Date(p.date || p.createdAt || Date.now());
-          return pDate >= start;
-        });
-      }
-
-      if (endDate) {
-        const end = new Date(endDate);
-        end.setHours(23, 59, 59, 999);
-        filtered = filtered.filter(p => {
-          const pDate = new Date(p.date || p.createdAt || Date.now());
-          return pDate <= end;
-        });
-      }
-
-      filteredPrescriptions = filtered;
-      updateAnalytics();
-    }
-
-    function resetFilters() {
-      document.getElementById("dateRange").value = "30";
-      document.getElementById("startDate").value = "";
-      document.getElementById("endDate").value = "";
-      applyFilters();
-    }
-
-    // Update all analytics
-    function updateAnalytics() {
-      updateStatCards();
-      updatePrescriptionChart();
-      updateGenderChart();
-      updateAgeChart();
-      updateTreatmentTypeChart();
-      updateRecentPatientsTable();
-    }
-
-    // Update stat cards
-    function updateStatCards() {
-      const uniquePatients = new Set(filteredPrescriptions.map(p => p.patientName?.toLowerCase())).size;
-      const totalPrescriptions = filteredPrescriptions.length;
-
-      // This month
-      const now = new Date();
-      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const monthlyCount = filteredPrescriptions.filter(p => {
-        const pDate = new Date(p.date || p.createdAt || Date.now());
-        return pDate >= firstDayOfMonth;
-      }).length;
-
-      // Average per day
-      const dateRange = document.getElementById("dateRange").value;
-      const days = dateRange === "all" ? 365 : parseInt(dateRange);
-      const avgPerDay = days > 0 ? (totalPrescriptions / days).toFixed(1) : 0;
-
-      // Count patient types based on treatment type
-      const patientTypes = new Set();
-      filteredPrescriptions.forEach(p => {
-        // Count based on treatmentType field (Root Canal, Braces, etc.)
-        if (p.treatmentType && p.treatmentType.trim()) {
-          patientTypes.add(p.treatmentType.toLowerCase().trim());
-        }
-      });
-
-      document.getElementById("totalPatients").textContent = uniquePatients;
-      document.getElementById("totalPrescriptions").textContent = totalPrescriptions;
-      document.getElementById("monthlyPatients").textContent = monthlyCount;
-      document.getElementById("avgPerDay").textContent = avgPerDay;
-      document.getElementById("patientTypes").textContent = patientTypes.size;
-    }
-
-    // Update prescription chart (last 7 days/weeks)
-    function updatePrescriptionChart() {
-      const chartEl = document.getElementById("prescriptionChart");
-      chartEl.innerHTML = "";
-
-      if (filteredPrescriptions.length === 0) {
-        chartEl.innerHTML = '<div class="no-data">No data available</div>';
-        return;
-      }
-
-      // Group by day (last 7 days)
-      const days = 7;
-      const counts = new Array(days).fill(0);
-      const labels = [];
-
-      for (let i = days - 1; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
-
-        const dayStart = new Date(date.setHours(0, 0, 0, 0));
-        const dayEnd = new Date(date.setHours(23, 59, 59, 999));
-
-        counts[days - 1 - i] = filteredPrescriptions.filter(p => {
-          const pDate = new Date(p.date || p.createdAt || Date.now());
-          return pDate >= dayStart && pDate <= dayEnd;
+          return pDate >= firstDayOfMonth;
         }).length;
+
+        // Average per day
+        const dateRange = document.getElementById("dateRange").value;
+        const days = dateRange === "all" ? 365 : parseInt(dateRange);
+        const avgPerDay = days > 0 ? (totalPrescriptions / days).toFixed(1) : 0;
+
+        // Count patient types based on treatment type
+        const patientTypes = new Set();
+        filteredPrescriptions.forEach(p => {
+          // Count based on treatmentType field (Root Canal, Braces, etc.)
+          if (p.treatmentType && p.treatmentType.trim()) {
+            patientTypes.add(p.treatmentType.toLowerCase().trim());
+          }
+        });
+
+        document.getElementById("totalPatients").textContent = uniquePatients;
+        document.getElementById("totalPrescriptions").textContent = totalPrescriptions;
+        document.getElementById("monthlyPatients").textContent = monthlyCount;
+        document.getElementById("avgPerDay").textContent = avgPerDay;
+        document.getElementById("patientTypes").textContent = patientTypes.size;
       }
 
-      const maxCount = Math.max(...counts, 1);
+      // Update prescription chart (last 7 days/weeks)
+      function updatePrescriptionChart() {
+        const chartEl = document.getElementById("prescriptionChart");
+        chartEl.innerHTML = "";
 
-      counts.forEach((count, index) => {
-        const bar = document.createElement("div");
-        bar.className = "bar";
-        bar.style.height = `${(count / maxCount) * 100}%`;
+        if (filteredPrescriptions.length === 0) {
+          chartEl.innerHTML = '<div class="no-data">No data available</div>';
+          return;
+        }
 
-        const label = document.createElement("div");
-        label.className = "bar-label";
-        label.textContent = labels[index];
+        // Group by day (last 7 days)
+        const days = 7;
+        const counts = new Array(days).fill(0);
+        const labels = [];
 
-        const value = document.createElement("div");
-        value.className = "bar-value";
-        value.textContent = count;
+        for (let i = days - 1; i >= 0; i--) {
+          const date = new Date();
+          date.setDate(date.getDate() - i);
+          labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
 
-        bar.appendChild(label);
-        bar.appendChild(value);
-        chartEl.appendChild(bar);
-      });
-    }
+          const dayStart = new Date(date.setHours(0, 0, 0, 0));
+          const dayEnd = new Date(date.setHours(23, 59, 59, 999));
 
-    // Update gender distribution pie chart
-    function updateGenderChart() {
-      const canvas = document.getElementById("genderPieChart");
-      const ctx = canvas.getContext("2d");
-      const legendEl = document.getElementById("genderLegend");
+          counts[days - 1 - i] = filteredPrescriptions.filter(p => {
+            const pDate = new Date(p.date || p.createdAt || Date.now());
+            return pDate >= dayStart && pDate <= dayEnd;
+          }).length;
+        }
 
-      // Count by gender
-      const genderCounts = { Male: 0, Female: 0, Other: 0 };
-      filteredPrescriptions.forEach(p => {
-        const gender = p.sex || "Other";
-        genderCounts[gender] = (genderCounts[gender] || 0) + 1;
-      });
+        const maxCount = Math.max(...counts, 1);
 
-      const total = Object.values(genderCounts).reduce((a, b) => a + b, 0);
+        counts.forEach((count, index) => {
+          const bar = document.createElement("div");
+          bar.className = "bar";
+          bar.style.height = `${(count / maxCount) * 100}%`;
 
-      if (total === 0) {
+          const label = document.createElement("div");
+          label.className = "bar-label";
+          label.textContent = labels[index];
+
+          const value = document.createElement("div");
+          value.className = "bar-value";
+          value.textContent = count;
+
+          bar.appendChild(label);
+          bar.appendChild(value);
+          chartEl.appendChild(bar);
+        });
+      }
+
+      // Update gender distribution pie chart
+      function updateGenderChart() {
+        const canvas = document.getElementById("genderPieChart");
+        const ctx = canvas.getContext("2d");
+        const legendEl = document.getElementById("genderLegend");
+
+        // Count by gender
+        const genderCounts = { Male: 0, Female: 0, Other: 0 };
+        filteredPrescriptions.forEach(p => {
+          const gender = p.sex || "Other";
+          genderCounts[gender] = (genderCounts[gender] || 0) + 1;
+        });
+
+        const total = Object.values(genderCounts).reduce((a, b) => a + b, 0);
+
+        if (total === 0) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = "#e0e0e0";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = "#4f4f4f";
+          ctx.font = "14px Segoe UI";
+          ctx.textAlign = "center";
+          ctx.fillText("No data", canvas.width / 2, canvas.height / 2);
+          legendEl.innerHTML = "";
+          return;
+        }
+
+        // Draw pie chart
+        const colors = { Male: "#29a9f8", Female: "#f5576c", Other: "#a8e063" };
+        let currentAngle = -Math.PI / 2;
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#e0e0e0";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#4f4f4f";
-        ctx.font = "14px Segoe UI";
-        ctx.textAlign = "center";
-        ctx.fillText("No data", canvas.width / 2, canvas.height / 2);
+
+        Object.entries(genderCounts).forEach(([gender, count]) => {
+          if (count === 0) return;
+          const sliceAngle = (count / total) * 2 * Math.PI;
+
+          ctx.beginPath();
+          ctx.arc(100, 100, 90, currentAngle, currentAngle + sliceAngle);
+          ctx.lineTo(100, 100);
+          ctx.fillStyle = colors[gender];
+          ctx.fill();
+
+          currentAngle += sliceAngle;
+        });
+
+        // Update legend
         legendEl.innerHTML = "";
-        return;
+        Object.entries(genderCounts).forEach(([gender, count]) => {
+          if (count === 0) return;
+          const item = document.createElement("div");
+          item.className = "legend-item";
+
+          const colorBox = document.createElement("div");
+          colorBox.className = "legend-color";
+          colorBox.style.backgroundColor = colors[gender];
+
+          const text = document.createElement("div");
+          text.className = "legend-text";
+          text.textContent = `${gender}: ${count} (${((count / total) * 100).toFixed(1)}%)`;
+
+          item.appendChild(colorBox);
+          item.appendChild(text);
+          legendEl.appendChild(item);
+        });
       }
 
-      // Draw pie chart
-      const colors = { Male: "#29a9f8", Female: "#f5576c", Other: "#a8e063" };
-      let currentAngle = -Math.PI / 2;
+      // Update age distribution chart
+      function updateAgeChart() {
+        const chartEl = document.getElementById("ageChart");
+        chartEl.innerHTML = "";
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (filteredPrescriptions.length === 0) {
+          chartEl.innerHTML = '<div class="no-data">No data available</div>';
+          return;
+        }
 
-      Object.entries(genderCounts).forEach(([gender, count]) => {
-        if (count === 0) return;
-        const sliceAngle = (count / total) * 2 * Math.PI;
+        // Age groups
+        const ageGroups = {
+          "0-18": 0,
+          "19-35": 0,
+          "36-50": 0,
+          "51-65": 0,
+          "65+": 0
+        };
 
-        ctx.beginPath();
-        ctx.arc(100, 100, 90, currentAngle, currentAngle + sliceAngle);
-        ctx.lineTo(100, 100);
-        ctx.fillStyle = colors[gender];
-        ctx.fill();
+        filteredPrescriptions.forEach(p => {
+          const age = parseInt(p.age) || 0;
+          if (age <= 18) ageGroups["0-18"]++;
+          else if (age <= 35) ageGroups["19-35"]++;
+          else if (age <= 50) ageGroups["36-50"]++;
+          else if (age <= 65) ageGroups["51-65"]++;
+          else ageGroups["65+"]++;
+        });
 
-        currentAngle += sliceAngle;
-      });
+        const maxCount = Math.max(...Object.values(ageGroups), 1);
 
-      // Update legend
-      legendEl.innerHTML = "";
-      Object.entries(genderCounts).forEach(([gender, count]) => {
-        if (count === 0) return;
-        const item = document.createElement("div");
-        item.className = "legend-item";
+        Object.entries(ageGroups).forEach(([group, count]) => {
+          const bar = document.createElement("div");
+          bar.className = "bar";
+          bar.style.height = `${(count / maxCount) * 100}%`;
 
-        const colorBox = document.createElement("div");
-        colorBox.className = "legend-color";
-        colorBox.style.backgroundColor = colors[gender];
+          const label = document.createElement("div");
+          label.className = "bar-label";
+          label.textContent = group;
 
-        const text = document.createElement("div");
-        text.className = "legend-text";
-        text.textContent = `${gender}: ${count} (${((count / total) * 100).toFixed(1)}%)`;
+          const value = document.createElement("div");
+          value.className = "bar-value";
+          value.textContent = count;
 
-        item.appendChild(colorBox);
-        item.appendChild(text);
-        legendEl.appendChild(item);
-      });
-    }
-
-    // Update age distribution chart
-    function updateAgeChart() {
-      const chartEl = document.getElementById("ageChart");
-      chartEl.innerHTML = "";
-
-      if (filteredPrescriptions.length === 0) {
-        chartEl.innerHTML = '<div class="no-data">No data available</div>';
-        return;
+          bar.appendChild(label);
+          bar.appendChild(value);
+          chartEl.appendChild(bar);
+        });
       }
 
-      // Age groups
-      const ageGroups = {
-        "0-18": 0,
-        "19-35": 0,
-        "36-50": 0,
-        "51-65": 0,
-        "65+": 0
-      };
+      // Update treatment type chart
+      function updateTreatmentTypeChart() {
+        const chartEl = document.getElementById("treatmentTypeChart");
+        chartEl.innerHTML = "";
 
-      filteredPrescriptions.forEach(p => {
-        const age = parseInt(p.age) || 0;
-        if (age <= 18) ageGroups["0-18"]++;
-        else if (age <= 35) ageGroups["19-35"]++;
-        else if (age <= 50) ageGroups["36-50"]++;
-        else if (age <= 65) ageGroups["51-65"]++;
-        else ageGroups["65+"]++;
-      });
+        if (filteredPrescriptions.length === 0) {
+          chartEl.innerHTML = '<div class="no-data">No data available</div>';
+          return;
+        }
 
-      const maxCount = Math.max(...Object.values(ageGroups), 1);
+        // Count treatment types
+        const treatmentCounts = {};
+        filteredPrescriptions.forEach(p => {
+          const type = p.treatmentType || "Not Specified";
+          treatmentCounts[type] = (treatmentCounts[type] || 0) + 1;
+        });
 
-      Object.entries(ageGroups).forEach(([group, count]) => {
-        const bar = document.createElement("div");
-        bar.className = "bar";
-        bar.style.height = `${(count / maxCount) * 100}%`;
+        // Sort by count and get all treatment types
+        const sortedTreatments = Object.entries(treatmentCounts)
+          .sort((a, b) => b[1] - a[1]);
 
-        const label = document.createElement("div");
-        label.className = "bar-label";
-        label.textContent = group;
+        if (sortedTreatments.length === 0) {
+          chartEl.innerHTML = '<div class="no-data">No treatment data</div>';
+          return;
+        }
 
-        const value = document.createElement("div");
-        value.className = "bar-value";
-        value.textContent = count;
+        const maxCount = Math.max(...sortedTreatments.map(t => t[1]), 1);
 
-        bar.appendChild(label);
-        bar.appendChild(value);
-        chartEl.appendChild(bar);
-      });
-    }
+        sortedTreatments.forEach(([type, count]) => {
+          const bar = document.createElement("div");
+          bar.className = "bar";
+          bar.style.height = `${(count / maxCount) * 100}%`;
 
-    // Update treatment type chart
-    function updateTreatmentTypeChart() {
-      const chartEl = document.getElementById("treatmentTypeChart");
-      chartEl.innerHTML = "";
+          const label = document.createElement("div");
+          label.className = "bar-label";
+          // Shorten long treatment names
+          const shortName = type.length > 12 ? type.substring(0, 12) + "..." : type;
+          label.textContent = shortName;
+          label.title = type;
 
-      if (filteredPrescriptions.length === 0) {
-        chartEl.innerHTML = '<div class="no-data">No data available</div>';
-        return;
+          const value = document.createElement("div");
+          value.className = "bar-value";
+          value.textContent = count;
+
+          bar.appendChild(label);
+          bar.appendChild(value);
+          chartEl.appendChild(bar);
+        });
       }
 
-      // Count treatment types
-      const treatmentCounts = {};
-      filteredPrescriptions.forEach(p => {
-        const type = p.treatmentType || "Not Specified";
-        treatmentCounts[type] = (treatmentCounts[type] || 0) + 1;
-      });
+      // Update recent patients table
+      function updateRecentPatientsTable() {
+        const tableBody = document.getElementById("recentPatientsTable");
+        tableBody.innerHTML = "";
 
-      // Sort by count and get all treatment types
-      const sortedTreatments = Object.entries(treatmentCounts)
-        .sort((a, b) => b[1] - a[1]);
+        if (filteredPrescriptions.length === 0) {
+          tableBody.innerHTML = '<tr><td colspan="5" class="no-data">No patient data available</td></tr>';
+          return;
+        }
 
-      if (sortedTreatments.length === 0) {
-        chartEl.innerHTML = '<div class="no-data">No treatment data</div>';
-        return;
+        // Sort by date (most recent first)
+        const sorted = [...filteredPrescriptions].sort((a, b) => {
+          const dateA = new Date(a.date || a.createdAt || 0);
+          const dateB = new Date(b.date || b.createdAt || 0);
+          return dateB - dateA;
+        });
+
+        // Show top 10
+        sorted.slice(0, 10).forEach(p => {
+          const row = document.createElement("tr");
+
+          const nameCell = document.createElement("td");
+          nameCell.textContent = p.patientName || "N/A";
+
+          const ageCell = document.createElement("td");
+          ageCell.textContent = p.age || "N/A";
+
+          const genderCell = document.createElement("td");
+          genderCell.textContent = p.sex || "N/A";
+
+          const dateCell = document.createElement("td");
+          const date = new Date(p.date || p.createdAt || Date.now());
+          dateCell.textContent = date.toLocaleDateString();
+
+          const medicinesCell = document.createElement("td");
+          const medCount = (p.medicines || []).length;
+          medicinesCell.textContent = medCount > 0 ? `${medCount} medicine(s)` : "None";
+
+          row.appendChild(nameCell);
+          row.appendChild(ageCell);
+          row.appendChild(genderCell);
+          row.appendChild(dateCell);
+          row.appendChild(medicinesCell);
+
+          tableBody.appendChild(row);
+        });
       }
 
-      const maxCount = Math.max(...sortedTreatments.map(t => t[1]), 1);
-
-      sortedTreatments.forEach(([type, count]) => {
-        const bar = document.createElement("div");
-        bar.className = "bar";
-        bar.style.height = `${(count / maxCount) * 100}%`;
-
-        const label = document.createElement("div");
-        label.className = "bar-label";
-        // Shorten long treatment names
-        const shortName = type.length > 12 ? type.substring(0, 12) + "..." : type;
-        label.textContent = shortName;
-        label.title = type;
-
-        const value = document.createElement("div");
-        value.className = "bar-value";
-        value.textContent = count;
-
-        bar.appendChild(label);
-        bar.appendChild(value);
-        chartEl.appendChild(bar);
+      // Initialize - wait for DOM to be fully loaded
+      document.addEventListener('DOMContentLoaded', function () {
+        fetchPrescriptions();
       });
-    }
 
-    // Update recent patients table
-    function updateRecentPatientsTable() {
-      const tableBody = document.getElementById("recentPatientsTable");
-      tableBody.innerHTML = "";
-
-      if (filteredPrescriptions.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="5" class="no-data">No patient data available</td></tr>';
-        return;
+      // Fallback if DOMContentLoaded already fired
+      if (document.readyState === 'loading') {
+        // Still loading, wait for DOMContentLoaded
+      } else {
+        // DOM already loaded, execute immediately
+        fetchPrescriptions();
       }
-
-      // Sort by date (most recent first)
-      const sorted = [...filteredPrescriptions].sort((a, b) => {
-        const dateA = new Date(a.date || a.createdAt || 0);
-        const dateB = new Date(b.date || b.createdAt || 0);
-        return dateB - dateA;
-      });
-
-      // Show top 10
-      sorted.slice(0, 10).forEach(p => {
-        const row = document.createElement("tr");
-
-        const nameCell = document.createElement("td");
-        nameCell.textContent = p.patientName || "N/A";
-
-        const ageCell = document.createElement("td");
-        ageCell.textContent = p.age || "N/A";
-
-        const genderCell = document.createElement("td");
-        genderCell.textContent = p.sex || "N/A";
-
-        const dateCell = document.createElement("td");
-        const date = new Date(p.date || p.createdAt || Date.now());
-        dateCell.textContent = date.toLocaleDateString();
-
-        const medicinesCell = document.createElement("td");
-        const medCount = (p.medicines || []).length;
-        medicinesCell.textContent = medCount > 0 ? `${medCount} medicine(s)` : "None";
-
-        row.appendChild(nameCell);
-        row.appendChild(ageCell);
-        row.appendChild(genderCell);
-        row.appendChild(dateCell);
-        row.appendChild(medicinesCell);
-
-        tableBody.appendChild(row);
-      });
-    }
-
-    // Initialize - wait for DOM to be fully loaded
-    document.addEventListener('DOMContentLoaded', function () {
-      fetchPrescriptions();
-    });
-
-    // Fallback if DOMContentLoaded already fired
-    if (document.readyState === 'loading') {
-      // Still loading, wait for DOMContentLoaded
-    } else {
-      // DOM already loaded, execute immediately
-      fetchPrescriptions();
-    }
-  </script>
-  <script src="js/chatbot.js"></script>
+    </script>
+    <script src="js/chatbot.js"></script>
 </body>
 
 </html>

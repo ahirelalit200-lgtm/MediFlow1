@@ -9,196 +9,51 @@
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="css/chatbot.css" />
   <script src="js/config.js"></script>
-  <style>
-    body {
-      font-family: "Segoe UI", Arial, sans-serif;
-      background: #f4f6f9;
-      margin: 0;
-      padding: 0;
-    }
-
-    .content-wrapper {
-      padding: 40px;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-    }
-
-    .profile-container {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 900px;
-      padding: 30px;
-    }
-
-    .profile-header {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 30px;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 20px;
-    }
-
-    .avatar {
-      width: 90px;
-      height: 90px;
-      border-radius: 50%;
-      background: #00bfff;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-      font-weight: bold;
-      margin-bottom: 12px;
-    }
-
-    .profile-header h2 {
-      margin: 5px 0;
-      font-size: 22px;
-      color: #333;
-    }
-
-    .profile-header p {
-      margin: 0;
-      color: #666;
-      font-size: 14px;
-    }
-
-    .profile-details {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .detail-box {
-      background: #fafafa;
-      border: 1px solid #eee;
-      border-radius: 8px;
-      padding: 15px 20px;
-    }
-
-    .detail-box h3 {
-      margin: 0 0 10px;
-      font-size: 16px;
-      color: #444;
-      border-bottom: 1px solid #eaeaea;
-      padding-bottom: 6px;
-    }
-
-    .detail-item {
-      margin-bottom: 8px;
-    }
-
-    .detail-item label {
-      font-weight: 600;
-      font-size: 13px;
-      color: #555;
-      display: block;
-    }
-
-    .detail-item span {
-      font-size: 14px;
-      color: #333;
-    }
-
-    .buttons {
-      margin-top: 30px;
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-    }
-
-    .buttons button {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .edit-btn {
-      background: #00bfff;
-      color: white;
-    }
-
-    .edit-btn:hover {
-      background: #009acd;
-    }
-
-    .logout-btn {
-      background: #ff4d4d;
-      color: white;
-    }
-
-    .logout-btn:hover {
-      background: #e60000;
-    }
-  </style>
-</head>
-
-<body onload="loadProfile()">
-
-  <!-- Navbar -->
-  <header class="navbar">
-    <div class="logo">
-      <img src="assets/care.png" alt="Logo" height="40" />
-      <span>Medi<strong>Flow</strong></span>
-    </div>
-    <nav>
-      <ul>
-        <li onclick="navigateTo('dashboard')">Home</li>
-        <li onclick="navigateTo('history')">History</li>
-        <li onclick="navigateTo('appointments')">Appointments</li>
-        <li onclick="navigateTo('analytics')">Analytics</li>
-        <li onclick="navigateTo('xray')">X-Ray</li>
-        <li onclick="navigateTo('medicine')">Add Medicine</li>
-      </ul>
-    </nav>
-    <div class="header-right">
-      <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark Mode">
-        <span class="theme-icon" id="theme-icon">🌙</span>
-      </button>
-      <div id="auth-buttons"></div>
-    </div>
-  </header>
-
   <div class="content-wrapper">
-    <div class="profile-container">
-
+    <div class="form-container">
       <!-- Profile Header -->
       <div class="profile-header">
-        <div class="avatar" id="avatar">D</div>
-        <h2 id="fullNameHeader">Doctor Name</h2>
-        <p id="emailHeader">doctor@example.com</p>
-        <p id="RegistrationNo">Registration No.: -</p>
+        <div class="profile-avatar" id="avatar">D</div>
+        <div class="profile-info">
+          <h1 id="fullNameHeader">Doctor Name</h1>
+          <p id="emailHeader">doctor@example.com</p>
+          <p id="RegistrationNo" style="font-weight: 600; color: var(--accent-primary); margin-top: 5px;">Registration
+            No.: -</p>
+        </div>
       </div>
 
       <!-- Profile Details -->
-      <div class="profile-details">
-        <div class="detail-box">
-          <h3>Professional Info</h3>
-          <div class="detail-item"><label>Specialization</label><span id="specialization"></span></div>
-          <div class="detail-item"><label>Clinic Name</label><span id="clinicName"></span></div>
-          <div class="detail-item"><label>Experience</label><span id="experience"></span></div>
+      <div class="profile-grid">
+        <div class="info-item">
+          <span>Specialization</span>
+          <p id="specialization">-</p>
         </div>
-
-        <div class="detail-box">
-          <h3>Contact Info</h3>
-          <div class="detail-item"><label>Address</label><span id="address"></span></div>
-          <div class="detail-item"><label>Phone</label><span id="phone"></span></div>
-          <div class="detail-item"><label>Timings</label><span id="timings"></span></div>
+        <div class="info-item">
+          <span>Clinic Name</span>
+          <p id="clinicName">-</p>
+        </div>
+        <div class="info-item">
+          <span>Experience</span>
+          <p id="experience">-</p>
+        </div>
+        <div class="info-item">
+          <span>Address</span>
+          <p id="address">-</p>
+        </div>
+        <div class="info-item">
+          <span>Phone</span>
+          <p id="phone">-</p>
+        </div>
+        <div class="info-item">
+          <span>Consultation Timings</span>
+          <p id="timings">-</p>
         </div>
       </div>
 
       <!-- Buttons -->
-      <div class="buttons">
-        <button class="edit-btn" onclick="window.location.href='profile-setup.html'">Edit Profile</button>
-        <button class="logout-btn" onclick="logout()">Logout</button>
+      <div class="header-right" style="margin-top: 3rem; justify-content: center; width: 100%;">
+        <button class="book-btn" onclick="window.location.href='profile-setup.html'">Edit Profile</button>
+        <button class="book-btn" style="background: var(--danger);" onclick="logout()">Logout</button>
       </div>
     </div>
   </div>
@@ -338,6 +193,6 @@
   </script>
   <script src="js/chatbot.js"></script>
   <script src="js/doctor-theme.js"></script>
-</body>
+  </body>
 
 </html>
