@@ -223,8 +223,8 @@
         profileData = profiles[email];
       }
 
-      // 2. If not in localStorage, try from backend (new logic)
-      if (!profileData && token) {
+      // 2. ALWAYS try from backend to ensure data is fresh (Registration No fixes)
+      if (token) {
         const endpoints = [
           `${window.API_BASE_URL}/api/doctor/profile`,
           `${window.API_BASE_URL}/api/doctor/me`
@@ -280,8 +280,15 @@
         return;
       }
 
-      // Debug logging to help identify why data might be missing
-      console.log("Loaded Profile Data:", profileData);
+      // Extremely detailed logging for production debugging
+      const source = token && (!profileData || !profileData._id) ? "SERVER_PENDING" : "LOCAL/FETCHED";
+      console.log(`[DEBUG] Profile Source: ${source}`);
+      console.log("[DEBUG] Full Profile Object:", profileData);
+      if (profileData) {
+        console.log("[DEBUG] Available Keys:", Object.keys(profileData));
+        console.log("[DEBUG] RegistrationNo Value:", profileData.RegistrationNo);
+        console.log("[DEBUG] registrationNo Value:", profileData.registrationNo);
+      }
 
       // Fill UI
       document.getElementById("fullNameHeader").innerText = profileData.fullName || profileData.name || "Doctor";

@@ -112,8 +112,8 @@
         profileData = profiles[email];
       }
 
-      // 2. If not in localStorage, try from backend (new logic)
-      if (!profileData && token) {
+      // 2. ALWAYS try from backend to ensure data is fresh (Registration No fixes)
+      if (token) {
         // Try plural endpoint first, then singular — supports either backend mounting.
         const endpoints = [
           `${window.API_BASE_URL}/api/doctor/profile`,
