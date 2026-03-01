@@ -1,11 +1,8 @@
 // Application Configuration
-// Forcing localhost for testing local fixes on the Vercel frontend
-const API_BASE_URL = "http://localhost:5000";
-/*
+// Application Configuration
 const API_BASE_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
   ? "http://localhost:5000"
   : "https://mediflow-api-8796.onrender.com";
-*/
 
 // Set global API URL for all files
 if (typeof window !== "undefined") {
