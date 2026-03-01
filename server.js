@@ -158,7 +158,7 @@ let transporter = null;
 // Only setup email if environment variables are available
 if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
   try {
-    transporter = nodemailer.createTransporter({
+    transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
