@@ -1,5 +1,5 @@
 [build]
-  base = "prescription-system (2)/prescription-system (2)/prescription-system (2)/prescription-system (2)/prescription-system"
+  base = ""
   publish = "frontend/html-css"
 
 [build.environment]
