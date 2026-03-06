@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Appointment Requests - Doctor Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/chatbot.css" />
+  <script src="js/config.js"></script>
+</head>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="logo">
+      <img src="assets/care.png" alt="Logo" height="40" />
+      <span>Medi<strong>Flow</strong></span>
+    </div>
+    <nav>
+      <ul>
+        <li onclick="navigateTo('dashboard')">Home</li>
+        <li onclick="navigateTo('history')">History</li>
+        <li onclick="navigateTo('analytics')">Analytics</li>
+        <li onclick="navigateTo('xray')">X-Ray</li>
+        <li onclick="navigateTo('medicine')">Add Medicine</li>
+      </ul>
+    </nav>
+    <div class="header-right" id="auth-buttons">
+      <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark Mode">
+        <span class="theme-icon" id="theme-icon">🌙</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="content-wrapper">
+    <div class="form-container" style="max-width: 1200px;">
+      <div class="profile-header"
+        style="justify-content: space-between; border-bottom: none; margin-bottom: 2rem; padding-bottom: 0;">
+        <div class="profile-info">
+          <h1>Appointment Requests</h1>
+          <p>Streamline patient scheduling and consultation management</p>
+        </div>
+      </div>
+
+      <!-- Statistics -->
+      <div class="profile-grid" id="stats-grid"
+        style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 3rem;">
+        <div class="feature-card" style="text-align: center; border-bottom: 4px solid var(--accent-primary);">
+          <div style="font-size: 1.75rem; font-weight: 800; color: var(--accent-primary); margin-bottom: 0.5rem;"
+            id="total-appointments">-</div>
+          <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 600;">Total Requests</div>
+        </div>
+        <div class="feature-card" style="text-align: center; border-bottom: 4px solid #f59e0b;">
+          <div style="font-size: 1.75rem; font-weight: 800; color: #f59e0b; margin-bottom: 0.5rem;"
+            id="pending-appointments">-</div>
+          <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 600;">Pending</div>
+        </div>
+        <div class="feature-card" style="text-align: center; border-bottom: 4px solid var(--success);">
+          <div style="font-size: 1.75rem; font-weight: 800; color: var(--success); margin-bottom: 0.5rem;"
+            id="confirmed-appointments">-</div>
+          <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 600;">Confirmed</div>
+        </div>
+        <div class="feature-card" style="text-align: center; border-bottom: 4px solid var(--danger);">
+          <div style="font-size: 1.75rem; font-weight: 800; color: var(--danger); margin-bottom: 0.5rem;"
+            id="urgent-appointments">-</div>
+          <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 600;">Urgent Cases</div>
+        </div>
+        <div class="feature-card" style="text-align: center; border-bottom: 4px solid var(--accent-primary);">
+          <div style="font-size: 1.75rem; font-weight: 800; color: var(--accent-primary); margin-bottom: 0.5rem;"
+            id="today-appointments">-</div>
+          <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 600;">Today</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <section
+        style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 3rem;">
+        <div class="profile-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+          <div class="form-group">
+            <label>Status</label>
+            <select id="status-filter">
+              <option value="">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="rejected">Rejected</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Urgency</label>
+            <select id="urgency-filter">
+              <option value="">All Urgency</option>
+              <option value="normal">Normal</option>
+              <option value="urgent">Urgent</option>
+              <option value="emergency">Emergency</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>From Date</label>
+            <input type="date" id="start-date" />
+          </div>
+          <div class="form-group">
+            <label>To Date</label>
+            <input type="date" id="end-date" />
+          </div>
+        </div>
+        <div class="header-right" style="justify-content: flex-end; margin-top: 1rem; gap: 1rem;">
+          <button class="book-btn" onclick="applyFilters()">Apply Filters</button>
+          <button class="book-btn" style="background: transparent; color: var(--text-secondary);"
+            onclick="clearFilters()">Clear</button>
+        </div>
+      </section>
+
+      <!-- Loading/Error States -->
+      <div id="loading" class="loading"
+        style="display: none; text-align: center; padding: 3rem; color: var(--text-muted);">
+        <p>Fetching clinician schedules...</p>
+      </div>
+      <div id="error" class="error"
+        style="display: none; background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 1rem; border-radius: var(--radius-md); text-align: center; margin-bottom: 2rem;">
+      </div>
+
+      <!-- Appointments List -->
+      <div id="appointments-list" class="profile-grid" style="grid-template-columns: 1fr;">
+        <!-- Appointment requests will be loaded here -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Appointment Action Modal -->
+  <div id="appointment-modal" class="modal-backdrop"
+    style="display:none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center;">
+    <div class="form-container" style="max-width: 500px; margin: 0;">
+      <div class="profile-header" style="justify-content: space-between; margin-bottom: 2rem;">
+        <div class="profile-info">
+          <h1 id="modal-title">Update Appointment</h1>
+        </div>
+        <button class="book-btn" onclick="closeModal()"
+          style="background: transparent; color: var(--text-secondary); padding: 0.5rem;">✕</button>
+      </div>
+
+      <form id="appointment-form">
+        <input type="hidden" id="appointment-id" />
+        <input type="hidden" id="appointment-action" />
+
+        <div class="form-group" id="confirmed-date-group" style="display: none;">
+          <label for="confirmed-date">Confirmed Date</label>
+          <input type="date" id="confirmed-date" />
+        </div>
+
+        <div class="form-group" id="confirmed-time-group" style="display: none;">
+          <label for="confirmed-time">Confirmed Time</label>
+          <input type="time" id="confirmed-time" />
+        </div>
+
+        <div class="form-group">
+          <label for="doctor-notes">Notes (Optional)</label>
+          <textarea id="doctor-notes" placeholder="Add any clinical notes or instructions..."
+            style="min-height: 100px;"></textarea>
+        </div>
+
+        <div class="header-right" style="justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+          <button type="button" class="book-btn" style="background: var(--bg-tertiary); color: var(--text-primary);"
+            onclick="closeModal()">Cancel</button>
+          <button type="submit" class="book-btn" id="save-btn">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Theme handled by doctor-theme.js
+
+
+
+    function navigateTo(page) {
+      if (page === "signup") {
+        window.location.href = "signup.html";
+      } else if (page === "profile") {
+        window.location.href = "profile.html";
+      } else if (page === "prescription") {
+        window.location.href = "prescription.html";
+      } else if (page === "dashboard") {
+        window.location.href = "doctor-dashboard.html";
+      } else if (page === "history") {
+        window.location.href = "history.html";
+      } else if (page === "analytics") {
+        window.location.href = "analytics.html";
+      } else if (page === "xray") {
+        window.location.href = "xray.html";
+      } else if (page === "medicine") {
+        window.location.href = "medicine.html";
+      } else if (page === "appointments") {
+        window.location.href = "doctor-appointments.html";
+      } else if (page === "patient-portal") {
+        window.location.href = "patient-auth.html";
+      }
+    }
+
+    function logout() {
+      try { localStorage.setItem("global_logout", String(Date.now())); } catch (e) { }
+      localStorage.removeItem("email");
+      localStorage.removeItem("token");
+      localStorage.removeItem("loggedIn");
+      localStorage.removeItem("doctorName");
+      localStorage.removeItem("doctorProfile");
+      alert("You have logged out ");
+      window.location.href = "maindashboard.html";
+    }
+
+    // Replace login button with profile + logout if logged in
+    const authDiv = document.getElementById("auth-buttons");
+    let displayName = null;
+    try {
+      const profileRaw = localStorage.getItem("doctorProfile");
+      if (profileRaw) {
+        const prof = JSON.parse(profileRaw);
+        displayName = prof && (prof.fullName || prof.name) ? (prof.fullName || prof.name) : null;
+      }
+    } catch (e) {
+      // ignore parse errors
+    }
+    if (!displayName) displayName = localStorage.getItem("doctorName") || null;
+    const email = localStorage.getItem("email");
+
+    if (authDiv) {
+      if (displayName || email) {
+        authDiv.innerHTML = ``;
+      } else {
+        authDiv.innerHTML = `
+          <button class="book-btn" onclick="navigateTo('signup')">Login</button>
+        `;
+      }
+    }
+
+    // Cross-tab logout listener
+    window.addEventListener("storage", function (e) {
+      if (e && e.key === "global_logout") {
+        const hasAuth = localStorage.getItem("email") || localStorage.getItem("token");
+        if (hasAuth) {
+          localStorage.removeItem("email");
+          localStorage.removeItem("token");
+          localStorage.removeItem("loggedIn");
+          localStorage.removeItem("doctorName");
+          localStorage.removeItem("doctorProfile");
+          window.location.href = "maindashboard.html";
+        }
+      }
+    });
+  </script>
+  <script src="js/doctor-appointments.js"></script>
+  <script src="js/chatbot.js"></script>
+</body>
+
+</html>

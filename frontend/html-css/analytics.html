@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patient Analytics Dashboard - MediFlow</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/chatbot.css" />
+  <script src="js/config.js"></script>
+  <script src="js/theme.js"></script>
+  <style>
+    /* ---- Bar Chart Styles ---- */
+    .chart-container {
+      height: 260px;
+      display: flex;
+      align-items: flex-end;
+      padding-bottom: 2.5rem;
+      position: relative;
+    }
+
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      width: 100%;
+      height: 100%;
+      gap: 8px;
+    }
+
+    .bar-chart .bar {
+      flex: 1;
+      background: linear-gradient(180deg, #29a9f8 0%, #1a7bc4 100%);
+      border-radius: 6px 6px 0 0;
+      min-width: 28px;
+      min-height: 4px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+
+    .bar-chart .bar:hover {
+      background: linear-gradient(180deg, #1a7bc4 0%, #0e5490 100%);
+    }
+
+    .bar-chart .bar .bar-value {
+      position: absolute;
+      top: -1.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #333;
+    }
+
+    .bar-chart .bar .bar-label {
+      position: absolute;
+      bottom: -2rem;
+      font-size: 0.72rem;
+      color: #666;
+      white-space: nowrap;
+    }
+
+    /* Conditions bar chart - horizontal */
+    #conditionsChart {
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      gap: 10px;
+      height: auto;
+    }
+
+    #conditionsChart .bar {
+      flex: none;
+      width: 100% !important;
+      min-height: 32px !important;
+      height: 32px !important;
+      border-radius: 0 6px 6px 0;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      padding-left: 8px;
+      background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    #conditionsChart .bar:hover {
+      background: linear-gradient(90deg, #d97706 0%, #b45309 100%);
+    }
+
+    #conditionsChart .bar .bar-value {
+      position: static;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: white;
+      margin-right: 0.5rem;
+    }
+
+    #conditionsChart .bar .bar-label {
+      position: static;
+      font-size: 0.78rem;
+      color: white;
+      font-weight: 600;
+    }
+
+    /* Pie chart containers */
+    .pie-chart-container {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .legend {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: #333;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="logo">
+      <img src="assets/care.png" alt="Logo" height="40" />
+      <span>Medi<strong>Flow</strong></span>
+    </div>
+    <nav>
+      <ul>
+        <li onclick="navigateTo('dashboard')">Home</li>
+        <li onclick="navigateTo('appointments')">Appointments</li>
+        <li onclick="navigateTo('history')">History</li>
+        <li onclick="navigateTo('xray')">X-Ray</li>
+        <li onclick="navigateTo('medicine')">Add Medicine</li>
+      </ul>
+    </nav>
+    <div class="header-right" id="auth-buttons">
+      <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark Mode">
+        <span class="theme-icon" id="theme-icon">🌙</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="content-wrapper">
+    <div class="form-container" style="max-width: 1400px;">
+      <div class="profile-header"
+        style="justify-content: space-between; border-bottom: none; margin-bottom: 2rem; padding-bottom: 0;">
+        <div class="profile-info">
+          <h1>Patient Analytics Dashboard</h1>
+          <p>Comprehensive clinical insights and practice performance metrics</p>
+        </div>
+        <div class="header-right">
+          <button class="book-btn" onclick="toggleFilters()"
+            style="background: var(--bg-tertiary); color: var(--text-primary);">Configure Report</button>
+        </div>
+      </div>
+
+      <!-- Filter Section -->
+      <section id="filterInputs"
+        style="display: none; background: var(--bg-tertiary); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem;">
+        <div class="profile-grid">
+          <div class="form-group">
+            <label>Reporting Period</label>
+            <select id="dateRange">
+              <option value="7">Last 7 Days</option>
+              <option value="30" selected>Last 30 Days</option>
+              <option value="90">Last 90 Days</option>
+              <option value="365">Last Year</option>
+              <option value="all">All Time</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" id="startDate" />
+          </div>
+          <div class="form-group">
+            <label>End Date</label>
+            <input type="date" id="endDate" />
+          </div>
+        </div>
+        <div class="header-right" style="justify-content: flex-end; margin-top: 1rem; gap: 1rem;">
+          <button class="book-btn" onclick="applyFilters()">Generate Insight</button>
+          <button class="book-btn" style="background: transparent; color: var(--text-secondary);"
+            onclick="resetFilters()">Reset</button>
+        </div>
+      </section>
+
+      <!-- Statistics Cards -->
+      <div class="profile-grid"
+        style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 3rem;">
+        <div class="feature-card" style="text-align: center; border-bottom: 4px solid var(--accent-primary);">
+          <div
+            style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+            Total Patients</div>
+          <div style="font-size: 2.25rem; font-weight: 800; color: var(--text-primary);" id="totalPatients">0</div>
+          <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem;">Validated unique caseload</p>
+        </div>
+        <div class="feature-card" style="text-align: center; border-bottom: 4px solid var(--success);">
+          <div
+            style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+            Prescriptions</div>
+          <div style="font-size: 2.25rem; font-weight: 800; color: var(--text-primary);" id="totalPrescriptions">0</div>
+          <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem;">Standard clinical outcomes</p>
+        </div>
+        <div class="feature-card" style="text-align: center; border-bottom: 4px solid #f59e0b;">
+          <div
+            style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+            Active This Month</div>
+          <div style="font-size: 2.25rem; font-weight: 800; color: var(--text-primary);" id="monthlyPatients">0</div>
+          <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem;">Current cycle engagement</p>
+        </div>
+        <div class="feature-card" style="text-align: center; border-bottom: 4px solid var(--clinical-blue);">
+          <div
+            style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+            Daily Average</div>
+          <div style="font-size: 2.25rem; font-weight: 800; color: var(--text-primary);" id="avgPerDay">0</div>
+          <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem;">Optimized workflow speed</p>
+        </div>
+        <div class="feature-card" style="text-align: center; border-bottom: 4px solid var(--accent-primary);">
+          <div
+            style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+            Conditions</div>
+          <div style="font-size: 2.25rem; font-weight: 800; color: var(--text-primary);" id="patientTypes">0</div>
+          <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem;">Diagnostic variety</p>
+        </div>
+      </div>
+
+      <!-- Two Column Layout for Charts -->
+      <div class="profile-grid"
+        style="grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+        <!-- Prescriptions Over Time -->
+        <div class="feature-card" style="padding: 2rem; cursor: default;">
+          <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+            <span
+              style="display: block; width: 4px; height: 1.5rem; background: var(--accent-primary); border-radius: 2px;"></span>
+            Clinical Activity Trends
+          </h3>
+          <div class="chart-container">
+            <div class="bar-chart" id="prescriptionChart"></div>
+          </div>
+        </div>
+
+        <!-- Demographics -->
+        <div class="feature-card" style="padding: 2rem; cursor: default;">
+          <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+            <span
+              style="display: block; width: 4px; height: 1.5rem; background: var(--success); border-radius: 2px;"></span>
+            Patient Demographics
+          </h3>
+          <div class="pie-chart-container">
+            <canvas id="genderPieChart" width="220" height="220"></canvas>
+            <div class="legend" id="genderLegend"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-grid"
+        style="grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+        <!-- Conditions -->
+        <div class="feature-card" style="padding: 2rem; cursor: default;">
+          <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+            <span style="display: block; width: 4px; height: 1.5rem; background: #f59e0b; border-radius: 2px;"></span>
+            Top Medical Conditions
+          </h3>
+          <div class="chart-container">
+            <div class="bar-chart" id="conditionsChart"></div>
+          </div>
+        </div>
+
+        <!-- Age Groups -->
+        <div class="feature-card" style="padding: 2rem; cursor: default;">
+          <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+            <span
+              style="display: block; width: 4px; height: 1.5rem; background: var(--clinical-blue); border-radius: 2px;"></span>
+            Age Distribution Analysis
+          </h3>
+          <div class="pie-chart-container">
+            <canvas id="agePieChart" width="220" height="220"></canvas>
+            <div class="legend" id="ageLegend"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Patients Table -->
+      <div class="feature-card" style="padding: 2rem; cursor: default;">
+        <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+          <span
+            style="display: block; width: 4px; height: 1.5rem; background: var(--accent-primary); border-radius: 2px;"></span>
+          Recent Clinical Records
+        </h3>
+        <table class="professional-table" id="recentPatientsTableContainer">
+          <thead>
+            <tr>
+              <th>Patient Identity</th>
+              <th>Age</th>
+              <th>Gender</th>
+              <th>Visitation Date</th>
+              <th>Medication Count</th>
+            </tr>
+          </thead>
+          <tbody id="recentPatientsTable"></tbody>
+        </table>
+      </div>
+    </div>
+    </div>
+
+    <script>
+      // Theme is handled by theme.js (loaded in head)
+
+      let allPrescriptions = [];
+      let filteredPrescriptions = [];
+
+      // Toggle filter visibility
+      function toggleFilters() {
+        const filterInputs = document.getElementById("filterInputs");
+        if (!filterInputs) return;
+
+        const isHidden = filterInputs.style.display === "none";
+        filterInputs.style.display = isHidden ? "block" : "none";
+
+        // Update button text if it exists
+        const toggleBtn = event ? event.currentTarget : null;
+        if (toggleBtn && toggleBtn.tagName === 'BUTTON') {
+          toggleBtn.textContent = isHidden ? "Hide Configuration" : "Configure Report";
+        }
+      }
+
+      // Auth buttons
+      function renderAuthButtons() {
+        const div = document.getElementById("auth-buttons");
+        if (!div) return;
+        const displayName = (JSON.parse(localStorage.getItem("doctorProfile") || "null")?.fullName) || localStorage.getItem("doctorName");
+        const email = localStorage.getItem("email");
+        if (displayName || email) {
+          div.innerHTML = ``;
+        } else {
+          div.innerHTML = `<button class="book-btn" onclick="location.href='signup.html'">Login</button>`;
+        }
+      }
+
+      function navigateTo(page) {
+        if (page === "signup") { window.location.href = "signup.html"; }
+        else if (page === "profile") { window.location.href = "profile.html"; }
+        else if (page === "prescription") { window.location.href = "prescription.html"; }
+        else if (page === "dashboard") { window.location.href = "doctor-dashboard.html"; }
+        else if (page === "history") { window.location.href = "history.html"; }
+        else if (page === "appointments") { window.location.href = "doctor-appointments.html"; }
+        else if (page === "xray") { window.location.href = "xray.html"; }
+        else if (page === "medicine") { window.location.href = "medicine.html"; }
+      }
+
+      function logout() {
+        try { localStorage.setItem("global_logout", String(Date.now())); } catch (e) { }
+        localStorage.removeItem("email");
+        localStorage.removeItem("token");
+        localStorage.removeItem("loggedIn");
+        localStorage.removeItem("doctorName");
+        localStorage.removeItem("doctorProfile");
+        window.location.href = "maindashboard.html";
+      }
+
+      renderAuthButtons();
+
+      // Cross-tab logout listener
+      window.addEventListener("storage", function (e) {
+        if (e && e.key === "global_logout") {
+          const hasAuth = localStorage.getItem("email") || localStorage.getItem("token");
+          if (hasAuth) {
+            localStorage.removeItem("email");
+            localStorage.removeItem("token");
+            localStorage.removeItem("loggedIn");
+            localStorage.removeItem("doctorName");
+            localStorage.removeItem("doctorProfile");
+          }
+          window.location.href = "maindashboard.html";
+        }
+      });
+
+      // Fetch prescriptions from backend using dedicated analytics API
+      async function fetchPrescriptions() {
+        try {
+          const token = localStorage.getItem("token");
+          if (!token) {
+            // Silent fallback to local storage if no token
+            loadLocalPrescriptions();
+            applyFilters();
+            return;
+          }
+
+          // Use dedicated analytics endpoint
+          const response = await fetch(`${window.API_BASE_URL}/api/analytics/prescriptions?limit=1000`, {
+            headers: {
+              "Authorization": `Bearer ${token}`
+            }
+          });
+
+          if (response.ok) {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+              const data = await response.json();
+              if (data.success) {
+                allPrescriptions = data.prescriptions || [];
+                console.log(" Loaded prescriptions from analytics API:", allPrescriptions.length);
+                // Apply filters immediately after loading data
+                applyFilters();
+              } else {
+                console.warn("Analytics API returned error, using local storage");
+                loadLocalPrescriptions();
+                applyFilters();
+              }
+            } else {
+              console.warn("Analytics API returned non-JSON response, using local storage");
+              loadLocalPrescriptions();
+              applyFilters();
+            }
+          } else {
+            console.warn(`Analytics API returned ${response.status}, using local storage`);
+            loadLocalPrescriptions();
+            applyFilters();
+          }
+        } catch (err) {
+          console.warn("Analytics API not available, using local storage:", err.message);
+          loadLocalPrescriptions();
+          applyFilters();
+        }
+      }
+
+      // Fallback to local storage
+      function loadLocalPrescriptions() {
+        const email = (localStorage.getItem("email") || "").toLowerCase().trim();
+        const storageKey = email ? `history_user_${email}` : "history";
+        const localHistory = JSON.parse(localStorage.getItem(storageKey) || "[]");
+        allPrescriptions = localHistory.map(entry => entry.prescription).filter(Boolean);
+        console.debug("Loaded prescriptions from local storage:", allPrescriptions.length);
+      }
+
+      // Apply date filters
+      function applyFilters() {
+        const dateRange = document.getElementById("dateRange").value;
+        const startDate = document.getElementById("startDate").value;
+        const endDate = document.getElementById("endDate").value;
+
+        let filtered = [...allPrescriptions];
+
+        // Apply date range filter
+        if (dateRange !== "all") {
+          const days = parseInt(dateRange);
+          const cutoffDate = new Date();
+          cutoffDate.setDate(cutoffDate.getDate() - days);
+
+          filtered = filtered.filter(p => {
+            const pDate = new Date(p.date || p.createdAt || Date.now());
+            return pDate >= cutoffDate;
+          });
+        }
+
+        // Apply custom date range
+        if (startDate) {
+          const start = new Date(startDate);
+          filtered = filtered.filter(p => {
+            const pDate = new Date(p.date || p.createdAt || Date.now());
+            return pDate >= start;
+          });
+        }
+
+        if (endDate) {
+          const end = new Date(endDate);
+          end.setHours(23, 59, 59, 999);
+          filtered = filtered.filter(p => {
+            const pDate = new Date(p.date || p.createdAt || Date.now());
+            return pDate <= end;
+          });
+        }
+
+        filteredPrescriptions = filtered;
+        updateAnalytics();
+      }
+
+      function resetFilters() {
+        document.getElementById("dateRange").value = "30";
+        document.getElementById("startDate").value = "";
+        document.getElementById("endDate").value = "";
+        applyFilters();
+      }
+
+      // Update all analytics
+      function updateAnalytics() {
+        updateStatCards();
+        updatePrescriptionChart();
+        updateGenderChart();
+        updateAgeChart();
+        updateTreatmentTypeChart();
+        updateRecentPatientsTable();
+      }
+
+      // Update stat cards
+      function updateStatCards() {
+        const uniquePatients = new Set(filteredPrescriptions.map(p => p.patientName?.toLowerCase())).size;
+        const totalPrescriptions = filteredPrescriptions.length;
+
+        // This month
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const monthlyCount = filteredPrescriptions.filter(p => {
+          const pDate = new Date(p.date || p.createdAt || Date.now());
+          return pDate >= firstDayOfMonth;
+        }).length;
+
+        // Average per day
+        const dateRange = document.getElementById("dateRange").value;
+        const days = dateRange === "all" ? 365 : parseInt(dateRange);
+        const avgPerDay = days > 0 ? (totalPrescriptions / days).toFixed(1) : 0;
+
+        // Count patient types based on treatment type
+        const patientTypes = new Set();
+        filteredPrescriptions.forEach(p => {
+          // Count based on treatmentType field (Root Canal, Braces, etc.)
+          if (p.treatmentType && p.treatmentType.trim()) {
+            patientTypes.add(p.treatmentType.toLowerCase().trim());
+          }
+        });
+
+        document.getElementById("totalPatients").textContent = uniquePatients;
+        document.getElementById("totalPrescriptions").textContent = totalPrescriptions;
+        document.getElementById("monthlyPatients").textContent = monthlyCount;
+        document.getElementById("avgPerDay").textContent = avgPerDay;
+        document.getElementById("patientTypes").textContent = patientTypes.size;
+      }
+
+      // Update prescription chart (last 7 days/weeks)
+      function updatePrescriptionChart() {
+        const chartEl = document.getElementById("prescriptionChart");
+        chartEl.innerHTML = "";
+
+        if (filteredPrescriptions.length === 0) {
+          chartEl.innerHTML = '<div class="no-data">No data available</div>';
+          return;
+        }
+
+        // Group by day (last 7 days)
+        const days = 7;
+        const counts = new Array(days).fill(0);
+        const labels = [];
+
+        for (let i = days - 1; i >= 0; i--) {
+          const date = new Date();
+          date.setDate(date.getDate() - i);
+          labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+
+          const dayStart = new Date(date.setHours(0, 0, 0, 0));
+          const dayEnd = new Date(date.setHours(23, 59, 59, 999));
+
+          counts[days - 1 - i] = filteredPrescriptions.filter(p => {
+            const pDate = new Date(p.date || p.createdAt || Date.now());
+            return pDate >= dayStart && pDate <= dayEnd;
+          }).length;
+        }
+
+        const maxCount = Math.max(...counts, 1);
+
+        counts.forEach((count, index) => {
+          const bar = document.createElement("div");
+          bar.className = "bar";
+          bar.style.height = `${(count / maxCount) * 100}%`;
+
+          const label = document.createElement("div");
+          label.className = "bar-label";
+          label.textContent = labels[index];
+
+          const value = document.createElement("div");
+          value.className = "bar-value";
+          value.textContent = count;
+
+          bar.appendChild(label);
+          bar.appendChild(value);
+          chartEl.appendChild(bar);
+        });
+      }
+
+      // Update gender distribution pie chart
+      function updateGenderChart() {
+        const canvas = document.getElementById("genderPieChart");
+        const ctx = canvas.getContext("2d");
+        const legendEl = document.getElementById("genderLegend");
+
+        // Count by gender
+        const genderCounts = { Male: 0, Female: 0, Other: 0 };
+        filteredPrescriptions.forEach(p => {
+          const gender = p.sex || "Other";
+          genderCounts[gender] = (genderCounts[gender] || 0) + 1;
+        });
+
+        const total = Object.values(genderCounts).reduce((a, b) => a + b, 0);
+
+        if (total === 0) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = "#e0e0e0";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = "#4f4f4f";
+          ctx.font = "14px Segoe UI";
+          ctx.textAlign = "center";
+          ctx.fillText("No data", canvas.width / 2, canvas.height / 2);
+          legendEl.innerHTML = "";
+          return;
+        }
+
+        // Draw pie chart
+        const colors = { Male: "#29a9f8", Female: "#f5576c", Other: "#a8e063" };
+        let currentAngle = -Math.PI / 2;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        Object.entries(genderCounts).forEach(([gender, count]) => {
+          if (count === 0) return;
+          const sliceAngle = (count / total) * 2 * Math.PI;
+
+          ctx.beginPath();
+          ctx.arc(100, 100, 90, currentAngle, currentAngle + sliceAngle);
+          ctx.lineTo(100, 100);
+          ctx.fillStyle = colors[gender];
+          ctx.fill();
+
+          currentAngle += sliceAngle;
+        });
+
+        // Update legend
+        legendEl.innerHTML = "";
+        Object.entries(genderCounts).forEach(([gender, count]) => {
+          if (count === 0) return;
+          const item = document.createElement("div");
+          item.className = "legend-item";
+
+          const colorBox = document.createElement("div");
+          colorBox.className = "legend-color";
+          colorBox.style.backgroundColor = colors[gender];
+
+          const text = document.createElement("div");
+          text.className = "legend-text";
+          text.textContent = `${gender}: ${count} (${((count / total) * 100).toFixed(1)}%)`;
+
+          item.appendChild(colorBox);
+          item.appendChild(text);
+          legendEl.appendChild(item);
+        });
+      }
+
+      // Update age distribution chart
+      function updateAgeChart() {
+        const canvas = document.getElementById("agePieChart");
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        const legendEl = document.getElementById("ageLegend");
+        if (!legendEl) return;
+
+        // Age groups
+        const ageGroups = {
+          "0-18": 0,
+          "19-35": 0,
+          "36-50": 0,
+          "51-65": 0,
+          "65+": 0
+        };
+
+        filteredPrescriptions.forEach(p => {
+          const age = parseInt(p.age) || 0;
+          if (age <= 18) ageGroups["0-18"]++;
+          else if (age <= 35) ageGroups["19-35"]++;
+          else if (age <= 50) ageGroups["36-50"]++;
+          else if (age <= 65) ageGroups["51-65"]++;
+          else ageGroups["65+"]++;
+        });
+
+        const total = Object.values(ageGroups).reduce((a, b) => a + b, 0);
+
+        if (total === 0) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = "#e0e0e0";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = "#4f4f4f";
+          ctx.font = "14px Segoe UI";
+          ctx.textAlign = "center";
+          ctx.fillText("No data", canvas.width / 2, canvas.height / 2);
+          legendEl.innerHTML = "";
+          return;
+        }
+
+        // Draw pie chart
+        const colors = {
+          "0-18": "#29a9f8",
+          "19-35": "#f5576c",
+          "36-50": "#f59e0b",
+          "51-65": "#a8e063",
+          "65+": "#9b59b6"
+        };
+        let currentAngle = -Math.PI / 2;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        Object.entries(ageGroups).forEach(([group, count]) => {
+          if (count === 0) return;
+          const sliceAngle = (count / total) * 2 * Math.PI;
+
+          ctx.beginPath();
+          ctx.arc(100, 100, 90, currentAngle, currentAngle + sliceAngle);
+          ctx.lineTo(100, 100);
+          ctx.fillStyle = colors[group];
+          ctx.fill();
+
+          currentAngle += sliceAngle;
+        });
+
+        // Update legend
+        legendEl.innerHTML = "";
+        Object.entries(ageGroups).forEach(([group, count]) => {
+          if (count === 0) return;
+          const item = document.createElement("div");
+          item.className = "legend-item";
+
+          const colorBox = document.createElement("div");
+          colorBox.className = "legend-color";
+          colorBox.style.backgroundColor = colors[group];
+
+          const text = document.createElement("div");
+          text.className = "legend-text";
+          text.textContent = `${group}: ${count} (${((count / total) * 100).toFixed(1)}%)`;
+
+          item.appendChild(colorBox);
+          item.appendChild(text);
+          legendEl.appendChild(item);
+        });
+      }
+
+      // Update treatment type chart
+      function updateTreatmentTypeChart() {
+        const chartEl = document.getElementById("conditionsChart");
+        if (!chartEl) return;
+        chartEl.innerHTML = "";
+
+        if (filteredPrescriptions.length === 0) {
+          chartEl.innerHTML = '<div class="no-data">No data available</div>';
+          return;
+        }
+
+        // Count treatment types
+        const treatmentCounts = {};
+        filteredPrescriptions.forEach(p => {
+          const type = p.treatmentType || "Not Specified";
+          treatmentCounts[type] = (treatmentCounts[type] || 0) + 1;
+        });
+
+        // Sort by count and get all treatment types
+        const sortedTreatments = Object.entries(treatmentCounts)
+          .sort((a, b) => b[1] - a[1]);
+
+        if (sortedTreatments.length === 0) {
+          chartEl.innerHTML = '<div class="no-data">No treatment data</div>';
+          return;
+        }
+
+        const maxCount = Math.max(...sortedTreatments.map(t => t[1]), 1);
+
+        sortedTreatments.forEach(([type, count]) => {
+          // Each row: label | bar | count
+          const row = document.createElement("div");
+          row.style.cssText = "display:flex; align-items:center; gap:10px; margin-bottom:10px;";
+
+          const label = document.createElement("div");
+          label.title = type;
+          label.textContent = type.length > 20 ? type.substring(0, 20) + "…" : type;
+          label.style.cssText = "min-width:140px; max-width:140px; font-size:0.8rem; font-weight:600; color:#333; text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;";
+
+          const barWrap = document.createElement("div");
+          barWrap.style.cssText = "flex:1; background:#f0f0f0; border-radius:6px; height:28px; overflow:hidden;";
+
+          const bar = document.createElement("div");
+          const pct = Math.max((count / maxCount) * 100, 3);
+          bar.style.cssText = `width:${pct}%; height:100%; background:linear-gradient(90deg, #f59e0b, #d97706); border-radius:6px; transition:width 0.4s ease;`;
+
+          barWrap.appendChild(bar);
+
+          const countEl = document.createElement("div");
+          countEl.textContent = count;
+          countEl.style.cssText = "min-width:30px; font-size:0.85rem; font-weight:700; color:#555;";
+
+          row.appendChild(label);
+          row.appendChild(barWrap);
+          row.appendChild(countEl);
+          chartEl.appendChild(row);
+        });
+      }
+
+      // Update recent patients table
+      function updateRecentPatientsTable() {
+        const tableBody = document.getElementById("recentPatientsTable");
+        tableBody.innerHTML = "";
+
+        if (filteredPrescriptions.length === 0) {
+          tableBody.innerHTML = '<tr><td colspan="5" class="no-data">No patient data available</td></tr>';
+          return;
+        }
+
+        // Sort by date (most recent first)
+        const sorted = [...filteredPrescriptions].sort((a, b) => {
+          const dateA = new Date(a.date || a.createdAt || 0);
+          const dateB = new Date(b.date || b.createdAt || 0);
+          return dateB - dateA;
+        });
+
+        // Show top 10
+        sorted.slice(0, 10).forEach(p => {
+          const row = document.createElement("tr");
+
+          const nameCell = document.createElement("td");
+          nameCell.textContent = p.patientName || "N/A";
+
+          const ageCell = document.createElement("td");
+          ageCell.textContent = p.age || "N/A";
+
+          const genderCell = document.createElement("td");
+          genderCell.textContent = p.sex || "N/A";
+
+          const dateCell = document.createElement("td");
+          const date = new Date(p.date || p.createdAt || Date.now());
+          dateCell.textContent = date.toLocaleDateString();
+
+          const medicinesCell = document.createElement("td");
+          const medCount = (p.medicines || []).length;
+          medicinesCell.textContent = medCount > 0 ? `${medCount} medicine(s)` : "None";
+
+          row.appendChild(nameCell);
+          row.appendChild(ageCell);
+          row.appendChild(genderCell);
+          row.appendChild(dateCell);
+          row.appendChild(medicinesCell);
+
+          tableBody.appendChild(row);
+        });
+      }
+
+      // Initialize - wait for DOM to be fully loaded
+      document.addEventListener('DOMContentLoaded', function () {
+        fetchPrescriptions();
+      });
+
+      // Fallback if DOMContentLoaded already fired
+      if (document.readyState === 'loading') {
+        // Still loading, wait for DOMContentLoaded
+      } else {
+        // DOM already loaded, execute immediately
+        fetchPrescriptions();
+      }
+    </script>
+    <script src="js/chatbot.js"></script>
+</body>
+
+</html>

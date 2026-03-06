@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>X-Ray Reports - Patient Portal</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/patient-theme.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* X-Ray Page Specific Styles */
+    .xrays-grid {
+      display: grid;
+      gap: 2rem;
+    }
+
+    .xray-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--primary-color);
+    }
+
+    .xray-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 1.5rem;
+    }
+
+    .xray-info h3 {
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .xray-info p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin: 0.25rem 0;
+    }
+
+    .xray-date {
+      text-align: right;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .xray-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .xray-image-section {
+      text-align: center;
+    }
+
+    .xray-image {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 8px;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: transform 0.3s;
+      border: 1px solid var(--border-color);
+    }
+
+    .xray-image:hover {
+      transform: scale(1.02);
+    }
+
+    .image-info {
+      margin-top: 1rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .xray-analysis {
+      background: var(--bg-color);
+      padding: 1.5rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+
+    .analysis-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .analysis-header h4 {
+      color: var(--text-main);
+      margin: 0;
+    }
+
+    .analysis-content {
+      color: var(--text-muted);
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    .findings-list {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0;
+    }
+
+    .findings-list li {
+      background: var(--card-bg);
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      border-radius: 6px;
+      border-left: 3px solid var(--primary-color);
+      border: 1px solid var(--border-color);
+      border-left-width: 3px;
+    }
+
+    .finding-type {
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    .finding-details {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    .recommendations {
+      background: #e0f2fe;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      border: 1px solid #bae6fd;
+    }
+
+    [data-theme="dark"] .recommendations {
+      background: #0c4a6e;
+      border-color: #0369a1;
+    }
+
+    .recommendations h5 {
+      color: #0284c7;
+      margin-bottom: 0.5rem;
+    }
+
+    [data-theme="dark"] .recommendations h5 {
+      color: #38bdf8;
+    }
+
+    .recommendations ul {
+      margin: 0;
+      padding-left: 1.5rem;
+    }
+
+    .recommendations li {
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .xray-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: transform 0.2s;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .view-btn {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .download-btn {
+      background: #10b981;
+      color: white;
+    }
+
+    .share-btn {
+      background: var(--secondary-color);
+      color: white;
+    }
+
+    .delete-btn {
+      background: #ef4444;
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .xray-content {
+        grid-template-columns: 1fr;
+      }
+
+      .xray-header {
+        flex-direction: column;
+        align-items: start;
+        gap: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="assets/care.png" alt="Logo" height="32" />
+      <span>MediFlow</span>
+    </div>
+
+    <nav class="nav-links">
+      <a href="patient-dashboard.html" class="nav-item">
+        <span class="nav-icon">📊</span>
+        Dashboard
+      </a>
+      <a href="patient-prescriptions.html" class="nav-item">
+        <span class="nav-icon">💊</span>
+        Prescriptions
+      </a>
+      <a href="patient-appointments.html" class="nav-item">
+        <span class="nav-icon">📅</span>
+        Appointments
+      </a>
+      <a href="patient-xrays.html" class="nav-item active">
+        <span class="nav-icon">🩻</span>
+        X-Ray Reports
+      </a>
+      <a href="patient-profile.html" class="nav-item">
+        <span class="nav-icon">👤</span>
+        Profile
+      </a>
+    </nav>
+
+    <div class="user-profile-mini">
+      <div class="avatar-placeholder">P</div>
+      <div style="flex:1; overflow:hidden;">
+        <div style="font-weight:600; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+          id="sidebar-patient-name">Patient</div>
+        <div style="font-size:0.75rem; color:var(--text-muted); cursor:pointer;" onclick="patientLogout()">Sign Out
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <header class="header-bar">
+      <div class="welcome-text">
+        <h1>X-Ray Reports</h1>
+        <p>Welcome, <span id="patient-name">Patient</span>. View your X-Ray analysis.</p>
+      </div>
+
+      <div class="header-actions">
+        <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark Mode">
+          <span class="theme-icon" id="theme-icon">🌙</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Loading/Error States -->
+    <div id="loading" class="loading" style="display: none;">
+      Loading your X-ray reports...
+    </div>
+
+    <div id="error" class="error" style="display: none;"></div>
+
+    <!-- X-rays Grid -->
+    <div id="xrays-grid" class="xrays-grid">
+      <!-- X-rays will be loaded here -->
+    </div>
+  </main>
+
+  <!-- Image Modal -->
+  <div id="image-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <img id="modal-image" src="" alt="X-ray Image" />
+    </div>
+  </div>
+
+  <script>
+    // Theme management functions
+    function initializeTheme() {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+      let theme = 'light';
+      if (savedTheme) {
+        theme = savedTheme;
+      } else if (prefersDark) {
+        theme = 'dark';
+      }
+
+      setTheme(theme);
+      updateThemeIcon(theme);
+    }
+
+    function setTheme(theme) {
+      if (theme === 'dark') {
+        document.body.setAttribute('data-theme', 'dark');
+      } else {
+        document.body.removeAttribute('data-theme');
+      }
+      localStorage.setItem('theme', theme);
+    }
+
+    function toggleTheme() {
+      const currentTheme = document.body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      setTheme(newTheme);
+      updateThemeIcon(newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const icon = document.getElementById('theme-icon');
+      if (icon) {
+        icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+      }
+    }
+
+    // Initialize theme on page load
+    initializeTheme();
+  </script>
+  <script src="js/config.js"></script>
+  <script src="js/patient-xrays.js"></script>
+</body>
+
+</html>

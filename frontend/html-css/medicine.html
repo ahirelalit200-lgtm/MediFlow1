@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Medicines</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/chatbot.css" />
+  <script src="js/config.js"></script>
+</head>
+
+<body>
+
+  <header class="navbar">
+    <div class="logo">
+      <img src="assets/care.png" alt="Logo" height="40" />
+      <span>Medi<strong>Flow</strong></span>
+    </div>
+    <nav>
+      <ul>
+        <li onclick="navigateTo('dashboard')">Home</li>
+        <li onclick="navigateTo('history')">History</li>
+        <li onclick="navigateTo('appointments')">Appointments</li>
+        <li onclick="navigateTo('analytics')">Analytics</li>
+        <li onclick="navigateTo('xray')">X-Ray</li>
+      </ul>
+    </nav>
+    <div class="header-right" id="auth-buttons">
+      <button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark Mode">
+        <span class="theme-icon" id="theme-icon">🌙</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="content-wrapper">
+    <div class="form-container" style="max-width: 1200px;">
+      <h1 style="text-align: center; margin-bottom: 2rem; color: var(--text-primary);">Inventory Management</h1>
+
+      <table class="professional-table" id="medicine-table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Medicine Name</th>
+            <th>Dosage (e.g. 1-0-1)</th>
+            <th>Duration (days)</th>
+            <th>Measure</th>
+            <th>Instruction</th>
+            <th style="width: 50px;"></th>
+          </tr>
+        </thead>
+        <tbody id="medicine-table-body">
+          <tr>
+            <td><input type="text" placeholder="Code" required></td>
+            <td><input type="text" placeholder="Medicine name" required></td>
+            <td><input type="text" placeholder="1-0-1" required></td>
+            <td><input type="text" placeholder="3 days" required></td>
+            <td><input type="number" placeholder="6" required></td>
+            <td>
+              <select required>
+                <option value="जेवण आधी">जेवण आधी</option>
+                <option value="जेवण नंतर">जेवण नंतर</option>
+              </select>
+            </td>
+            <td><button type="button" class="book-btn" style="background: var(--danger); padding: 0.25rem 0.5rem;"
+                onclick="removeRow(this)">✕</button></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="header-right" style="justify-content: center; gap: 1rem; width: 100%;">
+        <button class="book-btn" onclick="addRow()"
+          style="background: var(--bg-tertiary); color: var(--text-primary);">Add Row</button>
+        <button class="book-btn" onclick="saveMedicines()">Save All Inventory</button>
+      </div>
+
+      <div id="preview"
+        style="display:none; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
+        <h3 style="margin-bottom: 1.5rem; color: var(--text-secondary);">Inventory Preview</h3>
+        <table class="professional-table">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Medicine Name</th>
+              <th>Dosage</th>
+              <th>Duration</th>
+              <th>Measure</th>
+              <th>Instruction</th>
+            </tr>
+          </thead>
+          <tbody id="preview-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme is handled by doctor-theme.js
+    function renderAuthButtons() {
+      const div = document.getElementById("auth-buttons");
+      if (!div) return;
+      const displayName = (JSON.parse(localStorage.getItem("doctorProfile") || "null")?.fullName) || localStorage.getItem("doctorName");
+      const email = localStorage.getItem("email");
+      if (displayName || email) {
+        div.innerHTML = ``;
+      } else {
+        div.innerHTML = `<button class="book-btn" onclick=\"location.href='signup.html'\">Login</button>`;
+      }
+    }
+
+    function navigateTo(page) {
+      if (page === "dashboard") { window.location.href = "doctor-dashboard.html"; }
+      else if (page === "signup") { window.location.href = "signup.html"; }
+      else if (page === "profile") { window.location.href = "profile.html"; }
+      else if (page === "prescription") { window.location.href = "prescription.html"; }
+      else if (page === "history") { window.location.href = "history.html"; }
+      else if (page === "appointments") { window.location.href = "doctor-appointments.html"; }
+      else if (page === "analytics") { window.location.href = "analytics.html"; }
+      else if (page === "xray") { window.location.href = "xray.html"; }
+      else if (page === "medicine") { window.location.href = "medicine.html"; }
+    }
+
+    function logout() {
+      try { localStorage.setItem("global_logout", String(Date.now())); } catch (e) { }
+      // Clear auth/session only
+      localStorage.removeItem("email");
+      localStorage.removeItem("token");
+      localStorage.removeItem("loggedIn");
+      localStorage.removeItem("doctorName");
+      localStorage.removeItem("doctorProfile");
+      renderAuthButtons();
+      location.href = "maindashboard.html";
+    }
+
+    function addRow() {
+      const tableBody = document.getElementById("medicine-table-body");
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td><input type="text" placeholder="Code" required></td>
+        <td><input type="text" placeholder="Medicine name" required></td>
+        <td><input type="text" placeholder="1-0-1" required></td>
+        <td><input type="text" placeholder="3 days" required></td>
+        <td><input type="number" placeholder="6" required></td>
+        <td>
+          <select required>
+            <option value="जेवण आधी">जेवण आधी</option>
+            <option value="जेवण नंतर">जेवण नंतर</option>
+          </select>
+        </td>
+        <td><button type="button" class="book-btn" style="background: var(--danger); padding: 0.25rem 0.5rem;" onclick="removeRow(this)">✕</button></td>
+      `;
+      tableBody.appendChild(row);
+    }
+
+    async function removeRow(btn) {
+      const row = btn.closest("tr");
+      const codeInput = row.querySelectorAll("input")[0];
+      const nameInput = row.querySelectorAll("input")[1];
+      const code = codeInput ? codeInput.value.trim() : "";
+      const id = btn.getAttribute("data-id");
+
+      if (code || id) {
+        if (!confirm(`Are you sure you want to permanently delete this medicine?`)) {
+          return;
+        }
+
+        const token = localStorage.getItem("token");
+        if (token && id) {
+          // Delete by ID (New way)
+          try {
+            const response = await fetch(`${window.API_BASE_URL}/api/medicines/id/${id}`, {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            });
+
+            if (response.ok) {
+              console.log("Medicine deleted from server by ID");
+            } else {
+              console.warn("Server deletion failed");
+            }
+          } catch (err) {
+            console.warn("Failed to delete medicine from server:", err);
+          }
+        } else if (token && code) {
+          // Fallback (Old way) - Warn user this might delete duplicates
+          console.warn("Deleting by code (legacy) - might affect duplicates");
+          try {
+            const response = await fetch(`${window.API_BASE_URL}/api/medicines/${encodeURIComponent(code)}`, {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            });
+
+            if (response.ok) {
+              console.log("Medicine deleted from server");
+            } else {
+              const err = await response.json().catch(() => ({}));
+              console.warn("Server deletion failed:", err.message);
+            }
+          } catch (err) {
+            console.warn("Failed to delete medicine from server:", err);
+          }
+        }
+
+        // Cleanup local storage
+        const storageKey = getStorageKey();
+        try {
+          let list = JSON.parse(localStorage.getItem(storageKey) || "[]");
+          // If we have an ID, filter by ID (if local list has IDs)
+          // Otherwise filter by code + name match
+          if (id) {
+            list = list.filter(m => m._id !== id);
+          } else {
+            // Fallback: match code AND name
+            list = list.filter(m => !(m.code === code && m.name === nameInput.value));
+          }
+          localStorage.setItem(storageKey, JSON.stringify(list));
+        } catch (e) {
+          console.warn("Error updating local storage after deletion", e);
+        }
+      }
+
+      row.remove();
+    }
+
+    function saveMedicines() {
+      const rows = document.querySelectorAll("#medicine-table-body tr");
+      const medicines = [];
+
+      rows.forEach(row => {
+        const inputs = row.querySelectorAll("input, select");
+        medicines.push({
+          code: inputs[0].value.trim(),
+          name: inputs[1].value.trim(),
+          dosage: inputs[2].value.trim(),
+          duration: inputs[3].value.trim(),
+          measure: inputs[4].value.trim(),
+          instruction: inputs[5].value.trim(),
+        });
+      });
+
+      // Per-doctor localStorage namespace
+      const email = (localStorage.getItem("email") || "").toLowerCase().trim();
+      const storageKey = email ? `medicines_user_${email}` : "medicines";
+      try { localStorage.setItem(storageKey, JSON.stringify(medicines)); } catch (e) { }
+
+      // Also persist to backend (scoped by JWT) so prescriptions can fetch per doctor
+      const token = localStorage.getItem("token");
+      if (token) {
+        medicines.forEach(async (m) => {
+          try {
+            // Map fields to backend model
+            const payload = {
+              name: m.name,
+              dosageAmount: String(m.measure || "").trim(),
+              unit: "", // measure unit is not captured in this UI
+              morning: m.instruction === "जेवण आधी" ? "जेवण आधी" : "none",
+              afternoon: "none",
+              night: m.instruction === "जेवण नंतर" ? "जेवण नंतर" : "none",
+              dosage: m.dosage,
+              duration: m.duration,
+              code: m.code
+            };
+            const response = await fetch(`${window.API_BASE_URL}/api/medicines`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+              },
+              body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+              const errData = await response.json().catch(() => ({}));
+              console.warn("Server side save failed for", m.name, errData.message);
+            }
+          } catch (err) {
+            console.warn("Failed to save medicine to server (skipping):", err);
+          }
+        });
+        alert("Medicines saved to server!");
+        // Reload to get IDs
+        setTimeout(() => loadSavedMedicinesAndShow(), 1000);
+      } else {
+        alert("Medicines saved locally.");
+      }
+
+      // Show Preview
+      const previewDiv = document.getElementById("preview");
+      const previewBody = document.getElementById("preview-body");
+      previewBody.innerHTML = "";
+
+      medicines.forEach(med => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${med.code}</td>
+          <td>${med.name}</td>
+          <td>${med.dosage}</td>
+          <td>${med.duration}</td>
+          <td>${med.measure}</td>
+          <td>${med.instruction}</td>
+        `;
+        previewBody.appendChild(row);
+      });
+
+      previewDiv.style.display = "block";
+    }
+
+    // Load from localStorage on page load
+    function getStorageKey() {
+      const email = (localStorage.getItem("email") || "").toLowerCase().trim();
+      return email ? `medicines_user_${email}` : "medicines";
+    }
+
+    function renderTableFromList(medicines) {
+      const tableBody = document.getElementById("medicine-table-body");
+      if (!tableBody) return;
+      tableBody.innerHTML = "";
+      (medicines || []).forEach(med => {
+        const row = document.createElement("tr");
+        const deleteBtnAttr = med._id ? `data-id="${med._id}"` : "";
+
+        row.innerHTML = `
+          <td><input type="text" value="${med.code || ""}" required></td>
+          <td><input type="text" value="${med.name || ""}" required></td>
+          <td><input type="text" value="${med.dosage || ""}" required></td>
+          <td><input type="text" value="${med.duration || ""}" required></td>
+          <td><input type="number" value="${med.measure || ""}" required></td>
+          <td>
+            <select required>
+              <option value="जेवण आधी" ${(med.instruction == "जेवण आधी") ? "selected" : ""}>जेवण आधी</option>
+              <option value="जेवण नंतर" ${(med.instruction == "जेवण नंतर") ? "selected" : ""}>जेवण नंतर</option>
+            </select>
+          </td>
+          <td><button type="button" class="book-btn" style="background: var(--danger); padding: 0.25rem 0.5rem;" onclick="removeRow(this)" ${deleteBtnAttr}>✕</button></td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    async function loadSavedMedicinesAndShow() {
+      renderAuthButtons();
+      const storageKey = getStorageKey();
+      let localList = [];
+      try { localList = JSON.parse(localStorage.getItem(storageKey) || "[]") || []; } catch (e) { localList = []; }
+
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          const res = await fetch(`${window.API_BASE_URL}/api/medicines`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+
+          if (res.status === 401) {
+            console.warn("Session expired or invalid token. Clearing auth.");
+            localStorage.removeItem("token");
+            localStorage.removeItem("email");
+            localStorage.removeItem("loggedIn");
+            renderAuthButtons();
+          }
+
+          if (res.ok) {
+            const json = await res.json().catch(() => ([]));
+            const serverItems = Array.isArray(json) ? json : (Array.isArray(json.medicines) ? json.medicines : []);
+
+            // Map server model -> UI model
+            // IMPORTANT: Capture _id
+            const mapped = serverItems.map(m => ({
+              _id: m._id,
+              code: m.code,
+              name: m.name,
+              dosage: m.dosage || "",
+              duration: m.duration || "",
+              measure: m.dosageAmount || "",
+              instruction: [m.morning, m.afternoon, m.night]
+                .filter(v => v && v !== "none")
+                .map(v => v === "before" ? "जेवण आधी" : (v === "after" ? "जेवण नंतर" : v))
+                .join("/") || ""
+            }));
+
+            // We do NOT cancel out duplicates by code anymore, because user wants multiple meds per code.
+            // But we might want to merge local changes? 
+            // For simplicity and correctness with the new "multiple per code" rule, 
+            // relying on SERVER as truth is safer. 
+            // Merging localList is tricky if codes are not unique identifiers.
+
+            // If server has items, use them. 
+            if (mapped.length > 0) {
+              renderTableFromList(mapped);
+              return;
+            }
+          }
+        } catch (err) {
+          // fall back to local only
+        }
+      }
+      // No token or server failed -> show local only
+      if (localList.length > 0) renderTableFromList(localList);
+    }
+
+    window.onload = () => { loadSavedMedicinesAndShow(); };
+    // Cross-tab logout listener
+    window.addEventListener("storage", function (e) {
+      if (e && e.key === "global_logout") {
+        const hasAuth = localStorage.getItem("email") || localStorage.getItem("token");
+        if (hasAuth) {
+          localStorage.removeItem("email");
+          localStorage.removeItem("token");
+          localStorage.removeItem("loggedIn");
+          localStorage.removeItem("doctorName");
+          localStorage.removeItem("doctorProfile");
+          renderAuthButtons();
+          location.href = "maindashboard.html";
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
